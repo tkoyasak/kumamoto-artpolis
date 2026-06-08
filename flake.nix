@@ -44,11 +44,7 @@
               entry = "${pkgs.gitleaks}/bin/gitleaks git --pre-commit --redact --staged";
               pass_filenames = false;
             };
-            oxlint = {
-              enable = true;
-              entry = "${pkgs.oxlint}/bin/oxlint";
-              files = "\\.[jt]sx?$";
-            };
+            oxlint.enable = true;
             treefmt.enable = true;
           };
 

@@ -39,13 +39,14 @@
           };
 
           pre-commit.settings.hooks = {
+            treefmt.enable = true;
+            oxlint.enable = true;
+
             gitleaks = {
               enable = true;
               entry = "${pkgs.gitleaks}/bin/gitleaks git --pre-commit --redact --staged";
               pass_filenames = false;
             };
-            oxlint.enable = true;
-            treefmt.enable = true;
           };
 
           devShells.default = pkgs.mkShellNoCC {

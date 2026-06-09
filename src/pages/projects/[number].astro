@@ -1,29 +1,35 @@
 ---
-import { projects } from "../../data/projects.ts";
+import { getCollection, render } from "astro:content";
 import Base from "../../layouts/Base.astro";
 
 // Prerender one page per project. `number` is the official Art Polis number.
-export function getStaticPaths() {
-  return projects.map((project) => ({
-    params: { number: String(project.number) },
-    props: { project },
+export async function getStaticPaths() {
+  const projects = await getCollection("projects");
+  return projects.map((entry) => ({
+    params: { number: String(entry.data.number) },
+    props: { entry },
   }));
 }
 
-const { project } = Astro.props;
-const visitedDates = [...project.visitedDates].sort((a, b) => b.localeCompare(a));
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+const visitedDates = [...entry.data.visitedDates].sort((a, b) => b.localeCompare(a));
 ---
 
-<Base title={`${project.name} | Kumamoto Art Polis`}>
+<Base title={`${entry.data.name} | Kumamoto Art Polis`}>
   <main class="mx-auto max-w-2xl p-8">
     <a href="/" class="text-sm text-rose-600 hover:underline">← 一覧へ戻る</a>
 
-    <h1 class="mt-4 text-2xl font-bold">{project.name}</h1>
+    <h1 class="mt-4 text-2xl font-bold">{entry.data.name}</h1>
     <p class="mt-1 text-sm text-gray-600">
-      {project.architects.join("、")} / {project.completedYear}年 / {project.municipality} / {
-        project.use
-      }
+      {entry.data.architects.join("、")} / {entry.data.completedYear}年 / {
+        entry.data.municipality
+      } / {entry.data.use}
     </p>
+
+    <div class="mt-6 text-gray-800">
+      <Content />
+    </div>
 
     <section class="mt-8">
       <h2 class="text-lg font-semibold">訪問記録</h2>

@@ -1,13 +1,23 @@
 ---
 // Importing the stylesheet here bundles maplibre's CSS into the page.
 import "maplibre-gl/dist/maplibre-gl.css";
+import type { MapProject } from "../lib/map.ts";
+
+interface Props {
+  projects: MapProject[];
+}
+
+const { projects } = Astro.props;
 ---
 
 <div id="projects-map" class="h-[60vh] w-full"></div>
+{/* Map data is build-time trusted; embedded as JSON for the client island. */}
+<script id="projects-map-data" type="application/json" is:inline set:html={JSON.stringify(projects)}
+></script>
 
 <script>
   import maplibregl from "maplibre-gl";
-  import { isVisited, projects } from "../data/projects.ts";
+  import type { MapProject } from "../lib/map.ts";
 
   // CARTO positron basemap. No API key required.
   const STYLE_URL = "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json";
@@ -36,8 +46,11 @@ import "maplibre-gl/dist/maplibre-gl.css";
     });
   }
 
+  const dataElement = document.getElementById("projects-map-data");
   const container = document.getElementById("projects-map");
-  if (container) {
+  if (dataElement?.textContent && container) {
+    const projects: MapProject[] = JSON.parse(dataElement.textContent);
+
     const map = new maplibregl.Map({
       container,
       style: STYLE_URL,
@@ -53,7 +66,7 @@ import "maplibre-gl/dist/maplibre-gl.css";
         `<a href="/projects/${project.number}" class="font-medium text-rose-600 underline">${escapeHtml(project.name)}</a>` +
           `<div class="mt-0.5 text-xs text-gray-500">${project.completedYear}年</div>`,
       );
-      new maplibregl.Marker({ color: isVisited(project) ? VISITED_COLOR : UNVISITED_COLOR })
+      new maplibregl.Marker({ color: project.visited ? VISITED_COLOR : UNVISITED_COLOR })
         .setLngLat(lngLat)
         .setPopup(popup)
         .addTo(map);

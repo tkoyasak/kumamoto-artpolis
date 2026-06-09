@@ -1,12 +1,27 @@
 ---
+import { getCollection } from "astro:content";
 import ProjectsMap from "../components/ProjectsMap.astro";
-import { latestVisitedDate, projects } from "../data/projects.ts";
 import Base from "../layouts/Base.astro";
+import type { MapProject } from "../lib/map.ts";
+import { isVisited, latestVisitedDate } from "../lib/projects.ts";
+
+const projects = (await getCollection("projects")).sort(
+  (a, b) => a.data.number - b.data.number,
+);
+
+const mapProjects: MapProject[] = projects.map((project) => ({
+  number: project.data.number,
+  name: project.data.name,
+  lat: project.data.lat,
+  lng: project.data.lng,
+  completedYear: project.data.completedYear,
+  visited: isVisited(project.data),
+}));
 ---
 
 <Base>
   <main>
-    <ProjectsMap />
+    <ProjectsMap projects={mapProjects} />
 
     <section class="mx-auto max-w-5xl p-4 sm:p-8">
       <h1 class="text-2xl font-bold">熊本アートポリス 訪問記録</h1>
@@ -29,19 +44,21 @@ import Base from "../layouts/Base.astro";
             projects.map((project) => (
               <tr
                 class="cursor-pointer border-b border-gray-100 hover:bg-gray-50"
-                data-href={`/projects/${project.number}`}
+                data-href={`/projects/${project.data.number}`}
               >
-                <td class="py-2 pr-4 tabular-nums text-gray-500">{project.number}</td>
+                <td class="py-2 pr-4 tabular-nums text-gray-500">{project.data.number}</td>
                 <td class="py-2 pr-4 font-medium">
-                  <a href={`/projects/${project.number}`} class="hover:underline">
-                    {project.name}
+                  <a href={`/projects/${project.data.number}`} class="hover:underline">
+                    {project.data.name}
                   </a>
                 </td>
-                <td class="py-2 pr-4">{project.architects.join("、")}</td>
-                <td class="py-2 pr-4">{project.use}</td>
-                <td class="py-2 pr-4">{project.municipality}</td>
-                <td class="py-2 pr-4 tabular-nums">{project.completedYear}</td>
-                <td class="py-2 tabular-nums text-gray-500">{latestVisitedDate(project) ?? ""}</td>
+                <td class="py-2 pr-4">{project.data.architects.join("、")}</td>
+                <td class="py-2 pr-4">{project.data.use}</td>
+                <td class="py-2 pr-4">{project.data.municipality}</td>
+                <td class="py-2 pr-4 tabular-nums">{project.data.completedYear}</td>
+                <td class="py-2 tabular-nums text-gray-500">
+                  {latestVisitedDate(project.data) ?? ""}
+                </td>
               </tr>
             ))
           }

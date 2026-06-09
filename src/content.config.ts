@@ -6,7 +6,7 @@ import { defineCollection } from "astro:content";
 // the schema below), the body holds the prose description. The entry id comes
 // from the filename (e.g. 1.md -> "1"), matching the /projects/<number> route.
 const projects = defineCollection({
-  loader: glob({ pattern: "*.md", base: "./src/content/projects" }),
+  loader: glob({ pattern: "*.md", base: "./content/projects" }),
   schema: z.object({
     // Official Art Polis sequential number. Also the URL key (/projects/<number>).
     number: z.number().int().positive(),
@@ -26,7 +26,7 @@ const projects = defineCollection({
 // entry id -> the /status/<date> route. Body holds the day's notes and photos
 // (photos referenced as public R2 URLs). Frontmatter is optional.
 const status = defineCollection({
-  loader: glob({ pattern: "*.md", base: "./src/content/status" }),
+  loader: glob({ pattern: "*.md", base: "./content/status" }),
   schema: z.object({}),
 });
 

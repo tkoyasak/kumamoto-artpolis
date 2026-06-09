@@ -22,4 +22,12 @@ const projects = defineCollection({
   }),
 });
 
-export const collections = { projects };
+// One Markdown file per day, named by date (e.g. 2025-11-03.md). Filename ->
+// entry id -> the /status/<date> route. Body holds the day's notes and photos
+// (photos referenced as public R2 URLs). Frontmatter is optional.
+const status = defineCollection({
+  loader: glob({ pattern: "*.md", base: "./src/content/status" }),
+  schema: z.object({}),
+});
+
+export const collections = { projects, status };

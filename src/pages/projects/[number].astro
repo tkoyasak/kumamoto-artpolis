@@ -35,10 +35,13 @@ const visitedDates = [...entry.data.visitedDates].sort((a, b) => b.localeCompare
       <h2 class="text-lg font-semibold">訪問記録</h2>
       {
         visitedDates.length > 0 ? (
-          // TODO: link each date to its /status/$slug page once visit records exist.
-          <ul class="mt-2 space-y-1 text-sm text-gray-700">
+          <ul class="mt-2 space-y-1 text-sm">
             {visitedDates.map((date) => (
-              <li>{date}</li>
+              <li>
+                <a href={`/status/${date}`} class="text-rose-600 hover:underline">
+                  {date}
+                </a>
+              </li>
             ))}
           </ul>
         ) : (

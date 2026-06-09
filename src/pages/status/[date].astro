@@ -1,0 +1,71 @@
+---
+import { getCollection, getEntry, render } from "astro:content";
+import Base from "../../layouts/Base.astro";
+
+// A day's visit record, keyed by date (YYYY-MM-DD). A page exists for any day
+// that either has a visited project or a status entry. The project list is
+// derived from projects' visitedDates; the body (notes/photos) comes from the
+// optional src/content/status/<date>.md entry.
+export async function getStaticPaths() {
+  const projects = await getCollection("projects");
+  const status = await getCollection("status");
+  const dates = [
+    ...new Set([
+      ...projects.flatMap((project) => project.data.visitedDates),
+      ...status.map((entry) => entry.id),
+    ]),
+  ];
+
+  return dates.map((date) => ({
+    params: { date },
+    props: {
+      date,
+      projects: projects
+        .filter((project) => project.data.visitedDates.includes(date))
+        .sort((a, b) => a.data.number - b.data.number),
+    },
+  }));
+}
+
+const { date, projects } = Astro.props;
+const entry = await getEntry("status", date);
+const Content = entry ? (await render(entry)).Content : null;
+---
+
+<Base title={`${date} の訪問記録 | Kumamoto Art Polis`}>
+  <main class="mx-auto max-w-2xl p-8">
+    <a href="/" class="text-sm text-rose-600 hover:underline">← 一覧へ戻る</a>
+
+    <h1 class="mt-4 text-2xl font-bold">{date} の訪問記録</h1>
+
+    {
+      Content ? (
+        <div class="mt-6 text-gray-800">
+          <Content />
+        </div>
+      ) : (
+        <p class="mt-6 text-gray-500">記録は準備中です。</p>
+      )
+    }
+
+    {
+      projects.length > 0 && (
+        <section class="mt-8">
+          <h2 class="text-lg font-semibold">この日訪れたプロジェクト</h2>
+          <ul class="mt-2 space-y-1 text-sm">
+            {projects.map((project) => (
+              <li>
+                <a
+                  href={`/projects/${project.data.number}`}
+                  class="text-rose-600 hover:underline"
+                >
+                  {project.data.name}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )
+    }
+  </main>
+</Base>

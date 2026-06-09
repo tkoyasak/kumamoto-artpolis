@@ -2,9 +2,8 @@
   "$schema": "https://www.unpkg.com/wrangler/config-schema.json",
   "name": "kap",
   "compatibility_date": "2026-05-29",
-  "compatibility_flags": ["nodejs_compat"],
-  "main": "@tanstack/react-start/server-entry",
-  "vars": {
-    "MY_VAR": "Hello from Cloudflare"
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "404-page"
   }
 }

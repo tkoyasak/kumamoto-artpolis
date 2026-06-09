@@ -3,33 +3,20 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite dev",
-    "build": "vite build",
-    "preview": "vite preview",
-    "deploy": "bun run build && wrangler deploy --strict"
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check": "astro check",
+    "deploy": "astro build && wrangler deploy --strict"
   },
   "dependencies": {
-    "@tanstack/react-devtools": "0.10.5",
-    "@tanstack/react-query": "5.100.14",
-    "@tanstack/react-query-devtools": "5.100.14",
-    "@tanstack/react-router": "1.170.10",
-    "@tanstack/react-router-devtools": "1.167.0",
-    "@tanstack/react-router-ssr-query": "1.167.1",
-    "@tanstack/react-start": "1.168.18",
-    "maplibre-gl": "5.24.0",
-    "react": "19.2.7",
-    "react-dom": "19.2.7"
+    "astro": "6.4.3",
+    "maplibre-gl": "5.24.0"
   },
   "devDependencies": {
-    "@cloudflare/vite-plugin": "1.39.1",
+    "@astrojs/check": "0.9.9",
     "@tailwindcss/vite": "4.3.0",
-    "@tanstack/devtools-vite": "0.7.0",
     "@types/node": "25.9.1",
-    "@types/react": "19.2.16",
-    "@types/react-dom": "19.2.3",
-    "@vitejs/plugin-react": "6.0.2",
-    "tailwindcss": "4.3.0",
-    "vite": "8.0.16",
-    "vitest": "4.1.8"
+    "tailwindcss": "4.3.0"
   }
 }

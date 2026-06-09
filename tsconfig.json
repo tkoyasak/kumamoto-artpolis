@@ -1,42 +1,6 @@
 {
-  // See <https://www.typescriptlang.org/tsconfig/>.
-  "compilerOptions": {
-    // Type Checking
-    "allowUnreachableCode": false,
-    "allowUnusedLabels": false,
-    "exactOptionalPropertyTypes": true,
-    "noFallthroughCasesInSwitch": true,
-    "noImplicitOverride": true,
-    "noImplicitReturns": true,
-    "noPropertyAccessFromIndexSignature": true,
-    "noUncheckedIndexedAccess": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "strict": true,
-
-    // Modules
-    "allowImportingTsExtensions": true,
-    "module": "ESNext",
-    "moduleResolution": "bundler",
-    "noUncheckedSideEffectImports": true,
-    "types": ["vite/client"],
-
-    // Emit
-    "noEmit": true,
-
-    // Interop Constraints
-    "erasableSyntaxOnly": true,
-    "isolatedModules": true,
-    "verbatimModuleSyntax": true,
-
-    // Language and Environment
-    "jsx": "react-jsx",
-    "lib": ["ESNext", "DOM", "DOM.Iterable"],
-    "moduleDetection": "force",
-    "target": "ESNext",
-
-    // Completeness
-    "skipLibCheck": true
-  },
-  "include": ["src", "vite.config.ts", "worker-configuration.d.ts"]
+  // See <https://docs.astro.build/en/guides/typescript/>.
+  "extends": "astro/tsconfigs/strictest",
+  "include": [".astro/types.d.ts", "**/*"],
+  "exclude": ["dist"]
 }

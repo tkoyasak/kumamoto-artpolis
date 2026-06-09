@@ -1,0 +1,44 @@
+---
+import { projects } from "../../data/projects.ts";
+import Base from "../../layouts/Base.astro";
+
+// Prerender one page per project. `number` is the official Art Polis number.
+export function getStaticPaths() {
+  return projects.map((project) => ({
+    params: { number: String(project.number) },
+    props: { project },
+  }));
+}
+
+const { project } = Astro.props;
+const visitedDates = [...project.visitedDates].sort((a, b) => b.localeCompare(a));
+---
+
+<Base title={`${project.name} | Kumamoto Art Polis`}>
+  <main class="mx-auto max-w-2xl p-8">
+    <a href="/" class="text-sm text-rose-600 hover:underline">← 一覧へ戻る</a>
+
+    <h1 class="mt-4 text-2xl font-bold">{project.name}</h1>
+    <p class="mt-1 text-sm text-gray-600">
+      {project.architects.join("、")} / {project.completedYear}年 / {project.municipality} / {
+        project.use
+      }
+    </p>
+
+    <section class="mt-8">
+      <h2 class="text-lg font-semibold">訪問記録</h2>
+      {
+        visitedDates.length > 0 ? (
+          // TODO: link each date to its /status/$slug page once visit records exist.
+          <ul class="mt-2 space-y-1 text-sm text-gray-700">
+            {visitedDates.map((date) => (
+              <li>{date}</li>
+            ))}
+          </ul>
+        ) : (
+          <p class="mt-2 text-gray-500">まだ訪問記録がありません。</p>
+        )
+      }
+    </section>
+  </main>
+</Base>

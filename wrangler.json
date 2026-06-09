@@ -3,7 +3,7 @@
   "name": "kap",
   "compatibility_date": "2026-05-29",
   "compatibility_flags": ["nodejs_compat"],
-  "main": "./src/server.ts",
+  "main": "@tanstack/react-start/server-entry",
   "vars": {
     "MY_VAR": "Hello from Cloudflare"
   }

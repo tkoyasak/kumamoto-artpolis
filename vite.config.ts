@@ -6,12 +6,11 @@ import tailwindcss from "@tailwindcss/vite";
 import { cloudflare } from "@cloudflare/vite-plugin";
 
 export default defineConfig({
-  resolve: { tsconfigPaths: true },
   plugins: [
     devtools(),
     cloudflare({ viteEnvironment: { name: "ssr" } }),
     tailwindcss(),
-    tanstackStart(),
+    tanstackStart({ router: { addExtensions: true } }),
     viteReact(),
   ],
 });

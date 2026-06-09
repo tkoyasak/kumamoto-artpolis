@@ -2,6 +2,7 @@
 /.wrangler
 /dist
 /node_modules
+/src/routeTree.gen.ts
 /worker-configuration.d.ts
 
 /.pre-commit-config.yaml

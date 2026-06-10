@@ -1,0 +1,39 @@
+---
+import { getCollection, render } from "astro:content";
+import Base from "../../layouts/Base.astro";
+
+// Prerender one page per KAP'92 selected existing building. `number` is the
+// prefecture-list number.
+export async function getStaticPaths() {
+  const buildings = await getCollection("kap92");
+  return buildings.map((entry) => ({
+    params: { number: String(entry.data.number) },
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+
+const meta = [
+  entry.data.architects?.join("、"),
+  entry.data.completedYear ? `${entry.data.completedYear}年` : undefined,
+  entry.data.municipality,
+  entry.data.use,
+]
+  .filter((value): value is string => Boolean(value))
+  .join(" / ");
+---
+
+<Base title={`${entry.data.name} | Kumamoto Art Polis`}>
+  <main class="mx-auto max-w-2xl p-8">
+    <a href="/" class="text-sm text-rose-600 hover:underline">← トップへ</a>
+
+    <h1 class="mt-4 text-2xl font-bold">{entry.data.name}</h1>
+    {meta && <p class="mt-1 text-sm text-gray-600">{meta}</p>}
+
+    <div class="mt-6 text-gray-800">
+      <Content />
+    </div>
+  </main>
+</Base>

@@ -20,6 +20,26 @@ const projects = defineCollection({
   }),
 });
 
+// KAP'92 selected existing buildings (not commissioned new builds). Numbered
+// 1-46 per the prefecture's list. One Markdown file per building, named by that
+// number (e.g. 1.md -> /kap92/1). Most metadata is optional since these range
+// from historical structures to modern buildings.
+const kap92 = defineCollection({
+  loader: glob({ pattern: "*.md", base: "./content/kap92" }),
+  // Field names mirror `projects`; types/requiredness differ (existing buildings
+  // may lack an architect, coordinates, or a precise year).
+  schema: z.object({
+    number: z.number().int().positive(),
+    name: z.string().min(1),
+    architects: z.array(z.string().min(1)).optional(),
+    lat: z.number().min(-90).max(90).optional(),
+    lng: z.number().min(-180).max(180).optional(),
+    completedYear: z.number().int().positive().optional(), // a year (no .gt(1900): these can be historical)
+    municipality: z.string().optional(),
+    use: z.string().optional(), // free text, unlike projects' enum
+  }),
+});
+
 // One Markdown file per day, named by date (e.g. 2025-11-03.md). Filename ->
 // entry id -> the /status/<date> route. `projects` lists which projects were
 // visited that day (the source of truth for visit dates). Body holds the day's
@@ -31,4 +51,4 @@ const status = defineCollection({
   }),
 });
 
-export const collections = { projects, status };
+export const collections = { projects, kap92, status };

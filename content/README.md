@@ -1,6 +1,20 @@
 # content
 
-Site content (Astro content collections). Schema: `src/content.config.ts`.
+Astro content collections. Schema: `src/content.config.ts`.
 
-- `projects/` — one Markdown file per project, named by its Art Polis number (`1.md` → `/projects/1`). Frontmatter holds metadata, the body is the description.
-- `status/` — one Markdown file per day, named by date (`2025-11-03.md` → `/status/2025-11-03`). Its frontmatter `projects` lists the projects visited that day; the body holds notes and photos.
+## `projects/`
+
+Art Polis projects. One Markdown file per number (`1.md` → `/projects/1`).
+
+Reference: <https://www.pref.kumamoto.jp/soshiki/115/83273.html>
+
+## `kap92/`
+
+KAP'92 selected existing buildings. One Markdown file per number (`1.md` → `/kap92/1`).
+
+Reference: <https://www.pref.kumamoto.jp/soshiki/115/4477.html>
+
+## `status/`
+
+Daily visit records. One Markdown file per date (`2025-11-03.md` → `/status/2025-11-03`).
+Frontmatter `projects` lists that day's visits; the body holds notes and photos.

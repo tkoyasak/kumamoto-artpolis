@@ -1,35 +1,24 @@
 ---
-import { getCollection, getEntry, render } from "astro:content";
+import { getCollection, getEntries, render } from "astro:content";
 import Base from "../../layouts/Base.astro";
 
-// A day's visit record, keyed by date (YYYY-MM-DD). A page exists for any day
-// that either has a visited project or a status entry. The project list is
-// derived from projects' visitedDates; the body (notes/photos) comes from the
-// optional src/content/status/<date>.md entry.
+// A day's visit record, keyed by date (YYYY-MM-DD). One page per status entry.
+// The day's projects come from the entry's `projects` references; the body
+// holds the notes and photos.
 export async function getStaticPaths() {
-  const projects = await getCollection("projects");
   const status = await getCollection("status");
-  const dates = [
-    ...new Set([
-      ...projects.flatMap((project) => project.data.visitedDates),
-      ...status.map((entry) => entry.id),
-    ]),
-  ];
-
-  return dates.map((date) => ({
-    params: { date },
-    props: {
-      date,
-      projects: projects
-        .filter((project) => project.data.visitedDates.includes(date))
-        .sort((a, b) => a.data.number - b.data.number),
-    },
+  return status.map((entry) => ({
+    params: { date: entry.id },
+    props: { entry },
   }));
 }
 
-const { date, projects } = Astro.props;
-const entry = await getEntry("status", date);
-const Content = entry ? (await render(entry)).Content : null;
+const { entry } = Astro.props;
+const date = entry.id;
+const { Content } = await render(entry);
+const projects = (await getEntries(entry.data.projects)).sort(
+  (a, b) => a.data.number - b.data.number,
+);
 ---
 
 <Base title={`${date} の訪問記録 | Kumamoto Art Polis`}>
@@ -38,15 +27,9 @@ const Content = entry ? (await render(entry)).Content : null;
 
     <h1 class="mt-4 text-2xl font-bold">{date} の訪問記録</h1>
 
-    {
-      Content ? (
-        <div class="mt-6 text-gray-800">
-          <Content />
-        </div>
-      ) : (
-        <p class="mt-6 text-gray-500">記録は準備中です。</p>
-      )
-    }
+    <div class="mt-6 text-gray-800">
+      <Content />
+    </div>
 
     {
       projects.length > 0 && (

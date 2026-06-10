@@ -1,6 +1,6 @@
 import { glob } from "astro/loaders";
 import { z } from "astro/zod";
-import { defineCollection } from "astro:content";
+import { defineCollection, reference } from "astro:content";
 
 // One Markdown file per project: frontmatter holds the metadata (validated by
 // the schema below), the body holds the prose description. The entry id comes
@@ -17,17 +17,18 @@ const projects = defineCollection({
     completedYear: z.number().int().gt(1900),
     municipality: z.string().min(1),
     use: z.enum(["公共施設", "集合住宅", "学校", "公園", "橋梁", "駅", "その他"]),
-    // Each "YYYY-MM-DD". Empty means not visited yet.
-    visitedDates: z.array(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).default([]),
   }),
 });
 
 // One Markdown file per day, named by date (e.g. 2025-11-03.md). Filename ->
-// entry id -> the /status/<date> route. Body holds the day's notes and photos
-// (photos referenced as public R2 URLs). Frontmatter is optional.
+// entry id -> the /status/<date> route. `projects` lists which projects were
+// visited that day (the source of truth for visit dates). Body holds the day's
+// notes and photos (photos referenced as public R2 URLs).
 const status = defineCollection({
   loader: glob({ pattern: "*.md", base: "./content/status" }),
-  schema: z.object({}),
+  schema: z.object({
+    projects: z.array(reference("projects")).default([]),
+  }),
 });
 
 export const collections = { projects, status };

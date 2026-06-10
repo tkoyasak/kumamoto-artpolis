@@ -1,14 +1,24 @@
-import type { CollectionEntry } from "astro:content";
+import { getCollection } from "astro:content";
 
-type ProjectData = CollectionEntry<"projects">["data"];
+/**
+ * Visit dates per project, newest first, derived from the status collection
+ * (the source of truth for who was visited when). Keyed by project entry id
+ * (e.g. "1"). Projects with no visits are absent from the map.
+ */
+export async function getVisitDatesByProject(): Promise<Map<string, string[]>> {
+  const status = await getCollection("status");
+  const byProject = new Map<string, string[]>();
 
-/** Whether the project has been visited at least once. */
-export function isVisited(project: ProjectData): boolean {
-  return project.visitedDates.length > 0;
-}
+  for (const day of status) {
+    for (const ref of day.data.projects) {
+      const dates = byProject.get(ref.id) ?? [];
+      dates.push(day.id);
+      byProject.set(ref.id, dates);
+    }
+  }
 
-/** The most recent visit date ("YYYY-MM-DD"), or null if never visited. */
-export function latestVisitedDate(project: ProjectData): string | null {
-  if (project.visitedDates.length === 0) return null;
-  return project.visitedDates.reduce((a, b) => (a > b ? a : b));
+  for (const dates of byProject.values()) {
+    dates.sort((a, b) => b.localeCompare(a));
+  }
+  return byProject;
 }

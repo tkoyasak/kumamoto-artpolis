@@ -3,11 +3,12 @@ import { getCollection } from "astro:content";
 import ProjectsMap from "../components/ProjectsMap.astro";
 import Base from "../layouts/Base.astro";
 import type { MapProject } from "../lib/map.ts";
-import { isVisited, latestVisitedDate } from "../lib/projects.ts";
+import { getVisitDatesByProject } from "../lib/projects.ts";
 
 const projects = (await getCollection("projects")).sort(
   (a, b) => a.data.number - b.data.number,
 );
+const visits = await getVisitDatesByProject();
 
 const mapProjects: MapProject[] = projects.map((project) => ({
   number: project.data.number,
@@ -15,7 +16,7 @@ const mapProjects: MapProject[] = projects.map((project) => ({
   lat: project.data.lat,
   lng: project.data.lng,
   completedYear: project.data.completedYear,
-  visited: isVisited(project.data),
+  visited: (visits.get(project.id) ?? []).length > 0,
 }));
 ---
 
@@ -57,7 +58,7 @@ const mapProjects: MapProject[] = projects.map((project) => ({
                 <td class="py-2 pr-4">{project.data.municipality}</td>
                 <td class="py-2 pr-4 tabular-nums">{project.data.completedYear}</td>
                 <td class="py-2 tabular-nums text-gray-500">
-                  {latestVisitedDate(project.data) ?? ""}
+                  {(visits.get(project.id) ?? [])[0] ?? ""}
                 </td>
               </tr>
             ))

@@ -1,19 +1,20 @@
 ---
 import { getCollection, render } from "astro:content";
 import Base from "../../layouts/Base.astro";
+import { getVisitDatesByProject } from "../../lib/projects.ts";
 
 // Prerender one page per project. `number` is the official Art Polis number.
 export async function getStaticPaths() {
   const projects = await getCollection("projects");
+  const visits = await getVisitDatesByProject();
   return projects.map((entry) => ({
     params: { number: String(entry.data.number) },
-    props: { entry },
+    props: { entry, visitedDates: visits.get(entry.id) ?? [] },
   }));
 }
 
-const { entry } = Astro.props;
+const { entry, visitedDates } = Astro.props;
 const { Content } = await render(entry);
-const visitedDates = [...entry.data.visitedDates].sort((a, b) => b.localeCompare(a));
 ---
 
 <Base title={`${entry.data.name} | Kumamoto Art Polis`}>

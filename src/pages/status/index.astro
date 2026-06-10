@@ -1,0 +1,48 @@
+---
+import { getCollection, getEntries } from "astro:content";
+import Base from "../../layouts/Base.astro";
+
+// Timeline of all visit records, newest first.
+const status = (await getCollection("status")).sort((a, b) => b.id.localeCompare(a.id));
+const records = await Promise.all(
+  status.map(async (entry) => ({
+    date: entry.id,
+    projects: (await getEntries(entry.data.projects)).sort(
+      (a, b) => a.data.number - b.data.number,
+    ),
+  })),
+);
+---
+
+<Base title="訪問記録 | Kumamoto Art Polis">
+  <main class="mx-auto max-w-2xl p-8">
+    <a href="/" class="text-sm text-rose-600 hover:underline">← トップへ</a>
+
+    <h1 class="mt-4 text-2xl font-bold">訪問記録</h1>
+
+    {
+      records.length > 0 ? (
+        <ul class="mt-6 space-y-3">
+          {records.map((record) => (
+            <li>
+              <a
+                href={`/status/${record.date}`}
+                class="font-medium text-rose-600 hover:underline"
+              >
+                {record.date}
+              </a>
+              {record.projects.length > 0 && (
+                <span class="text-sm text-gray-600">
+                  {" — "}
+                  {record.projects.map((project) => project.data.name).join("、")}
+                </span>
+              )}
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p class="mt-6 text-gray-500">まだ訪問記録がありません。</p>
+      )
+    }
+  </main>
+</Base>

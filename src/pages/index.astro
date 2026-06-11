@@ -1,8 +1,10 @@
 ---
 import { getCollection } from "astro:content";
-import ProjectsExplorer from "../components/ProjectsExplorer.tsx";
+import ProjectsMap from "../components/ProjectsMap.astro";
+import ProjectsTable from "../components/ProjectsTable.tsx";
 import Base from "../layouts/Base.astro";
 import type { ExplorerRow } from "../lib/explorer.ts";
+import type { MapProject } from "../lib/map.ts";
 import { getVisitDatesByProject } from "../lib/projects.ts";
 
 const projects = await getCollection("projects");
@@ -41,8 +43,26 @@ const rows = [...projectRows, ...kap92Rows].sort((a, b) => {
   if (a.category !== b.category) return a.category === "project" ? -1 : 1;
   return a.number - b.number;
 });
+
+// Only entries with coordinates get a marker.
+const mapProjects: MapProject[] = [];
+for (const row of rows) {
+  if (row.lat == null || row.lng == null) continue;
+  mapProjects.push({
+    href: row.href,
+    name: row.name,
+    category: row.category,
+    completedYear: row.completedYear,
+    visited: row.visitedDate != null,
+    lat: row.lat,
+    lng: row.lng,
+  });
+}
 ---
 
 <Base>
-  <ProjectsExplorer rows={rows} client:load />
+  <main>
+    <ProjectsMap projects={mapProjects} />
+    <ProjectsTable rows={rows} client:load />
+  </main>
 </Base>

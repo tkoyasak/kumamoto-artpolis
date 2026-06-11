@@ -1,0 +1,98 @@
+---
+// Importing the stylesheet here bundles maplibre's CSS into the page.
+import "maplibre-gl/dist/maplibre-gl.css";
+import type { MapProject } from "../lib/map.ts";
+
+interface Props {
+  projects: MapProject[];
+}
+
+const { projects } = Astro.props;
+---
+
+<div id="projects-map" class="h-[60vh] w-full"></div>
+{/* Map data is build-time trusted; embedded as JSON for the island script. */}
+<script id="projects-map-data" type="application/json" is:inline set:html={JSON.stringify(projects)}
+></script>
+
+<script>
+  // Static import: this script is client-only (never runs during SSR), so maplibre
+  // is bundled and preloaded in parallel — no wait for a framework to hydrate first.
+  import maplibregl, { type Marker } from "maplibre-gl";
+  import type { MapProject } from "../lib/map.ts";
+  import { $hovered } from "../lib/stores.ts";
+
+  const STYLE_URL = "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json";
+  const FALLBACK_CENTER: [number, number] = [130.7417, 32.7898]; // Kumamoto City
+  const FALLBACK_ZOOM = 8;
+
+  const VISITED_COLOR = "#e11d48"; // rose-600
+  const UNVISITED_COLOR = "#9ca3af"; // gray-400
+  const KAP92_COLOR = "#6366f1"; // indigo-500
+
+  function markerColor(project: MapProject): string {
+    if (project.category === "kap92") return KAP92_COLOR;
+    return project.visited ? VISITED_COLOR : UNVISITED_COLOR;
+  }
+
+  function escapeHtml(value: string): string {
+    return value.replace(/[&<>"']/g, (char) => {
+      switch (char) {
+        case "&":
+          return "&amp;";
+        case "<":
+          return "&lt;";
+        case ">":
+          return "&gt;";
+        case '"':
+          return "&quot;";
+        default:
+          return "&#39;";
+      }
+    });
+  }
+
+  const dataElement = document.getElementById("projects-map-data");
+  const container = document.getElementById("projects-map");
+  if (dataElement?.textContent && container) {
+    const projects: MapProject[] = JSON.parse(dataElement.textContent);
+
+    const map = new maplibregl.Map({
+      container,
+      style: STYLE_URL,
+      center: FALLBACK_CENTER,
+      zoom: FALLBACK_ZOOM,
+    });
+    map.addControl(new maplibregl.NavigationControl(), "top-right");
+
+    const markers = new Map<string, Marker>();
+    const bounds = new maplibregl.LngLatBounds();
+    for (const project of projects) {
+      const lngLat: [number, number] = [project.lng, project.lat];
+      const popup = new maplibregl.Popup({ offset: 16 }).setHTML(
+        `<a href="${project.href}" class="font-medium text-rose-600 underline">${escapeHtml(project.name)}</a>` +
+          (project.completedYear
+            ? `<div class="mt-0.5 text-xs text-gray-500">${project.completedYear}年</div>`
+            : ""),
+      );
+      const marker = new maplibregl.Marker({ color: markerColor(project) })
+        .setLngLat(lngLat)
+        .setPopup(popup)
+        .addTo(map);
+      const element = marker.getElement();
+      element.style.cursor = "pointer";
+      element.addEventListener("mouseenter", () => $hovered.set(project.href));
+      element.addEventListener("mouseleave", () => $hovered.set(null));
+      markers.set(project.href, marker);
+      bounds.extend(lngLat);
+    }
+    if (!bounds.isEmpty()) map.fitBounds(bounds, { padding: 64, maxZoom: 12 });
+
+    // Reflect the shared hovered key (set by the table) onto the markers.
+    $hovered.subscribe((href) => {
+      for (const [key, marker] of markers) {
+        marker.getElement().classList.toggle("marker-active", key === href);
+      }
+    });
+  }
+</script>

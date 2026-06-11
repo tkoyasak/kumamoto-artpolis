@@ -10,13 +10,17 @@
     "deploy": "astro build && wrangler deploy --strict"
   },
   "dependencies": {
-    "astro": "6.4.3",
-    "maplibre-gl": "5.24.0"
-  },
-  "devDependencies": {
     "@astrojs/check": "0.9.9",
+    "@astrojs/react": "5.0.7",
     "@tailwindcss/vite": "4.3.0",
+    "@tanstack/react-table": "8.21.3",
     "@types/node": "25.9.1",
+    "@types/react": "19.2.16",
+    "@types/react-dom": "19.2.3",
+    "astro": "6.4.3",
+    "maplibre-gl": "5.24.0",
+    "react": "19.2.7",
+    "react-dom": "19.2.7",
     "tailwindcss": "4.3.0"
   }
 }

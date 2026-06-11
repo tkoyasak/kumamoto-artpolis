@@ -1,4 +1,3 @@
-import "maplibre-gl/dist/maplibre-gl.css";
 import {
   type ColumnFiltersState,
   type FilterFn,
@@ -10,55 +9,12 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import type { Map as MapLibreMap, Marker } from "maplibre-gl";
-import { useEffect, useMemo, useRef, useState } from "react";
-
-export type ExplorerRow = {
-  href: string; // unique key shared by the table row and its map marker
-  category: "project" | "kap92";
-  number: number;
-  name: string;
-  architects: string[];
-  use: string;
-  municipality: string;
-  completedYear: number | null;
-  visitedDate: string | null; // latest visit date (projects only)
-  lat: number | null;
-  lng: number | null;
-};
-
-const STYLE_URL = "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json";
-const FALLBACK_CENTER: [number, number] = [130.7417, 32.7898];
-const FALLBACK_ZOOM = 8;
-
-const VISITED_COLOR = "#e11d48"; // rose-600
-const UNVISITED_COLOR = "#9ca3af"; // gray-400
-const KAP92_COLOR = "#6366f1"; // indigo-500
+import { useMemo, useState } from "preact/hooks";
+import type { ExplorerRow } from "../lib/explorer.ts";
+import ProjectsMap from "./ProjectsMap.tsx";
 
 function categoryLabel(category: ExplorerRow["category"]): string {
   return category === "project" ? "プロジェクト" : "KAP'92";
-}
-
-function markerColor(row: ExplorerRow): string {
-  if (row.category === "kap92") return KAP92_COLOR;
-  return row.visitedDate ? VISITED_COLOR : UNVISITED_COLOR;
-}
-
-function escapeHtml(value: string): string {
-  return value.replace(/[&<>"']/g, (char) => {
-    switch (char) {
-      case "&":
-        return "&amp;";
-      case "<":
-        return "&lt;";
-      case ">":
-        return "&gt;";
-      case '"':
-        return "&quot;";
-      default:
-        return "&#39;";
-    }
-  });
 }
 
 const columnHelper = createColumnHelper<ExplorerRow>();
@@ -151,73 +107,11 @@ export default function ProjectsExplorer({ rows }: { rows: ExplorerRow[] }) {
     getFilteredRowModel: getFilteredRowModel(),
   });
 
-  // Map (client-only): maplibre is imported dynamically so it never runs during SSR.
-  const mapContainer = useRef<HTMLDivElement>(null);
-  const markers = useRef<Map<string, Marker>>(new Map());
-
-  useEffect(() => {
-    const container = mapContainer.current;
-    if (!container) return;
-
-    let map: MapLibreMap | undefined;
-    let cancelled = false;
-
-    void (async () => {
-      const maplibregl = (await import("maplibre-gl")).default;
-      if (cancelled) return;
-
-      map = new maplibregl.Map({
-        container,
-        style: STYLE_URL,
-        center: FALLBACK_CENTER,
-        zoom: FALLBACK_ZOOM,
-      });
-      map.addControl(new maplibregl.NavigationControl(), "top-right");
-
-      const bounds = new maplibregl.LngLatBounds();
-      for (const row of rows) {
-        if (row.lat == null || row.lng == null) continue;
-        const lngLat: [number, number] = [row.lng, row.lat];
-        const popup = new maplibregl.Popup({ offset: 16 }).setHTML(
-          `<a href="${row.href}" class="font-medium text-rose-600 underline">${escapeHtml(row.name)}</a>` +
-            (row.completedYear
-              ? `<div class="mt-0.5 text-xs text-gray-500">${row.completedYear}年</div>`
-              : ""),
-        );
-        const marker = new maplibregl.Marker({ color: markerColor(row) })
-          .setLngLat(lngLat)
-          .setPopup(popup)
-          .addTo(map);
-        const element = marker.getElement();
-        element.style.cursor = "pointer";
-        element.addEventListener("mouseenter", () => setHovered(row.href));
-        element.addEventListener("mouseleave", () => setHovered(null));
-        markers.current.set(row.href, marker);
-        bounds.extend(lngLat);
-      }
-      if (!bounds.isEmpty()) map.fitBounds(bounds, { padding: 64, maxZoom: 12 });
-    })();
-
-    const current = markers.current;
-    return () => {
-      cancelled = true;
-      map?.remove();
-      current.clear();
-    };
-  }, [rows]);
-
-  // Reflect the hovered key onto the markers (table-side highlight is via className).
-  useEffect(() => {
-    for (const [href, marker] of markers.current) {
-      marker.getElement().classList.toggle("marker-active", href === hovered);
-    }
-  }, [hovered]);
-
   const visibleRows = table.getRowModel().rows;
 
   return (
     <main>
-      <div ref={mapContainer} className="h-[60vh] w-full" />
+      <ProjectsMap rows={rows} hovered={hovered} onHover={setHovered} />
 
       <section className="mx-auto max-w-5xl p-4 sm:p-8">
         <h1 className="text-2xl font-bold">熊本アートポリス 訪問記録</h1>
@@ -227,13 +121,13 @@ export default function ProjectsExplorer({ rows }: { rows: ExplorerRow[] }) {
           <input
             type="search"
             value={globalFilter}
-            onChange={(event) => setGlobalFilter(event.target.value)}
+            onInput={(event) => setGlobalFilter(event.currentTarget.value)}
             placeholder="検索（名称・設計者・所在地）"
             className="rounded border border-gray-300 px-2 py-1"
           />
           <select
             value={category}
-            onChange={(event) => setCategory(event.target.value)}
+            onChange={(event) => setCategory(event.currentTarget.value)}
             className="rounded border border-gray-300 px-2 py-1"
           >
             <option value="">種別: すべて</option>
@@ -242,7 +136,7 @@ export default function ProjectsExplorer({ rows }: { rows: ExplorerRow[] }) {
           </select>
           <select
             value={municipality}
-            onChange={(event) => setMunicipality(event.target.value)}
+            onChange={(event) => setMunicipality(event.currentTarget.value)}
             className="rounded border border-gray-300 px-2 py-1"
           >
             <option value="">所在地: すべて</option>

@@ -1,12 +1,13 @@
-import react from "@astrojs/react";
+import preact from "@astrojs/preact";
 import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "astro/config";
 
 // https://astro.build/config
 // Static output (SSG): every page is prerendered at build time.
-// React is used only for interactive islands (e.g. the home map+table explorer).
+// Preact (with compat) powers interactive islands; compat lets React libraries
+// like @tanstack/react-table run on Preact's smaller runtime.
 export default defineConfig({
-  integrations: [react()],
+  integrations: [preact({ compat: true })],
   vite: {
     plugins: [tailwindcss()],
   },

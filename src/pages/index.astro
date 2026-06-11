@@ -1,7 +1,8 @@
 ---
 import { getCollection } from "astro:content";
-import ProjectsExplorer, { type ExplorerRow } from "../components/ProjectsExplorer.tsx";
+import ProjectsExplorer from "../components/ProjectsExplorer.tsx";
 import Base from "../layouts/Base.astro";
+import type { ExplorerRow } from "../lib/explorer.ts";
 import { getVisitDatesByProject } from "../lib/projects.ts";
 
 const projects = await getCollection("projects");

@@ -1,1 +1,12 @@
 @import "tailwindcss";
+
+/* Highlight a maplibre marker when its table row (or the marker) is hovered.
+   Avoid `transform` on the root element — maplibre uses it for positioning. */
+.marker-active {
+  z-index: 1;
+  filter: drop-shadow(0 0 4px rgb(0 0 0 / 0.45));
+}
+.marker-active svg {
+  transform: scale(1.25);
+  transform-origin: bottom center;
+}

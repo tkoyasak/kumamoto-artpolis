@@ -1,83 +1,47 @@
 ---
 import { getCollection } from "astro:content";
-import ProjectsMap from "../components/ProjectsMap.astro";
+import ProjectsExplorer, { type ExplorerRow } from "../components/ProjectsExplorer.tsx";
 import Base from "../layouts/Base.astro";
-import type { MapProject } from "../lib/map.ts";
 import { getVisitDatesByProject } from "../lib/projects.ts";
 
-const projects = (await getCollection("projects")).sort(
-  (a, b) => a.data.number - b.data.number,
-);
+const projects = await getCollection("projects");
+const kap92 = await getCollection("kap92");
 const visits = await getVisitDatesByProject();
 
-const mapProjects: MapProject[] = projects.map((project) => ({
+const projectRows: ExplorerRow[] = projects.map((project) => ({
+  href: `/projects/${project.data.number}`,
+  category: "project",
   number: project.data.number,
   name: project.data.name,
+  architects: project.data.architects,
+  use: project.data.use,
+  municipality: project.data.municipality,
+  completedYear: project.data.completedYear,
+  visitedDate: (visits.get(project.id) ?? [])[0] ?? null,
   lat: project.data.lat,
   lng: project.data.lng,
-  completedYear: project.data.completedYear,
-  visited: (visits.get(project.id) ?? []).length > 0,
 }));
+
+const kap92Rows: ExplorerRow[] = kap92.map((building) => ({
+  href: `/kap92/${building.data.number}`,
+  category: "kap92",
+  number: building.data.number,
+  name: building.data.name,
+  architects: building.data.architects ?? [],
+  use: building.data.use ?? "",
+  municipality: building.data.municipality ?? "",
+  completedYear: building.data.completedYear ?? null,
+  visitedDate: null,
+  lat: building.data.lat ?? null,
+  lng: building.data.lng ?? null,
+}));
+
+const rows = [...projectRows, ...kap92Rows].sort((a, b) => {
+  if (a.category !== b.category) return a.category === "project" ? -1 : 1;
+  return a.number - b.number;
+});
 ---
 
 <Base>
-  <main>
-    <ProjectsMap projects={mapProjects} />
-
-    <section class="mx-auto max-w-5xl p-4 sm:p-8">
-      <h1 class="text-2xl font-bold">熊本アートポリス 訪問記録</h1>
-      <p class="mt-1 text-sm text-gray-600">参加プロジェクト {projects.length} 件</p>
-
-      <table class="mt-6 w-full border-collapse text-sm">
-        <thead>
-          <tr class="border-b border-gray-300 text-left text-gray-500">
-            <th class="py-2 pr-4 font-medium">No.</th>
-            <th class="py-2 pr-4 font-medium">名称</th>
-            <th class="py-2 pr-4 font-medium">設計者</th>
-            <th class="py-2 pr-4 font-medium">用途</th>
-            <th class="py-2 pr-4 font-medium">所在地</th>
-            <th class="py-2 pr-4 font-medium">竣工</th>
-            <th class="py-2 font-medium">訪問日</th>
-          </tr>
-        </thead>
-        <tbody>
-          {
-            projects.map((project) => (
-              <tr
-                class="cursor-pointer border-b border-gray-100 hover:bg-gray-50"
-                data-href={`/projects/${project.data.number}`}
-              >
-                <td class="py-2 pr-4 tabular-nums text-gray-500">{project.data.number}</td>
-                <td class="py-2 pr-4 font-medium">
-                  <a href={`/projects/${project.data.number}`} class="hover:underline">
-                    {project.data.name}
-                  </a>
-                </td>
-                <td class="py-2 pr-4">{project.data.architects.join("、")}</td>
-                <td class="py-2 pr-4">{project.data.use}</td>
-                <td class="py-2 pr-4">{project.data.municipality}</td>
-                <td class="py-2 pr-4 tabular-nums">{project.data.completedYear}</td>
-                <td class="py-2 tabular-nums text-gray-500">
-                  {(visits.get(project.id) ?? [])[0] ?? ""}
-                </td>
-              </tr>
-            ))
-          }
-        </tbody>
-      </table>
-    </section>
-  </main>
+  <ProjectsExplorer rows={rows} client:load />
 </Base>
-
-<script>
-  // Progressive enhancement: make whole rows clickable. The name cell is still a
-  // real link, so navigation works without JS too.
-  for (const row of document.querySelectorAll<HTMLElement>("tr[data-href]")) {
-    row.addEventListener("click", (event) => {
-      // Let clicks on the inner anchor behave normally.
-      if ((event.target as HTMLElement).closest("a")) return;
-      const href = row.dataset["href"];
-      if (href) location.href = href;
-    });
-  }
-</script>

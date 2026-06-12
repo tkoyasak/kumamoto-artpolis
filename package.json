@@ -8,7 +8,8 @@
     "preview": "astro preview",
     "check": "astro check",
     "clean": "rm -rf node_modules/.astro .astro dist",
-    "deploy": "astro build && wrangler deploy --strict"
+    "deploy": "astro build && wrangler deploy --strict",
+    "content": "bun run scripts/content-readme.ts"
   },
   "dependencies": {
     "@astrojs/check": "0.9.9",
@@ -23,6 +24,9 @@
     "nanostores": "1.3.0",
     "preact": "10.29.2",
     "tailwindcss": "4.3.0"
+  },
+  "devDependencies": {
+    "@types/bun": "1.3.14"
   },
   "overrides": {
     "react": "$@preact/compat",

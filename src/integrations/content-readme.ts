@@ -3,61 +3,97 @@ import path from "node:path";
 import type { AstroIntegration, AstroIntegrationLogger } from "astro";
 import { parse as parseYaml } from "yaml";
 
-// content/README.md is fully generated from the collections below. Each entry
-// gets a short description, an optional reference link, and (when the files
-// carry number/slug frontmatter) the number->slug table.
-const COLLECTIONS = [
+const CONTENT_DIR = "content";
+const README = path.join(CONTENT_DIR, "README.md");
+
+// One parsed Markdown file: `id` is the filename without `.md` (the entry id /
+// URL key), `data` is its YAML frontmatter.
+type Entry = { id: string; data: Record<string, unknown> };
+type Column = { header: string; align?: "right"; value: (e: Entry) => string };
+
+// content/README.md is fully generated from the collections below: each gets a
+// short description, an optional reference link, and an index table.
+const COLLECTIONS: {
+  name: string;
+  description: string;
+  ref?: string;
+  columns: Column[];
+  sort: (a: Entry, b: Entry) => number;
+}[] = [
   {
     name: "projects",
     description: "Art Polis commissioned new builds.",
     ref: "https://www.pref.kumamoto.jp/soshiki/115/83273.html",
+    columns: numberSlugColumns(),
+    sort: byNumber,
   },
   {
     name: "kap92",
     description: "KAP'92 selected existing buildings.",
     ref: "https://www.pref.kumamoto.jp/soshiki/115/4477.html",
+    columns: numberSlugColumns(),
+    sort: byNumber,
   },
   {
     name: "status",
     description: "Daily visit records, one file per date.",
+    columns: [
+      { header: "date", value: (e) => e.id },
+      {
+        header: "projects",
+        value: (e) =>
+          ((e.data.projects as string[] | undefined) ?? []).map((slug) => `\`${slug}\``).join(", "),
+      },
+    ],
+    sort: (a, b) => a.id.localeCompare(b.id),
   },
-] as const;
+];
 
-const CONTENT_DIR = "content";
-const README = path.join(CONTENT_DIR, "README.md");
+// projects and kap92 share the same number/slug/name shape.
+function numberSlugColumns(): Column[] {
+  return [
+    { header: "number", align: "right", value: (e) => String(e.data.number) },
+    { header: "slug", value: (e) => `\`${e.data.slug}\`` },
+    { header: "name", value: (e) => String(e.data.name ?? "") },
+  ];
+}
 
-type Row = { number: number; slug: string; name: string };
+function byNumber(a: Entry, b: Entry): number {
+  return Number(a.data.number) - Number(b.data.number);
+}
 
-// Read every `*.md` in content/<collection>, parse its YAML frontmatter, and
-// return the number/slug/name rows sorted by number.
-function collectRows(collection: string): Row[] {
+// Read and parse every `*.md` in content/<collection>.
+function readEntries(collection: string): Entry[] {
   const dir = path.join(CONTENT_DIR, collection);
-  const rows: Row[] = [];
+  const entries: Entry[] = [];
   for (const file of fs.readdirSync(dir)) {
     if (!file.endsWith(".md")) continue;
     const raw = fs.readFileSync(path.join(dir, file), "utf8");
     const match = raw.match(/^---\n([\s\S]*?)\n---/);
-    if (!match?.[1]) continue;
-    const data = parseYaml(match[1]) as Partial<Row>;
-    if (typeof data.number !== "number" || !data.slug) continue;
-    rows.push({ number: data.number, slug: data.slug, name: data.name ?? "" });
+    const data = match?.[1] ? (parseYaml(match[1]) ?? {}) : {};
+    entries.push({ id: file.replace(/\.md$/, ""), data });
   }
-  return rows.sort((a, b) => a.number - b.number);
+  return entries;
 }
 
-function renderTable(rows: Row[]): string {
-  const lines = ["| number | slug | name |", "| ---: | --- | --- |"];
-  for (const r of rows) lines.push(`| ${r.number} | \`${r.slug}\` | ${r.name} |`);
-  return lines.join("\n");
+// Render a GitHub Markdown table. Columns aren't padded here; the pre-commit
+// treefmt/oxfmt hook owns the final alignment.
+function renderTable(columns: Column[], entries: Entry[]): string {
+  const join = (cells: string[]) => `| ${cells.join(" | ")} |`;
+  return [
+    join(columns.map((c) => c.header)),
+    join(columns.map((c) => (c.align === "right" ? "---:" : "---"))),
+    ...entries.map((e) => join(columns.map((c) => c.value(e)))),
+  ].join("\n");
 }
 
 // Render the whole README from scratch.
 function renderReadme(): string {
   const sections = COLLECTIONS.map((c) => {
     const parts = [`## \`${c.name}/\``, "", c.description];
-    if ("ref" in c) parts.push("", `Reference: <${c.ref}>`);
-    const rows = collectRows(c.name);
-    if (rows.length > 0) parts.push("", renderTable(rows));
+    if (c.ref) parts.push("", `Reference: <${c.ref}>`);
+    const entries = readEntries(c.name).sort(c.sort);
+    if (entries.length > 0) parts.push("", renderTable(c.columns, entries));
     return parts.join("\n");
   });
   return [

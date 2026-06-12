@@ -28,3 +28,7 @@ Reference: <https://www.pref.kumamoto.jp/soshiki/115/4477.html>
 ## `status/`
 
 Daily visit records, one file per date.
+
+| date       | projects                  |
+| ---------- | ------------------------- |
+| 2025-11-03 | `hozukubo-daiichi-danchi` |

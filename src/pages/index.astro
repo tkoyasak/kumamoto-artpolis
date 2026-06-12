@@ -12,7 +12,7 @@ const kap92 = await getCollection("kap92");
 const visits = await getVisitDatesByProject();
 
 const projectRows: ExplorerRow[] = projects.map((project) => ({
-  href: `/projects/${project.data.number}`,
+  href: `/projects/${project.data.slug}`,
   category: "project",
   number: project.data.number,
   name: project.data.name,
@@ -20,13 +20,13 @@ const projectRows: ExplorerRow[] = projects.map((project) => ({
   use: project.data.use,
   municipality: project.data.municipality,
   completedYear: project.data.completedYear,
-  visitedDate: (visits.get(project.id) ?? [])[0] ?? null,
+  visitedDate: (visits.get(project.data.slug) ?? [])[0] ?? null,
   lat: project.data.lat,
   lng: project.data.lng,
 }));
 
 const kap92Rows: ExplorerRow[] = kap92.map((building) => ({
-  href: `/kap92/${building.data.number}`,
+  href: `/kap92/${building.data.slug}`,
   category: "kap92",
   number: building.data.number,
   name: building.data.name,

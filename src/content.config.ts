@@ -2,14 +2,17 @@ import { glob } from "astro/loaders";
 import { z } from "astro/zod";
 import { defineCollection, reference } from "astro:content";
 
-// One Markdown file per project: frontmatter holds the metadata (validated by
-// the schema below), the body holds the prose description. The entry id comes
-// from the filename (e.g. 1.md -> "1"), matching the /projects/<number> route.
+// One Markdown file per project, named by number (1.md ...). The frontmatter
+// `slug` is the entry id (the glob loader uses a `slug` field as the id), so it
+// is the URL key (/projects/<slug>) and how `status` references the project.
+// Code reads `entry.data.slug` explicitly rather than `entry.id`. `number` is
+// the official Art Polis number, used for display/sorting.
 const projects = defineCollection({
   loader: glob({ pattern: "*.md", base: "./content/projects" }),
   schema: z.object({
-    // Official Art Polis sequential number. Also the URL key (/projects/<number>).
     number: z.number().int().positive(),
+    // URL-safe slug = entry id, URL key, and `status` reference key. Keep stable.
+    slug: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
     name: z.string().min(1),
     architects: z.array(z.string().min(1)).nonempty(),
     lat: z.number().min(-90).max(90),
@@ -20,16 +23,18 @@ const projects = defineCollection({
   }),
 });
 
-// KAP'92 selected existing buildings (not commissioned new builds). Numbered
-// 1-46 per the prefecture's list. One Markdown file per building, named by that
-// number (e.g. 1.md -> /kap92/1). Most metadata is optional since these range
-// from historical structures to modern buildings.
+// KAP'92 selected existing buildings (not commissioned new builds). One Markdown
+// file per building, named by number. The frontmatter `slug` is the entry id and
+// URL key (/kap92/<slug>). `number` is the prefecture-list number (1-46), kept
+// for display/sorting. Most metadata is optional since these range from
+// historical structures to modern buildings.
 const kap92 = defineCollection({
   loader: glob({ pattern: "*.md", base: "./content/kap92" }),
   // Field names mirror `projects`; types/requiredness differ (existing buildings
   // may lack an architect, coordinates, or a precise year).
   schema: z.object({
     number: z.number().int().positive(),
+    slug: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
     name: z.string().min(1),
     architects: z.array(z.string().min(1)).optional(),
     lat: z.number().min(-90).max(90).optional(),

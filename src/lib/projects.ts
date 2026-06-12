@@ -3,7 +3,7 @@ import { getCollection } from "astro:content";
 /**
  * Visit dates per project, newest first, derived from the status collection
  * (the source of truth for who was visited when). Keyed by project entry id
- * (e.g. "1"). Projects with no visits are absent from the map.
+ * (the slug, e.g. "hozukubo-daiichi-danchi"). Projects with no visits are absent.
  */
 export async function getVisitDatesByProject(): Promise<Map<string, string[]>> {
   const status = await getCollection("status");

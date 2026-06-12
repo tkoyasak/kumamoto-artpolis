@@ -2,12 +2,11 @@
 import { getCollection, render } from "astro:content";
 import Base from "../../layouts/Base.astro";
 
-// Prerender one page per KAP'92 selected existing building. `number` is the
-// prefecture-list number.
+// Prerender one page per KAP'92 selected existing building, keyed by slug.
 export async function getStaticPaths() {
   const buildings = await getCollection("kap92");
   return buildings.map((entry) => ({
-    params: { number: String(entry.data.number) },
+    params: { slug: entry.data.slug },
     props: { entry },
   }));
 }

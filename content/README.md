@@ -4,17 +4,22 @@ Astro content collections. Schema: `src/content.config.ts`.
 
 ## `projects/`
 
-Art Polis projects. One Markdown file per number (`1.md` → `/projects/1`).
+Art Polis projects. One Markdown file per project, named by number (`1.md`).
+Frontmatter `slug` is the entry id: the URL key (`/projects/<slug>`) and how
+`status` references a project. Keep slugs stable. `number` is the official Art
+Polis number, used for sorting.
 
 Reference: <https://www.pref.kumamoto.jp/soshiki/115/83273.html>
 
 ## `kap92/`
 
-KAP'92 selected existing buildings. One Markdown file per number (`1.md` → `/kap92/1`).
+KAP'92 selected existing buildings. One Markdown file per building, named by number
+(`1.md`). Frontmatter `slug` is the entry id and URL key (`/kap92/<slug>`);
+`number` is the prefecture-list number (1-46).
 
 Reference: <https://www.pref.kumamoto.jp/soshiki/115/4477.html>
 
 ## `status/`
 
 Daily visit records. One Markdown file per date (`2025-11-03.md` → `/status/2025-11-03`).
-Frontmatter `projects` lists that day's visits; the body holds notes and photos.
+Frontmatter `projects` lists that day's visits by project slug; the body holds notes and photos.

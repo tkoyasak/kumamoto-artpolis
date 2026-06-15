@@ -14,5 +14,5 @@
 
 ## Performance / architecture (decided — revisit later)
 
-- [ ] Home map JS waterfall: maplibre is dynamically imported after the React island hydrates. Kept as-is (SSR'd table + simplicity). Revisit if initial map load matters — lazy-init / preload the chunk, or a vanilla island.
+- [x] Home map JS loading: maplibre code-split, loaded at natural priority (not head-preloaded). See [issues/maplibre-chunk-loading.md](issues/maplibre-chunk-loading.md).
 - [ ] Qwik island migration (resumability, smaller upfront JS): blocked for now — `@qwik.dev/astro` is Qwik v2 (beta) while `@tanstack/qwik-table` targets Qwik v1. Revisit when qwik-table supports Qwik v2.

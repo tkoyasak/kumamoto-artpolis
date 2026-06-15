@@ -16,8 +16,9 @@ const { projects } = Astro.props;
 ></script>
 
 <script>
-  // Static import: this script is client-only (never runs during SSR), so maplibre
-  // is bundled and preloaded in parallel — no wait for a framework to hydrate first.
+  // Static import in a client-only island (never runs during SSR), so it never
+  // waits for a framework to hydrate. maplibre is code-split (see manualChunks in
+  // astro.config.ts) and loaded at natural priority — see issues/maplibre-chunk-loading.md.
   import maplibregl, { type Marker } from "maplibre-gl";
   import type { MapProject } from "../lib/map.ts";
   import { $hovered } from "../lib/stores.ts";

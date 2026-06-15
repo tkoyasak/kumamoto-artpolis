@@ -31,21 +31,20 @@ const byNumber = (a: Entry, b: Entry): number => Number(a.data.number) - Number(
 const COLLECTIONS: {
   name: string;
   description: string;
-  ref?: string;
   columns: Column[];
   sort: (a: Entry, b: Entry) => number;
 }[] = [
   {
     name: "projects",
-    description: "Art Polis commissioned new builds.",
-    ref: "https://www.pref.kumamoto.jp/soshiki/115/83273.html",
+    description:
+      "Art Polis commissioned new builds, listed at <https://www.pref.kumamoto.jp/soshiki/115/83273.html>.",
     columns: numberSlug,
     sort: byNumber,
   },
   {
     name: "kap92",
-    description: "KAP'92 selected existing buildings.",
-    ref: "https://www.pref.kumamoto.jp/soshiki/115/4477.html",
+    description:
+      "KAP'92 selected existing buildings, listed at <https://www.pref.kumamoto.jp/soshiki/115/4477.html>.",
     columns: numberSlug,
     sort: byNumber,
   },
@@ -88,7 +87,6 @@ async function renderReadme(): Promise<string> {
   const sections: string[] = [];
   for (const c of COLLECTIONS) {
     const parts = [`## \`${c.name}/\``, "", c.description];
-    if (c.ref) parts.push("", `Reference: <${c.ref}>`);
     const entries = (await readEntries(c.name)).sort(c.sort);
     if (entries.length > 0) parts.push("", renderTable(c.columns, entries));
     sections.push(parts.join("\n"));

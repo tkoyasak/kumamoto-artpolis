@@ -4,9 +4,7 @@
 
 ## `projects/`
 
-Art Polis commissioned new builds.
-
-Reference: <https://www.pref.kumamoto.jp/soshiki/115/83273.html>
+Art Polis commissioned new builds, listed at <https://www.pref.kumamoto.jp/soshiki/115/83273.html>.
 
 | number | slug                                 | name                                |
 | -----: | ------------------------------------ | ----------------------------------- |
@@ -17,9 +15,7 @@ Reference: <https://www.pref.kumamoto.jp/soshiki/115/83273.html>
 
 ## `kap92/`
 
-KAP'92 selected existing buildings.
-
-Reference: <https://www.pref.kumamoto.jp/soshiki/115/4477.html>
+KAP'92 selected existing buildings, listed at <https://www.pref.kumamoto.jp/soshiki/115/4477.html>.
 
 | number | slug              | name   |
 | -----: | ----------------- | ------ |

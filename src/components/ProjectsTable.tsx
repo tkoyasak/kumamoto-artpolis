@@ -11,6 +11,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { useMemo, useState } from "preact/hooks";
+
 import type { ExplorerRow } from "../lib/explorer.ts";
 import { $hovered } from "../lib/stores.ts";
 

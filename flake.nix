@@ -1,5 +1,5 @@
 {
-  description = "kumamoto-art-polis";
+  description = "kumamoto-artpolis";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";

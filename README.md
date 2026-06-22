@@ -1,1 +1,1 @@
-# kumamoto-art-polis
+# kumamoto-artpolis

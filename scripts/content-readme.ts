@@ -37,7 +37,7 @@ const COLLECTIONS: {
   {
     name: "projects",
     description:
-      "Art Polis commissioned new builds, listed at <https://www.pref.kumamoto.jp/soshiki/115/83273.html>.",
+      "Artpolis commissioned new builds, listed at <https://www.pref.kumamoto.jp/soshiki/115/83273.html>.",
     columns: numberSlug,
     sort: byNumber,
   },

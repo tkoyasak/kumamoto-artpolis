@@ -6,7 +6,7 @@ import { defineCollection, reference } from "astro:content";
 // `slug` is the entry id (the glob loader uses a `slug` field as the id), so it
 // is the URL key (/projects/<slug>) and how `status` references the project.
 // Code reads `entry.data.slug` explicitly rather than `entry.id`. `number` is
-// the official Art Polis number, used for display/sorting.
+// the official Artpolis number, used for display/sorting.
 const projects = defineCollection({
   loader: glob({ pattern: "*.md", base: "./content/projects" }),
   schema: z.object({

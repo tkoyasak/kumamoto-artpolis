@@ -2,7 +2,7 @@
 
 ## Content / data
 
-- [ ] Replace sample data with real **projects** (accurate coordinates, official Art Polis numbers, remaining projects) and write each description body.
+- [ ] Replace sample data with real **projects** (accurate coordinates, official Artpolis numbers, remaining projects) and write each description body.
 - [ ] Fill the **KAP'92** buildings 1–46 from the prefecture list (replace the 熊本城 sample; verify coordinates). Source: <https://www.pref.kumamoto.jp/soshiki/115/4477.html>
 - [ ] Add photos (public R2 URLs) to project descriptions and `status/` entries; set up the R2 bucket + public domain.
 

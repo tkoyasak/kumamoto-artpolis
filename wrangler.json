@@ -1,6 +1,6 @@
 {
   "$schema": "https://www.unpkg.com/wrangler/config-schema.json",
-  "name": "kap",
+  "name": "artpolis",
   "compatibility_date": "2026-05-29",
   "assets": {
     "directory": "./dist",

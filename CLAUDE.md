@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-A static site documenting visits to Kumamoto Art Polis architecture. Astro SSG (every page prerendered) deployed to Cloudflare Workers static assets. The home page is an interactive "explorer": a filterable/sortable table (Preact island) beside a map (vanilla maplibre island), the two linked by hover state.
+A static site documenting visits to Kumamoto Artpolis architecture. Astro SSG (every page prerendered) deployed to Cloudflare Workers static assets. The home page is an interactive "explorer": a filterable/sortable table (Preact island) beside a map (vanilla maplibre island), the two linked by hover state.
 
 ## Commands
 
@@ -23,7 +23,7 @@ There is no test suite. `oxfmt` (formatting, incl. Markdown) and `oxlint` (linti
 
 Three Astro content collections under `content/`, all loaded from Markdown via the glob loader:
 
-- **`projects/`** — Art Polis commissioned new builds. Files are numbered (`1.md`); strict schema (enum `use`, required coordinates/architect/year).
+- **`projects/`** — Artpolis commissioned new builds. Files are numbered (`1.md`); strict schema (enum `use`, required coordinates/architect/year).
 - **`kap92/`** — KAP'92 selected _existing_ buildings. Same field names as `projects` but most are optional (these range from historical structures to modern buildings; `use` is free text).
 - **`status/`** — one file per visit date (`2025-11-03.md`). Frontmatter `projects` is an array of `reference("projects")`. **This is the source of truth for visit dates** — projects don't store their own visit dates.
 
@@ -35,7 +35,7 @@ For `projects` and `kap92`, the frontmatter **`slug` field is the entry id** —
 - code reads `entry.data.slug` explicitly (it equals `entry.id`);
 - `status` references projects **by slug**, and `getVisitDatesByProject()` (`src/lib/projects.ts`) keys its result map by slug.
 
-`number` is the official Art Polis / prefecture-list number, used only for display and sorting. Keep slugs stable — they're the public URL and the cross-collection reference key.
+`number` is the official Artpolis / prefecture-list number, used only for display and sorting. Keep slugs stable — they're the public URL and the cross-collection reference key.
 
 ## Routing
 

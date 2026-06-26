@@ -1,6 +1,6 @@
 #!/usr/bin/env -S bun run
 
-/// <reference types="bun" />
+/// <reference types="bun-types" />
 
 // Regenerate content/README.md from the content collections.
 //

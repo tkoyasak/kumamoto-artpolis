@@ -8,10 +8,6 @@
       url = "github:numtide/treefmt-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    git-hooks = {
-      url = "github:cachix/git-hooks.nix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
   };
 
   outputs =
@@ -21,52 +17,25 @@
 
       imports = [
         inputs.treefmt-nix.flakeModule
-        inputs.git-hooks.flakeModule
       ];
 
       perSystem =
+        { pkgs, ... }:
         {
-          config,
-          pkgs,
-          inputs',
-          ...
-        }:
-        {
+          # nixfmt for the flake itself; run manually with `nix fmt`.
           treefmt = {
             projectRootFile = "flake.nix";
             programs.nixfmt.enable = true;
-            programs.oxfmt.enable = true;
           };
 
-          pre-commit.settings.hooks = {
-            treefmt.enable = true;
-            oxlint.enable = true;
-
-            # Regenerate content/README.md when any content Markdown changes.
-            content-readme = {
-              enable = true;
-              entry = "bun run content";
-              files = "^content/.*\\.md$";
-              pass_filenames = false;
-            };
-
-            gitleaks = {
-              enable = true;
-              entry = "${pkgs.gitleaks}/bin/gitleaks git --pre-commit --redact --staged";
-              pass_filenames = false;
-            };
-          };
-
+          # Formatting, linting, type checking and commit hooks are owned by
+          # Vite+ (`vp check` / `vp staged`); see vite.config.ts. gitleaks stays
+          # here because the `staged` config invokes it from the dev shell.
           devShells.default = pkgs.mkShellNoCC {
-            inputsFrom = [ config.pre-commit.devShell ];
             packages = with pkgs; [
               # bun
               gitleaks
               # nodejs
-              oxfmt
-              oxlint
-              typescript-go
-              wrangler
             ];
           };
         };

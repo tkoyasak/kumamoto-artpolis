@@ -4,10 +4,12 @@
 
 // Regenerate content/README.md from the content collections.
 //
-// Run by the `content-readme` pre-commit hook (and `bun run content`). It
-// owns the file end to end: render the index, then format with oxfmt so the
-// output is canonical and coexists with the treefmt hook without a reformat
-// loop.
+// Exposed as the cached `content` Vite+ task (`run.tasks.content` in
+// vite.config.ts); run it with `vp run content`. Also runs on commit via the
+// `staged` hook when content Markdown changes. It owns the file end to end:
+// render the index, then format with oxfmt (bundled in Vite+, resolved from
+// node_modules/.bin) so the output is canonical and the commit-time
+// `vp check --fix` doesn't reformat it into a loop.
 
 const CONTENT_DIR = "content";
 const README = `${CONTENT_DIR}/README.md`;

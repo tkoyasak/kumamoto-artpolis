@@ -8,18 +8,16 @@ A static site documenting visits to Kumamoto Artpolis architecture. Astro SSG (e
 
 ## Commands
 
-Use **Vite+** (`vp`) as the entry point, never npm. Project scripts are defined in `package.json` and run via `vp run <script>`. **Footgun:** `vp dev`/`vp build` invoke Vite directly and are _not_ the Astro dev server/build — always use `vp run dev`/`vp run build` for Astro. oxfmt/oxlint/oxlint-tsgolint/vitest are bundled in Vite+; `wrangler` and the `bun` runtime are plain devDeps — don't fetch any with `bunx`/`npx`. The Nix flake devShell now provides only `gitleaks` and `nixfmt` (run via `nix fmt`). See the Vite+ section below.
+Use **bun**, never npm. Tools (`bun`, `oxfmt`, `oxlint`, `wrangler`, `typescript-go`) come from the Nix flake devShell via direnv — don't fetch them with `bunx`/`npx`.
 
-- `vp run dev` — Astro dev server
-- `vp run build` — production build to `dist/`
-- `vp run check` — `astro check` (TypeScript + content schema validation). Distinct from `vp check` below.
-- `vp run content` — regenerate `content/README.md` from the collections. A cached Vite+ task (`run.tasks.content` in `vite.config.ts`, not a package.json script), keyed on the collection sources; also runs on commit when `content/*.md` is staged
-- `vp run deploy` — build + `wrangler deploy`
-- `vp run clean` — remove Astro caches and `dist/`
-- `vp check` / `vp check --fix` — oxfmt + oxlint + type-aware lint (also runs on staged files at commit)
-- `vp test` — Vitest (no tests yet)
+- `bun run dev` — Astro dev server
+- `bun run build` — production build to `dist/`
+- `bun run check` — `astro check` (TypeScript + content schema validation; the only type check)
+- `bun run content` — regenerate `content/README.md` from the collections (also runs as a pre-commit hook on `content/*.md` changes)
+- `bun run deploy` — build + `wrangler deploy`
+- `bun run clean` — remove Astro caches and `dist/`
 
-Commit hooks are owned by Vite+ (`vp config` installs them to `.vite-hooks/` via the `prepare` script). On commit, `vp staged` runs `vp check --fix`, gitleaks, content/README.md regeneration, and `nix fmt` on the matching staged files (see the `staged` block in `vite.config.ts`). `oxfmt` formats Markdown/JSON too and sorts imports and Tailwind classes.
+There is no test suite. `oxfmt` (formatting, incl. Markdown) and `oxlint` (linting) run via the pre-commit hooks; `oxfmt` sorts imports and Tailwind classes.
 
 ## Content model (`src/content.config.ts`)
 
@@ -57,27 +55,10 @@ The two islands share **hover state** through a nanostores atom `$hovered` (`src
 
 ## content/README.md is generated
 
-`content/README.md` is produced by `scripts/content-readme.ts` (a Bun script — uses `Bun.Glob`, `Bun.file`, `Bun.YAML`, `Bun.$`) and formatted with oxfmt. **Don't edit it by hand**; edit the script or the content files and run `vp run content`. The pre-commit hook regenerates it automatically when content Markdown changes.
+`content/README.md` is produced by `scripts/content-readme.ts` (a Bun script — uses `Bun.Glob`, `Bun.file`, `Bun.YAML`, `Bun.$`) and formatted with oxfmt. **Don't edit it by hand**; edit the script or the content files and run `bun run content`. The pre-commit hook regenerates it automatically when content Markdown changes.
 
 ## Notes
 
 - Write all code comments in English (chat/commits may be Japanese).
 - TypeScript uses `astro/tsconfigs/strictest`. Photos are referenced as public R2 URLs in Markdown bodies (bucket not yet set up — see `TODO.md`).
 - Notable design/perf decisions get a write-up under `issues/` (rationale, methodology, conclusion); `TODO.md` tracks pending work.
-
-<!--VITE PLUS START-->
-
-# Using Vite+, the Unified Toolchain for the Web
-
-This project is using Vite+, a unified toolchain built on top of Vite, Rolldown, Vitest, tsdown, Oxlint, Oxfmt, and Vite Task. Vite+ wraps runtime management, package management, and frontend tooling in a single global CLI called `vp`. Vite+ is distinct from Vite, and it invokes Vite through `vp dev` and `vp build`. Run `vp help` to print a list of commands and `vp <command> --help` for information about a specific command.
-
-Docs are local at `node_modules/vite-plus/docs` or online at https://viteplus.dev/guide/.
-
-## Review Checklist
-
-- [ ] Run `vp install` after pulling remote changes and before getting started.
-- [ ] Run `vp check` and `vp test` to format, lint, type check and test changes.
-- [ ] Check if there are `vite.config.ts` tasks or `package.json` scripts necessary for validation, run via `vp run <script>`.
-- [ ] If setup, runtime, or package-manager behavior looks wrong, run `vp env doctor` and include its output when asking for help.
-
-<!--VITE PLUS END-->

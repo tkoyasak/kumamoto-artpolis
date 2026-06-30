@@ -63,6 +63,7 @@
             packages = with pkgs; [
               # bun
               gitleaks
+              nil
               # nodejs
               oxfmt
               oxlint

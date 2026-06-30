@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+@theme {
+  --color-accent: #ff5031;
+}
+
 /* Highlight a maplibre marker when its table row (or the marker) is hovered.
    Avoid `transform` on the root element — maplibre uses it for positioning. */
 .marker-active {

@@ -23,9 +23,9 @@ const projects = (await getEntries(entry.data.projects)).sort(
 
 <Base title={`${date} の訪問記録 | Kumamoto Artpolis`}>
   <main class="mx-auto max-w-2xl p-8">
-    <a href="/" class="text-sm text-rose-600 hover:underline">← 一覧へ戻る</a>
+    <a href="/" class="text-base text-rose-600 hover:underline">← 一覧へ戻る</a>
 
-    <h1 class="mt-4 text-2xl font-bold">{date} の訪問記録</h1>
+    <h1 class="mt-4 text-base font-bold">{date} の訪問記録</h1>
 
     <div class="mt-6 text-gray-800">
       <Content />
@@ -34,8 +34,8 @@ const projects = (await getEntries(entry.data.projects)).sort(
     {
       projects.length > 0 && (
         <section class="mt-8">
-          <h2 class="text-lg font-semibold">この日訪れたプロジェクト</h2>
-          <ul class="mt-2 space-y-1 text-sm">
+          <h2 class="text-base font-semibold">この日訪れたプロジェクト</h2>
+          <ul class="mt-2 space-y-1 text-base">
             {projects.map((project) => (
               <li>
                 <a

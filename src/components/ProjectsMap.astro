@@ -73,7 +73,7 @@ const { projects } = Astro.props;
       const popup = new maplibregl.Popup({ offset: 16 }).setHTML(
         `<a href="${project.href}" class="font-medium text-rose-600 underline">${escapeHtml(project.name)}</a>` +
           (project.completedYear
-            ? `<div class="mt-0.5 text-xs text-gray-500">${project.completedYear}年</div>`
+            ? `<div class="mt-0.5 text-base text-gray-500">${project.completedYear}年</div>`
             : ""),
       );
       const marker = new maplibregl.Marker({ color: markerColor(project) })

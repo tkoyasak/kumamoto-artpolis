@@ -1,0 +1,33 @@
+---
+// Site nav, set in the display face. "Kumamoto Artpolis" doubles as the home link.
+const links = [
+  { href: "/", label: "Kumamoto Artpolis" },
+  { href: "/status", label: "Status" },
+  { href: "/about", label: "About" },
+];
+
+const path = Astro.url.pathname;
+const isActive = (href: string) =>
+  href === "/" ? path === "/" : path === href || path.startsWith(`${href}/`);
+---
+
+<header class="pointer-events-none relative z-20">
+  <nav
+    class="flex max-w-5xl flex-wrap items-center gap-x-6 gap-y-2 p-4 font-medium text-base text-neutral-900 sm:px-8"
+  >
+    {
+      links.map((link) => (
+        <a
+          href={link.href}
+          aria-current={isActive(link.href) ? "page" : undefined}
+          class:list={[
+            "pointer-events-auto",
+            !isActive(link.href) && "opacity-50 transition-opacity hover:opacity-100",
+          ]}
+        >
+          {link.label}
+        </a>
+      ))
+    }
+  </nav>
+</header>

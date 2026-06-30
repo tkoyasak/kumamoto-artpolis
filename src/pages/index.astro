@@ -61,8 +61,14 @@ for (const row of rows) {
 ---
 
 <Base>
-  <main>
-    <ProjectsMap projects={mapProjects} />
-    <ProjectsTable rows={rows} client:load />
+  <main class="pointer-events-none relative">
+    {/* Map is a fixed fullscreen background; the table scrolls on top (overlapping is intentional). */}
+    <div class="pointer-events-auto fixed inset-0">
+      <ProjectsMap projects={mapProjects} />
+    </div>
+    {/* Let the map be panned where the table has no content; the table itself re-enables events. */}
+    <div class="pointer-events-none relative">
+      <ProjectsTable rows={rows} client:load />
+    </div>
   </main>
 </Base>

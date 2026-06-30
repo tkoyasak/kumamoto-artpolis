@@ -10,7 +10,7 @@ interface Props {
 const { projects } = Astro.props;
 ---
 
-<div id="projects-map" class="h-[60vh] w-full"></div>
+<div id="projects-map" class="h-full w-full"></div>
 {/* Map data is build-time trusted; embedded as JSON for the island script. */}
 <script id="projects-map-data" type="application/json" is:inline set:html={JSON.stringify(projects)}
 ></script>

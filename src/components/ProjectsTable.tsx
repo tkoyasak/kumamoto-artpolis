@@ -113,7 +113,7 @@ export default function ProjectsTable({ rows }: { rows: ExplorerRow[] }) {
   const visibleRows = table.getRowModel().rows;
 
   return (
-    <section className="mx-auto max-w-5xl p-4 sm:p-8">
+    <section className="pointer-events-auto max-w-5xl p-4 sm:p-8">
       <h1 className="text-2xl font-bold">熊本アートポリス 訪問記録</h1>
       <p className="mt-1 text-sm text-gray-600">{visibleRows.length} 件</p>
 

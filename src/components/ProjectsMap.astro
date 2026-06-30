@@ -27,30 +27,13 @@ const { projects } = Astro.props;
   const FALLBACK_CENTER: [number, number] = [130.7417, 32.7898]; // Kumamoto City
   const FALLBACK_ZOOM = 8;
 
-  const VISITED_COLOR = "#e11d48"; // rose-600
-  const UNVISITED_COLOR = "#9ca3af"; // gray-400
-  const KAP92_COLOR = "#6366f1"; // indigo-500
+  // Color encodes the collection; fill (below) encodes visited status.
+  // Keep in sync with --color-project / --color-kap92 in global.css (used for the table hover).
+  const COLOR_PROJECT = "#ff5031";
+  const COLOR_KAP92 = "#0009f3";
 
   function markerColor(project: MapProject): string {
-    if (project.category === "kap92") return KAP92_COLOR;
-    return project.visited ? VISITED_COLOR : UNVISITED_COLOR;
-  }
-
-  function escapeHtml(value: string): string {
-    return value.replace(/[&<>"']/g, (char) => {
-      switch (char) {
-        case "&":
-          return "&amp;";
-        case "<":
-          return "&lt;";
-        case ">":
-          return "&gt;";
-        case '"':
-          return "&quot;";
-        default:
-          return "&#39;";
-      }
-    });
+    return project.category === "kap92" ? COLOR_KAP92 : COLOR_PROJECT;
   }
 
   const dataElement = document.getElementById("projects-map-data");
@@ -70,20 +53,23 @@ const { projects } = Astro.props;
     const bounds = new maplibregl.LngLatBounds();
     for (const project of projects) {
       const lngLat: [number, number] = [project.lng, project.lat];
-      const popup = new maplibregl.Popup({ offset: 16 }).setHTML(
-        `<a href="${project.href}" class="font-medium text-rose-600 underline">${escapeHtml(project.name)}</a>` +
-          (project.completedYear
-            ? `<div class="mt-0.5 text-base text-gray-500">${project.completedYear}年</div>`
-            : ""),
-      );
-      const marker = new maplibregl.Marker({ color: markerColor(project) })
-        .setLngLat(lngLat)
-        .setPopup(popup)
-        .addTo(map);
-      const element = marker.getElement();
-      element.style.cursor = "pointer";
+      const color = markerColor(project);
+
+      // Custom square marker: outlined in the collection color, filled when visited.
+      const element = document.createElement("div");
+      element.className = "map-marker";
+      const dot = document.createElement("div");
+      dot.className = "map-marker-dot";
+      dot.style.setProperty("--marker-color", color);
+      dot.style.backgroundColor = project.visited ? color : "transparent";
+      element.appendChild(dot);
+
+      const marker = new maplibregl.Marker({ element }).setLngLat(lngLat).addTo(map);
       element.addEventListener("mouseenter", () => $hovered.set(project.href));
       element.addEventListener("mouseleave", () => $hovered.set(null));
+      element.addEventListener("click", () => {
+        window.location.href = project.href;
+      });
       markers.set(project.href, marker);
       bounds.extend(lngLat);
     }

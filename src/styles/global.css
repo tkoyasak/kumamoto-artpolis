@@ -1,16 +1,28 @@
 @import "tailwindcss";
 
+/* Collection colors. Keep in sync with the marker color constants in ProjectsMap.astro. */
 @theme {
-  --color-accent: #ff5031;
+  --color-project: #ff5031;
+  --color-kap92: #0009f3;
 }
 
-/* Highlight a maplibre marker when its table row (or the marker) is hovered.
-   Avoid `transform` on the root element — maplibre uses it for positioning. */
+/* Custom map markers: color = collection (project = #ff5031, KAP'92 = #0009f3),
+   fill = visited (solid = visited, outline only = not visited). */
+.map-marker {
+  cursor: pointer;
+}
+.map-marker-dot {
+  width: 12px;
+  height: 12px;
+  border: 1px solid var(--marker-color);
+}
+
+/* Highlight when the marker or its table row is hovered: surround it with an
+   outline ring in the collection color (mirrors the table row hover). */
 .marker-active {
   z-index: 1;
-  filter: drop-shadow(0 0 4px rgb(0 0 0 / 0.45));
 }
-.marker-active svg {
-  transform: scale(1.25);
-  transform-origin: bottom center;
+.marker-active .map-marker-dot {
+  outline: 1px solid var(--marker-color);
+  outline-offset: 5px;
 }

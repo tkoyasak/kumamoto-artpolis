@@ -112,27 +112,30 @@ export default function ProjectsTable({ rows }: { rows: ExplorerRow[] }) {
         <tbody>
           {sections.map(({ key, rows: sectionRows }) => (
             <Fragment key={key}>
-              {sectionRows.map((row) => (
-                <tr
-                  key={row.original.href}
-                  onMouseEnter={() => $hovered.set(row.original.href)}
-                  onMouseLeave={() => $hovered.set(null)}
-                  onClick={() => {
-                    window.location.href = row.original.href;
-                  }}
-                  className={`outline-accent cursor-pointer -outline-offset-1 ${
-                    hovered === row.original.href
-                      ? "outline"
-                      : "hover:outline hover:outline-gray-300"
-                  }`}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <td key={cell.id} className="py-1.5 pr-4 text-sm">
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    </td>
-                  ))}
-                </tr>
-              ))}
+              {sectionRows.map((row) => {
+                // Outline color mirrors the map marker color for the collection.
+                const outlineColor =
+                  row.original.category === "kap92" ? "outline-kap92" : "outline-project";
+                return (
+                  <tr
+                    key={row.original.href}
+                    onMouseEnter={() => $hovered.set(row.original.href)}
+                    onMouseLeave={() => $hovered.set(null)}
+                    onClick={() => {
+                      window.location.href = row.original.href;
+                    }}
+                    className={`cursor-pointer -outline-offset-1 ${outlineColor} ${
+                      hovered === row.original.href ? "outline" : "hover:outline"
+                    }`}
+                  >
+                    {row.getVisibleCells().map((cell) => (
+                      <td key={cell.id} className="py-1.5 pr-4 text-sm">
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </td>
+                    ))}
+                  </tr>
+                );
+              })}
             </Fragment>
           ))}
         </tbody>

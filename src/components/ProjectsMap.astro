@@ -51,7 +51,8 @@ const { projects } = Astro.props;
 
     const markers = new Map<string, Marker>();
     const bounds = new maplibregl.LngLatBounds();
-    for (const project of projects) {
+    // Register in reverse so earlier entries (projects) are added last and sit on top of KAP'92.
+    for (const project of [...projects].reverse()) {
       const lngLat: [number, number] = [project.lng, project.lat];
       const color = markerColor(project);
 

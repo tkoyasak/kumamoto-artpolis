@@ -37,9 +37,9 @@ export default function ProjectsTable({ rows }: { rows: ExplorerRow[] }) {
         ),
       }),
       columnHelper.accessor("architects", {
-        header: "Architect",
+        header: "Architects",
         enableSorting: false,
-        cell: (info) => info.getValue().join("、"),
+        cell: (info) => info.getValue().join(", "),
       }),
       columnHelper.accessor("use", { header: "Use", enableSorting: false }),
       columnHelper.accessor("municipality", { header: "Location" }),
@@ -89,7 +89,7 @@ export default function ProjectsTable({ rows }: { rows: ExplorerRow[] }) {
                 return (
                   <th
                     key={header.id}
-                    className={`py-1.5 pr-4 font-normal${canSort ? " cursor-pointer select-none" : ""}`}
+                    className={`py-1 pr-4 font-normal${canSort ? " cursor-pointer select-none" : ""}`}
                     onClick={
                       canSort
                         ? (event) => header.column.getToggleSortingHandler()?.(event)
@@ -129,7 +129,7 @@ export default function ProjectsTable({ rows }: { rows: ExplorerRow[] }) {
                     }`}
                   >
                     {row.getVisibleCells().map((cell) => (
-                      <td key={cell.id} className="py-1.5 pr-4 text-sm">
+                      <td key={cell.id} className="py-1 pr-4 text-sm whitespace-nowrap">
                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </td>
                     ))}

@@ -26,7 +26,7 @@ const mapProjects = toMapProjects(await getExplorerRows());
     <ClientRouter />
   </head>
   <body>
-    <div id="map-layer" class="pointer-events-auto fixed inset-0" transition:persist>
+    <div id="map-layer" class="pointer-events-auto fixed inset-0" transition:persist="map-layer">
       <ProjectsMap projects={mapProjects} />
     </div>
     <Header />

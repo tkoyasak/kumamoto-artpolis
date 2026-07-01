@@ -7,11 +7,21 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
+import { navigate } from "astro:transitions/client";
 import { Fragment } from "preact";
 import { useMemo, useState } from "preact/hooks";
 
 import type { ExplorerRow } from "../lib/explorer.ts";
 import { $hovered } from "../lib/stores.ts";
+import { EXPLORER_HEAD_VT, rowTransitionName } from "../lib/transitions.ts";
+
+// Navigate via the ClientRouter (enables View Transitions). Before navigating, tag
+// the clicked row with the shared transition name so it morphs into the detail
+// page's row. `el` is any element inside the row (the <tr> or the name <a>).
+function goToRow(href: string, el: HTMLElement) {
+  el.closest("tr")?.style.setProperty("view-transition-name", rowTransitionName(href));
+  navigate(href);
+}
 
 const columnHelper = createColumnHelper<ExplorerRow>();
 
@@ -30,7 +40,13 @@ export default function ProjectsTable({ rows }: { rows: ExplorerRow[] }) {
           <a
             href={info.row.original.href}
             className="font-medium"
-            onClick={(event) => event.stopPropagation()}
+            onClick={(event) => {
+              event.stopPropagation();
+              // Let the browser handle modified clicks (open in new tab, etc.).
+              if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+              event.preventDefault();
+              goToRow(info.row.original.href, event.currentTarget);
+            }}
           >
             {info.getValue()}
           </a>
@@ -82,7 +98,11 @@ export default function ProjectsTable({ rows }: { rows: ExplorerRow[] }) {
       <table className="w-full border-collapse text-base">
         <thead>
           {table.getHeaderGroups().map((headerGroup) => (
-            <tr key={headerGroup.id} className="text-left">
+            <tr
+              key={headerGroup.id}
+              className="text-left"
+              style={{ viewTransitionName: EXPLORER_HEAD_VT }}
+            >
               {headerGroup.headers.map((header) => {
                 const canSort = header.column.getCanSort();
                 const sorted = header.column.getIsSorted();
@@ -119,11 +139,10 @@ export default function ProjectsTable({ rows }: { rows: ExplorerRow[] }) {
                 return (
                   <tr
                     key={row.original.href}
+                    data-row-href={row.original.href}
                     onMouseEnter={() => $hovered.set(row.original.href)}
                     onMouseLeave={() => $hovered.set(null)}
-                    onClick={() => {
-                      window.location.href = row.original.href;
-                    }}
+                    onClick={(event) => goToRow(row.original.href, event.currentTarget)}
                     className={`cursor-pointer -outline-offset-1 ${outlineColor} ${
                       hovered === row.original.href ? "outline" : "hover:outline"
                     }`}

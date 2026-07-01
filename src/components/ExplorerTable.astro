@@ -1,9 +1,11 @@
 ---
 import type { ExplorerRow } from "../lib/explorer.ts";
+import { EXPLORER_HEAD_VT, rowTransitionName } from "../lib/transitions.ts";
 
 // Static counterpart to the interactive home explorer table (ProjectsTable.tsx):
 // same styling, but no sorting/hover/map linkage. Used on detail pages to show a
-// single entry as a header + one row.
+// single entry as a header + one row. The header and the row carry shared View
+// Transition names so the home table morphs into this one on navigation.
 interface Props {
   rows: ExplorerRow[];
 }
@@ -16,7 +18,7 @@ const headers = ["No.", "Name", "Architects", "Use", "Location", "Year", "Visite
 <section class="max-w-5xl p-4 sm:p-8">
   <table class="w-full border-collapse text-base">
     <thead>
-      <tr class="text-left">
+      <tr class="text-left" transition:name={EXPLORER_HEAD_VT}>
         {headers.map((header) => <th class="py-1 pr-4 font-normal first:pl-4">{header}</th>)}
       </tr>
     </thead>
@@ -24,7 +26,9 @@ const headers = ["No.", "Name", "Architects", "Use", "Location", "Year", "Visite
       {
         rows.map((row) => (
           <tr
-            class={`outline -outline-offset-1 ${
+            transition:name={rowTransitionName(row.href)}
+            data-home-row
+            class={`cursor-pointer outline -outline-offset-1 ${
               row.category === "kap92" ? "outline-kap92" : "outline-project"
             }`}
           >
@@ -45,3 +49,44 @@ const headers = ["No.", "Name", "Architects", "Use", "Location", "Year", "Visite
     </tbody>
   </table>
 </section>
+
+<script>
+  // The detail-page row navigates back to the home explorer (via the ClientRouter,
+  // so the shared transition names animate). Rebind on each swap since the row is
+  // fresh DOM; a dataset flag guards against double-binding on the same element.
+  import { navigate } from "astro:transitions/client";
+  import { rowTransitionName } from "../lib/transitions.ts";
+
+  function bindHomeRows() {
+    for (const row of document.querySelectorAll<HTMLElement>("[data-home-row]")) {
+      if (row.dataset.bound) continue;
+      row.dataset.bound = "1";
+      row.addEventListener("click", () => navigate("/"));
+    }
+  }
+
+  bindHomeRows();
+  document.addEventListener("astro:page-load", bindHomeRows);
+
+  // Returning to the home page: pair the detail row with its home slot (same
+  // transition name) so it morphs back into place. Show the outline for the morph
+  // only — include it in the captured "new" snapshot, then strip it from the live
+  // row once the snapshot is taken (transition ready), so it is gone the instant
+  // the row settles. Clean up the transition name after the animation finishes.
+  document.addEventListener("astro:before-swap", (event) => {
+    if (event.to.pathname !== "/") return;
+    const fromPath = event.from.pathname;
+    const row = event.newDocument.querySelector<HTMLElement>(`[data-row-href="${fromPath}"]`);
+    if (!row) return;
+
+    row.style.setProperty("view-transition-name", rowTransitionName(fromPath));
+
+    const vt = event.viewTransition;
+    if (!vt) return; // no View Transitions support: skip the outline flourish
+    row.classList.add("outline");
+
+    const liveRow = () => document.querySelector<HTMLElement>(`[data-row-href="${fromPath}"]`);
+    vt.ready.finally(() => liveRow()?.classList.remove("outline"));
+    vt.finished.finally(() => liveRow()?.style.removeProperty("view-transition-name"));
+  });
+</script>

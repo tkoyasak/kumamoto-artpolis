@@ -7,6 +7,12 @@
 // The table header row: same name on both tables, so it stays put across the swap.
 export const EXPLORER_HEAD_VT = "explorer-head";
 
+// The persisted map layer. Doubles as its DOM id and its `transition:persist` name
+// (Base.astro), and the id the map island toggles visibility on (ProjectsMap.astro).
+// Pinning an explicit persist name keeps it stable across pages — Astro's
+// auto-generated persist ids are position-dependent and were colliding.
+export const MAP_LAYER_ID = "map-layer";
+
 // A stable name for one row, keyed by its href. On the home table this is applied
 // only to the row being clicked (all rows sharing a name would each become their
 // own transition group); the detail page applies it to its single row.

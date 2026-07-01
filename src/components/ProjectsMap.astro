@@ -22,6 +22,7 @@ const { projects } = Astro.props;
   import maplibregl, { type Marker } from "maplibre-gl";
   import type { MapProject } from "../lib/map.ts";
   import { $hovered } from "../lib/stores.ts";
+  import { MAP_LAYER_ID } from "../lib/transitions.ts";
 
   const STYLE_URL = "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json";
   const FALLBACK_CENTER: [number, number] = [130.7417, 32.7898]; // Kumamoto City
@@ -86,7 +87,7 @@ const { projects } = Astro.props;
     // The map layer persists across navigation (transition:persist), so this script
     // runs once. Show it only on the home page and resize on return, since the
     // container has no dimensions while hidden. astro:after-swap covers navigations.
-    const layer = document.getElementById("map-layer");
+    const layer = document.getElementById(MAP_LAYER_ID);
     function syncVisibility() {
       const onHome = location.pathname === "/";
       if (layer) layer.style.display = onHome ? "" : "none";

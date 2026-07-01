@@ -3,6 +3,7 @@ import { ClientRouter } from "astro:transitions";
 import Header from "../components/Header.astro";
 import ProjectsMap from "../components/ProjectsMap.astro";
 import { getExplorerRows, toMapProjects } from "../lib/explorer.ts";
+import { MAP_LAYER_ID } from "../lib/transitions.ts";
 import "../styles/global.css";
 
 interface Props {
@@ -26,7 +27,7 @@ const mapProjects = toMapProjects(await getExplorerRows());
     <ClientRouter />
   </head>
   <body>
-    <div id="map-layer" class="pointer-events-auto fixed inset-0" transition:persist="map-layer">
+    <div id={MAP_LAYER_ID} class="pointer-events-auto fixed inset-0" transition:persist={MAP_LAYER_ID}>
       <ProjectsMap projects={mapProjects} />
     </div>
     <Header />

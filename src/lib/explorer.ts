@@ -1,4 +1,8 @@
+import { getCollection } from "astro:content";
 import type { CollectionEntry } from "astro:content";
+
+import type { MapProject } from "./map.ts";
+import { getVisitDatesByProject } from "./projects.ts";
 
 // Shared row shape for the home explorer (table + map). One row per project or
 // KAP'92 building. `href` is the unique key linking a table row to its marker.
@@ -15,6 +19,42 @@ export type ExplorerRow = {
   lat: number | null;
   lng: number | null;
 };
+
+// Load and merge both collections into the sorted explorer rows. Projects sort
+// before KAP'92, then by official number. Used by the home table and the map layer.
+export async function getExplorerRows(): Promise<ExplorerRow[]> {
+  const projects = await getCollection("projects");
+  const kap92 = await getCollection("kap92");
+  const visits = await getVisitDatesByProject();
+
+  const projectRows = projects.map((project) =>
+    toProjectRow(project, (visits.get(project.data.slug) ?? [])[0] ?? null),
+  );
+  const kap92Rows = kap92.map((building) => toKap92Row(building));
+
+  return [...projectRows, ...kap92Rows].sort((a, b) => {
+    if (a.category !== b.category) return a.category === "project" ? -1 : 1;
+    return a.number - b.number;
+  });
+}
+
+// Derive the map markers from explorer rows: only entries with coordinates.
+export function toMapProjects(rows: ExplorerRow[]): MapProject[] {
+  const mapProjects: MapProject[] = [];
+  for (const row of rows) {
+    if (row.lat == null || row.lng == null) continue;
+    mapProjects.push({
+      href: row.href,
+      name: row.name,
+      category: row.category,
+      completedYear: row.completedYear,
+      visited: row.visitedDate != null,
+      lat: row.lat,
+      lng: row.lng,
+    });
+  }
+  return mapProjects;
+}
 
 // Build the explorer row for a project entry. `visitedDate` is its latest visit.
 export function toProjectRow(

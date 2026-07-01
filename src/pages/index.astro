@@ -1,53 +1,15 @@
 ---
-import { getCollection } from "astro:content";
-import ProjectsMap from "../components/ProjectsMap.astro";
 import ProjectsTable from "../components/ProjectsTable.tsx";
 import Base from "../layouts/Base.astro";
-import type { ExplorerRow } from "../lib/explorer.ts";
-import { toKap92Row, toProjectRow } from "../lib/explorer.ts";
-import type { MapProject } from "../lib/map.ts";
-import { getVisitDatesByProject } from "../lib/projects.ts";
+import { getExplorerRows } from "../lib/explorer.ts";
 
-const projects = await getCollection("projects");
-const kap92 = await getCollection("kap92");
-const visits = await getVisitDatesByProject();
-
-const projectRows: ExplorerRow[] = projects.map((project) =>
-  toProjectRow(project, (visits.get(project.data.slug) ?? [])[0] ?? null),
-);
-
-const kap92Rows: ExplorerRow[] = kap92.map((building) => toKap92Row(building));
-
-const rows = [...projectRows, ...kap92Rows].sort((a, b) => {
-  if (a.category !== b.category) return a.category === "project" ? -1 : 1;
-  return a.number - b.number;
-});
-
-// Only entries with coordinates get a marker.
-const mapProjects: MapProject[] = [];
-for (const row of rows) {
-  if (row.lat == null || row.lng == null) continue;
-  mapProjects.push({
-    href: row.href,
-    name: row.name,
-    category: row.category,
-    completedYear: row.completedYear,
-    visited: row.visitedDate != null,
-    lat: row.lat,
-    lng: row.lng,
-  });
-}
+const rows = await getExplorerRows();
 ---
 
 <Base>
+  {/* The map is a fixed fullscreen background rendered by the layout (persisted
+      across navigation). The table scrolls on top; overlapping is intentional. */}
   <main class="pointer-events-none relative">
-    {/* Map is a fixed fullscreen background; the table scrolls on top (overlapping is intentional). */}
-    <div class="pointer-events-auto fixed inset-0">
-      <ProjectsMap projects={mapProjects} />
-    </div>
-    {/* Let the map be panned where the table has no content; the table itself re-enables events. */}
-    <div class="pointer-events-none relative">
-      <ProjectsTable rows={rows} client:load />
-    </div>
+    <ProjectsTable rows={rows} client:load />
   </main>
 </Base>

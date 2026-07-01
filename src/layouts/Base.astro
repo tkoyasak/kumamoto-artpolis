@@ -1,5 +1,8 @@
 ---
+import { ClientRouter } from "astro:transitions";
 import Header from "../components/Header.astro";
+import ProjectsMap from "../components/ProjectsMap.astro";
+import { getExplorerRows, toMapProjects } from "../lib/explorer.ts";
 import "../styles/global.css";
 
 interface Props {
@@ -7,6 +10,11 @@ interface Props {
 }
 
 const { title = "Kumamoto Artpolis" } = Astro.props;
+
+// The map layer lives in the layout (not the home page) so its maplibre instance
+// survives navigation via transition:persist — returning home reuses it instead of
+// re-initializing. It is shown only on "/" (toggled client-side in ProjectsMap).
+const mapProjects = toMapProjects(await getExplorerRows());
 ---
 
 <!doctype html>
@@ -15,8 +23,12 @@ const { title = "Kumamoto Artpolis" } = Astro.props;
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
+    <ClientRouter />
   </head>
   <body>
+    <div id="map-layer" class="pointer-events-auto fixed inset-0" transition:persist>
+      <ProjectsMap projects={mapProjects} />
+    </div>
     <Header />
     <slot />
   </body>

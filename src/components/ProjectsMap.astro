@@ -82,5 +82,17 @@ const { projects } = Astro.props;
         marker.getElement().classList.toggle("marker-active", key === href);
       }
     });
+
+    // The map layer persists across navigation (transition:persist), so this script
+    // runs once. Show it only on the home page and resize on return, since the
+    // container has no dimensions while hidden. astro:after-swap covers navigations.
+    const layer = document.getElementById("map-layer");
+    function syncVisibility() {
+      const onHome = location.pathname === "/";
+      if (layer) layer.style.display = onHome ? "" : "none";
+      if (onHome) map.resize();
+    }
+    document.addEventListener("astro:after-swap", syncVisibility);
+    syncVisibility();
   }
 </script>

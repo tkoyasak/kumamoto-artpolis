@@ -4,6 +4,7 @@ import ProjectsMap from "../components/ProjectsMap.astro";
 import ProjectsTable from "../components/ProjectsTable.tsx";
 import Base from "../layouts/Base.astro";
 import type { ExplorerRow } from "../lib/explorer.ts";
+import { toKap92Row, toProjectRow } from "../lib/explorer.ts";
 import type { MapProject } from "../lib/map.ts";
 import { getVisitDatesByProject } from "../lib/projects.ts";
 
@@ -11,33 +12,11 @@ const projects = await getCollection("projects");
 const kap92 = await getCollection("kap92");
 const visits = await getVisitDatesByProject();
 
-const projectRows: ExplorerRow[] = projects.map((project) => ({
-  href: `/projects/${project.data.slug}`,
-  category: "project",
-  number: project.data.number,
-  name: project.data.name,
-  architects: project.data.architects,
-  use: project.data.use,
-  municipality: project.data.municipality,
-  completedYear: project.data.completedYear,
-  visitedDate: (visits.get(project.data.slug) ?? [])[0] ?? null,
-  lat: project.data.lat,
-  lng: project.data.lng,
-}));
+const projectRows: ExplorerRow[] = projects.map((project) =>
+  toProjectRow(project, (visits.get(project.data.slug) ?? [])[0] ?? null),
+);
 
-const kap92Rows: ExplorerRow[] = kap92.map((building) => ({
-  href: `/kap92/${building.data.slug}`,
-  category: "kap92",
-  number: building.data.number,
-  name: building.data.name,
-  architects: building.data.architects ?? [],
-  use: building.data.use ?? "",
-  municipality: building.data.municipality ?? "",
-  completedYear: building.data.completedYear ?? null,
-  visitedDate: null,
-  lat: building.data.lat ?? null,
-  lng: building.data.lng ?? null,
-}));
+const kap92Rows: ExplorerRow[] = kap92.map((building) => toKap92Row(building));
 
 const rows = [...projectRows, ...kap92Rows].sort((a, b) => {
   if (a.category !== b.category) return a.category === "project" ? -1 : 1;

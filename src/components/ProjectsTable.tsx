@@ -89,7 +89,7 @@ export default function ProjectsTable({ rows }: { rows: ExplorerRow[] }) {
                 return (
                   <th
                     key={header.id}
-                    className={`py-1 pr-4 font-normal${canSort ? " cursor-pointer select-none" : ""}`}
+                    className={`py-1 pr-4 first:pl-4 font-normal${canSort ? " cursor-pointer select-none" : ""}`}
                     onClick={
                       canSort
                         ? (event) => header.column.getToggleSortingHandler()?.(event)
@@ -129,7 +129,7 @@ export default function ProjectsTable({ rows }: { rows: ExplorerRow[] }) {
                     }`}
                   >
                     {row.getVisibleCells().map((cell) => (
-                      <td key={cell.id} className="py-1 pr-4 text-sm whitespace-nowrap">
+                      <td key={cell.id} className="py-1 pr-4 text-sm whitespace-nowrap first:pl-4">
                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </td>
                     ))}

@@ -1,6 +1,8 @@
 ---
 import { getCollection, render } from "astro:content";
+import ExplorerTable from "../../components/ExplorerTable.astro";
 import Base from "../../layouts/Base.astro";
+import { toKap92Row } from "../../lib/explorer.ts";
 
 // Prerender one page per KAP'92 selected existing building, keyed by slug.
 export async function getStaticPaths() {
@@ -14,22 +16,15 @@ export async function getStaticPaths() {
 const { entry } = Astro.props;
 const { Content } = await render(entry);
 
-const meta = [
-  entry.data.architects?.join("、"),
-  entry.data.completedYear ? `${entry.data.completedYear}年` : undefined,
-  entry.data.municipality,
-  entry.data.use,
-]
-  .filter((value): value is string => Boolean(value))
-  .join(" / ");
+const row = toKap92Row(entry);
 ---
 
-<Base title={`${entry.data.name} | Kumamoto Artpolis`}>
+<Base title={`Kumamoto Artpolis > ${entry.data.name}`}>
+  <ExplorerTable rows={[row]} />
   <main class="mx-auto max-w-2xl p-8">
     <a href="/" class="text-base text-rose-600 hover:underline">← トップへ</a>
 
     <h1 class="mt-4 text-base font-bold">{entry.data.name}</h1>
-    {meta && <p class="mt-1 text-base text-gray-600">{meta}</p>}
 
     <div class="mt-6 text-gray-800">
       <Content />

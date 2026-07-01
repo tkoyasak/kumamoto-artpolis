@@ -1,6 +1,8 @@
 ---
 import { getCollection, render } from "astro:content";
+import ExplorerTable from "../../components/ExplorerTable.astro";
 import Base from "../../layouts/Base.astro";
+import { toProjectRow } from "../../lib/explorer.ts";
 import { getVisitDatesByProject } from "../../lib/projects.ts";
 
 // Prerender one page per project, keyed by the human-readable slug.
@@ -15,18 +17,16 @@ export async function getStaticPaths() {
 
 const { entry, visitedDates } = Astro.props;
 const { Content } = await render(entry);
+
+const row = toProjectRow(entry, visitedDates[0] ?? null);
 ---
 
-<Base title={`${entry.data.name} | Kumamoto Artpolis`}>
+<Base title={`Kumamoto Artpolis > ${entry.data.name}`}>
+  <ExplorerTable rows={[row]} />
   <main class="mx-auto max-w-2xl p-8">
     <a href="/" class="text-base text-rose-600 hover:underline">← 一覧へ戻る</a>
 
     <h1 class="mt-4 text-base font-bold">{entry.data.name}</h1>
-    <p class="mt-1 text-base text-gray-600">
-      {entry.data.architects.join("、")} / {entry.data.completedYear}年 / {
-        entry.data.municipality
-      } / {entry.data.use}
-    </p>
 
     <div class="mt-6 text-gray-800">
       <Content />

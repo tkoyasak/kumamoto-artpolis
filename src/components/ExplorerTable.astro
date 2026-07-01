@@ -1,0 +1,47 @@
+---
+import type { ExplorerRow } from "../lib/explorer.ts";
+
+// Static counterpart to the interactive home explorer table (ProjectsTable.tsx):
+// same styling, but no sorting/hover/map linkage. Used on detail pages to show a
+// single entry as a header + one row.
+interface Props {
+  rows: ExplorerRow[];
+}
+
+const { rows } = Astro.props;
+
+const headers = ["No.", "Name", "Architects", "Use", "Location", "Year", "Visited"];
+---
+
+<section class="max-w-5xl p-4 sm:p-8">
+  <table class="w-full border-collapse text-base">
+    <thead>
+      <tr class="text-left">
+        {headers.map((header) => <th class="py-1 pr-4 font-normal first:pl-4">{header}</th>)}
+      </tr>
+    </thead>
+    <tbody>
+      {
+        rows.map((row) => (
+          <tr
+            class={`outline -outline-offset-1 ${
+              row.category === "kap92" ? "outline-kap92" : "outline-project"
+            }`}
+          >
+            <td class="py-1 pr-4 text-sm whitespace-nowrap first:pl-4">{row.number}</td>
+            <td class="py-1 pr-4 text-sm whitespace-nowrap first:pl-4">
+              <span class="font-medium">{row.name}</span>
+            </td>
+            <td class="py-1 pr-4 text-sm whitespace-nowrap first:pl-4">
+              {row.architects.join(", ")}
+            </td>
+            <td class="py-1 pr-4 text-sm whitespace-nowrap first:pl-4">{row.use}</td>
+            <td class="py-1 pr-4 text-sm whitespace-nowrap first:pl-4">{row.municipality}</td>
+            <td class="py-1 pr-4 text-sm whitespace-nowrap first:pl-4">{row.completedYear ?? ""}</td>
+            <td class="py-1 pr-4 text-sm whitespace-nowrap first:pl-4">{row.visitedDate ?? ""}</td>
+          </tr>
+        ))
+      }
+    </tbody>
+  </table>
+</section>

@@ -13,7 +13,12 @@ import { useMemo, useState } from "preact/hooks";
 
 import type { ExplorerRow } from "../lib/explorer.ts";
 import { $hovered } from "../lib/stores.ts";
-import { EXPLORER_HEAD_VT, rowTransitionName } from "../lib/transitions.ts";
+import {
+  EXPLORER_COL_WIDTHS,
+  EXPLORER_HEAD_VT,
+  EXPLORER_TABLE_WIDTH,
+  rowTransitionName,
+} from "../lib/transitions.ts";
 
 // Navigate via the ClientRouter (enables View Transitions). Before navigating, tag
 // the clicked row with the shared transition name so it morphs into the detail
@@ -94,8 +99,16 @@ export default function ProjectsTable({ rows }: { rows: ExplorerRow[] }) {
   ];
 
   return (
-    <section className="pointer-events-auto max-w-5xl p-4 sm:p-8">
-      <table className="w-full border-collapse text-base">
+    <section className="pointer-events-auto max-w-5xl overflow-x-auto p-4 sm:p-8">
+      <table
+        className="table-fixed border-collapse text-base"
+        style={{ width: EXPLORER_TABLE_WIDTH }}
+      >
+        <colgroup>
+          {EXPLORER_COL_WIDTHS.map((w) => (
+            <col key={w} style={{ width: w }} />
+          ))}
+        </colgroup>
         <thead>
           {table.getHeaderGroups().map((headerGroup) => (
             <tr
@@ -109,7 +122,7 @@ export default function ProjectsTable({ rows }: { rows: ExplorerRow[] }) {
                 return (
                   <th
                     key={header.id}
-                    className={`py-1 pr-4 first:pl-4 font-normal${canSort ? " cursor-pointer select-none" : ""}`}
+                    className={`truncate py-1 pr-4 first:pl-4 font-normal${canSort ? " cursor-pointer select-none" : ""}`}
                     onClick={
                       canSort
                         ? (event) => header.column.getToggleSortingHandler()?.(event)
@@ -148,7 +161,7 @@ export default function ProjectsTable({ rows }: { rows: ExplorerRow[] }) {
                     }`}
                   >
                     {row.getVisibleCells().map((cell) => (
-                      <td key={cell.id} className="py-1 pr-4 text-sm whitespace-nowrap first:pl-4">
+                      <td key={cell.id} className="truncate py-1 pr-4 text-sm first:pl-4">
                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </td>
                     ))}

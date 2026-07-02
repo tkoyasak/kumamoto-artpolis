@@ -21,7 +21,10 @@ const { Content } = await render(entry);
 const row = toProjectRow(entry, visitedDates[0] ?? null);
 ---
 
-<Base title={`Kumamoto Artpolis > ${entry.data.name}`}>
+<Base
+  title={`Kumamoto Artpolis > ${entry.data.name}`}
+  mapFocus={{ lat: entry.data.lat, lng: entry.data.lng }}
+>
   <ExplorerTable rows={[row]} />
   <main class="mx-auto max-w-2xl p-8">
     <a href="/" class="text-base text-rose-600 hover:underline">← 一覧へ戻る</a>

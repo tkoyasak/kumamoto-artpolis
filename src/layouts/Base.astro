@@ -7,16 +7,25 @@ import "../styles/global.css";
 
 interface Props {
   title?: string;
+  // Set by detail pages: the entry's coordinates, carried on <body> data
+  // attributes. The map script reads them to keep the persisted fullscreen map
+  // in place (camera untouched), clip it to a square around this marker, and
+  // keep the marker's outline highlight on.
+  // (`| undefined` for exactOptionalPropertyTypes: kap92 passes an explicit
+  // undefined when an entry has no coordinates.)
+  mapFocus?: { lat: number; lng: number } | undefined;
 }
 
-const { title = "Kumamoto Artpolis" } = Astro.props;
+const { title = "Kumamoto Artpolis", mapFocus } = Astro.props;
 
 // The map layer lives in the layout (not the home page) so its maplibre instance
 // survives navigation via transition:persist — returning home reuses it instead of
 // re-initializing. It is pointer-events-auto and covers the viewport, so off "/"
 // it must be hidden server-side — hiding it client-side only (as before) blocked
 // all clicks on non-home pages until the map script ran. The map script takes
-// over the toggling (and the lazy map init) from here (ProjectsMap.astro).
+// over from here (ProjectsMap.astro): lazy init, and per-navigation visibility —
+// fullscreen on "/", clipped to a square around the marker when the page sets
+// `mapFocus`, hidden elsewhere.
 const onHome = Astro.url.pathname === "/";
 ---
 
@@ -28,7 +37,7 @@ const onHome = Astro.url.pathname === "/";
     <title>{title}</title>
     <ClientRouter />
   </head>
-  <body>
+  <body data-map-lat={mapFocus?.lat} data-map-lng={mapFocus?.lng}>
     <div
       id={MAP_LAYER_ID}
       class="pointer-events-auto fixed inset-0"

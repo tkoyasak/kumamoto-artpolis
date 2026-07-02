@@ -1,28 +1,21 @@
 ---
 // Importing the stylesheet here bundles maplibre's CSS into the page.
 import "maplibre-gl/dist/maplibre-gl.css";
-import type { MapProject } from "../lib/map.ts";
-
-interface Props {
-  projects: MapProject[];
-}
-
-const { projects } = Astro.props;
 ---
 
 <div id="projects-map" class="h-full w-full"></div>
-{/* Map data is build-time trusted; embedded as JSON for the island script. */}
-<script id="projects-map-data" type="application/json" is:inline set:html={JSON.stringify(projects)}
-></script>
 
 <script>
-  // Static import in a client-only island (never runs during SSR), so it never
-  // waits for a framework to hydrate. maplibre is code-split (see manualChunks in
-  // astro.config.ts) and loaded at natural priority — see issues/maplibre-chunk-loading.md.
-  import maplibregl, { type Marker } from "maplibre-gl";
-  import type { MapProject } from "../lib/map.ts";
+  // The map is lazy: maplibre (~1 MB, code-split — see manualChunks in
+  // astro.config.ts and issues/maplibre-chunk-loading.md) and the marker data
+  // (/map-data.json, a prerendered endpoint) are fetched only when "/" is first
+  // shown, so direct visits to other pages never pay for the map. The type-only
+  // maplibre imports below are erased at build time and don't pull the chunk.
+  import { navigate } from "astro:transitions/client";
+  import type { Map as MapLibreMap, Marker } from "maplibre-gl";
+  import { MAP_DATA_URL, type MapProject } from "../lib/map.ts";
   import { $hovered } from "../lib/stores.ts";
-  import { MAP_LAYER_ID } from "../lib/transitions.ts";
+  import { MAP_LAYER_ID, rowTransitionName } from "../lib/transitions.ts";
 
   const STYLE_URL = "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json";
   const FALLBACK_CENTER: [number, number] = [130.7417, 32.7898]; // Kumamoto City
@@ -37,10 +30,11 @@ const { projects } = Astro.props;
     return project.category === "kap92" ? COLOR_KAP92 : COLOR_PROJECT;
   }
 
-  const dataElement = document.getElementById("projects-map-data");
-  const container = document.getElementById("projects-map");
-  if (dataElement?.textContent && container) {
-    const projects: MapProject[] = JSON.parse(dataElement.textContent);
+  async function initMap(container: HTMLElement): Promise<MapLibreMap> {
+    const [{ default: maplibregl }, projects] = await Promise.all([
+      import("maplibre-gl"),
+      fetch(MAP_DATA_URL).then((res) => res.json() as Promise<MapProject[]>),
+    ]);
 
     const map = new maplibregl.Map({
       container,
@@ -69,8 +63,16 @@ const { projects } = Astro.props;
       const marker = new maplibregl.Marker({ element }).setLngLat(lngLat).addTo(map);
       element.addEventListener("mouseenter", () => $hovered.set(project.href));
       element.addEventListener("mouseleave", () => $hovered.set(null));
+      // Navigate via the ClientRouter (like the table rows) so the persisted map
+      // survives the trip — window.location would full-reload and rebuild it.
+      // Tag the entry's table row (markers are only clickable on the home page,
+      // where every row is rendered) so it morphs into the detail-page row, the
+      // same View Transition a direct row click gets.
       element.addEventListener("click", () => {
-        window.location.href = project.href;
+        document
+          .querySelector<HTMLElement>(`[data-row-href="${project.href}"]`)
+          ?.style.setProperty("view-transition-name", rowTransitionName(project.href));
+        navigate(project.href);
       });
       markers.set(project.href, marker);
       bounds.extend(lngLat);
@@ -84,16 +86,38 @@ const { projects } = Astro.props;
       }
     });
 
-    // The map layer persists across navigation (transition:persist), so this script
-    // runs once. Show it only on the home page and resize on return, since the
-    // container has no dimensions while hidden. astro:after-swap covers navigations.
-    const layer = document.getElementById(MAP_LAYER_ID);
-    function syncVisibility() {
-      const onHome = location.pathname === "/";
-      if (layer) layer.style.display = onHome ? "" : "none";
-      if (onHome) map.resize();
-    }
-    document.addEventListener("astro:after-swap", syncVisibility);
-    syncVisibility();
+    return map;
   }
+
+  // The map layer persists across navigation (transition:persist), so this script
+  // runs once. The layout hides the layer server-side off "/" (so it can't block
+  // clicks before this script runs); from here on visibility is toggled per
+  // navigation. The map is initialized on the first navigation that shows it and
+  // resized on later returns, since a hidden container has no dimensions.
+  const container = document.getElementById("projects-map");
+  const layer = document.getElementById(MAP_LAYER_ID);
+  let map: MapLibreMap | null = null;
+  let initStarted = false;
+
+  function syncVisibility() {
+    const onHome = location.pathname === "/";
+    if (layer) layer.style.display = onHome ? "" : "none";
+    if (!onHome || !container) return;
+    if (initStarted) {
+      map?.resize();
+      return;
+    }
+    initStarted = true;
+    initMap(container).then(
+      (created) => {
+        map = created;
+      },
+      // Fetch failed (offline?): allow a retry on a later navigation home.
+      () => {
+        initStarted = false;
+      },
+    );
+  }
+  document.addEventListener("astro:after-swap", syncVisibility);
+  syncVisibility();
 </script>

@@ -111,3 +111,30 @@ survives navigation; hidden off `/` and resized on return.**
 - `src/components/ProjectsMap.astro`: init runs once (bundled module script);
   `astro:after-swap` toggles `#map-layer` visibility to `/` only and calls
   `map.resize()` on return.
+
+## Addendum (2026-07-02): the tradeoff was removed, plus two fixes
+
+Follow-up review found three problems with the implementation above, all fixed
+together:
+
+1. **Non-home pages were click-blocked until the map script ran.** The
+   `#map-layer` is `pointer-events-auto` + `fixed inset-0` and was hidden only
+   client-side, after the ~1 MB maplibre chunk executed — so on a direct visit
+   to `/about` or a detail page, the invisible layer swallowed every click until
+   then (forever, with JS disabled). `Base.astro` now renders the layer with
+   `display:none` off `/`; the script only takes over the toggling.
+2. **The accepted "maplibre loads on every page" tradeoff is gone.** The script
+   now dynamically imports maplibre and fetches the marker data only on the
+   first navigation that shows the map, so non-home visits never pay for the
+   map JS, style, or tiles. Persist behavior on return is unchanged. This stays
+   consistent with the chunk-loading benchmark
+   ([maplibre-chunk-loading.md](maplibre-chunk-loading.md)): still the split
+   chunk, still discovered after the glue script, still no preload.
+3. **Marker clicks used `window.location.href`**, a full reload that destroyed
+   the persisted instance this whole design exists to keep. They now use the
+   ClientRouter's `navigate()`, like the table rows.
+
+The marker data also moved out of the per-page inline JSON `<script>` into a
+prerendered `/map-data.json` endpoint (`src/pages/map-data.json.ts`), fetched
+alongside the maplibre import — one cacheable asset instead of duplicating the
+full dataset into every page's HTML.

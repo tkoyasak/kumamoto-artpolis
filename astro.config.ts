@@ -13,8 +13,9 @@ export default defineConfig({
     build: {
       rollupOptions: {
         output: {
-          // Split maplibre (~1 MB) into its own cacheable chunk, loaded at natural
-          // priority (deliberately not head-preloaded). See issues/maplibre-chunk-loading.md.
+          // Split maplibre (~1 MB) into its own cacheable chunk (deliberately not
+          // head-preloaded), dynamically imported by the map island only when the
+          // map first shows. See issues/maplibre-chunk-loading.md.
           manualChunks(id: string) {
             return id.includes("maplibre-gl") ? "maplibre" : undefined;
           },

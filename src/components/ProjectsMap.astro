@@ -4,12 +4,6 @@ import "maplibre-gl/dist/maplibre-gl.css";
 ---
 
 <div id="projects-map" class="h-full w-full"></div>
-{/* Detail-page overlay: an invisible link sitting exactly on the clipped square
-    (positioned by the script below). Like the entry's table row, clicking it
-    navigates back to the home explorer. It covers the square, so the map is not
-    interactive on detail pages. */}
-<a id="map-focus-link" href="/" aria-label="一覧へ戻る" class="absolute z-10" style="display:none"
-></a>
 
 <script>
   // The map is lazy: maplibre (~1 MB, code-split — see manualChunks in
@@ -73,10 +67,15 @@ import "maplibre-gl/dist/maplibre-gl.css";
       element.addEventListener("mouseleave", () => $hovered.set(null));
       // Navigate via the ClientRouter (like the table rows) so the persisted map
       // survives the trip — window.location would full-reload and rebuild it.
-      // Tag the entry's table row (markers are only clickable on the home page,
-      // where every row is rendered) so it morphs into the detail-page row, the
-      // same View Transition a direct row click gets.
+      // On the marker's own detail page it acts like the entry's table row and
+      // goes back to the explorer instead. Otherwise, tag the entry's table row
+      // (if the current page renders it) so it morphs into the detail-page row,
+      // the same View Transition a direct row click gets.
       element.addEventListener("click", () => {
+        if (location.pathname === project.href) {
+          navigate("/");
+          return;
+        }
         document
           .querySelector<HTMLElement>(`[data-row-href="${project.href}"]`)
           ?.style.setProperty("view-transition-name", rowTransitionName(project.href));
@@ -118,7 +117,6 @@ import "maplibre-gl/dist/maplibre-gl.css";
   // the detail page keeps exactly the view the index showed; elsewhere hidden.
   const container = document.getElementById("projects-map");
   const layer = document.getElementById(MAP_LAYER_ID);
-  const focusLink = document.getElementById("map-focus-link");
   let map: MapLibreMap | null = null;
   let initStarted = false;
   // Set by initMap once the markers exist; re-applies the marker highlight
@@ -142,17 +140,15 @@ import "maplibre-gl/dist/maplibre-gl.css";
   }
 
   // Crop the layer to a square around the current page's marker, or uncrop on
-  // "/". The focus link overlay is kept congruent with the square: it draws the
-  // outline and captures the click back home. Re-reads the DOM because it is
-  // also called asynchronously (after init, on map resize) — the user may have
-  // navigated meanwhile. clip-path also clips hit-testing, so the cropped-away
-  // area cannot block clicks on the page.
+  // "/". Re-reads the DOM because it is also called asynchronously (after init,
+  // on map resize) — the user may have navigated meanwhile. clip-path also clips
+  // hit-testing, so the cropped-away area cannot block clicks on the page; the
+  // square itself stays interactive (the focused marker links back home).
   function applyClip() {
-    if (!layer || !container || !focusLink || !map) return;
+    if (!layer || !container || !map) return;
     const focus = currentFocus();
     if (!focus) {
       layer.style.clipPath = "";
-      focusLink.style.display = "none";
       return;
     }
     const point = map.project(focus);
@@ -161,14 +157,6 @@ import "maplibre-gl/dist/maplibre-gl.css";
     layer.style.clipPath =
       `inset(${point.y - half}px ${width - point.x - half}px ` +
       `${height - point.y - half}px ${point.x - half}px)`;
-
-    // The layer (position: fixed) is the containing block, and its coordinate
-    // space is the viewport — same space map.project() returns.
-    focusLink.style.display = "";
-    focusLink.style.left = `${point.x - half}px`;
-    focusLink.style.top = `${point.y - half}px`;
-    focusLink.style.width = `${FOCUS_CLIP_SIZE}px`;
-    focusLink.style.height = `${FOCUS_CLIP_SIZE}px`;
   }
 
   function syncVisibility() {

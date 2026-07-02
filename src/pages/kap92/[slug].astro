@@ -25,12 +25,15 @@ const mapFocus = lat !== undefined && lng !== undefined ? { lat, lng } : undefin
 
 <Base title={`Kumamoto Artpolis > ${entry.data.name}`} mapFocus={mapFocus}>
   <ExplorerTable rows={[row]} />
-  <main class="mx-auto max-w-2xl p-8">
-    <a href="/" class="text-base text-rose-600 hover:underline">← トップへ</a>
+  {/* relative stacks the text above the persisted fixed map layer (positioned
+      elements paint over it in tree order); pointer-events-none + auto children
+      let clicks in the gaps still reach the map square behind. */}
+  <main class="pointer-events-none relative mx-auto max-w-2xl p-8">
+    <a href="/" class="pointer-events-auto text-base text-rose-600 hover:underline">← トップへ</a>
 
-    <h1 class="mt-4 text-base font-bold">{entry.data.name}</h1>
+    <h1 class="pointer-events-auto mt-4 text-base font-bold">{entry.data.name}</h1>
 
-    <div class="mt-6 text-gray-800">
+    <div class="pointer-events-auto mt-6 text-gray-800">
       <Content />
     </div>
   </main>

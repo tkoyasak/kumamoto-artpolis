@@ -2,7 +2,6 @@
 import { ClientRouter } from "astro:transitions";
 import Header from "../components/Header.astro";
 import ProjectsMap from "../components/ProjectsMap.astro";
-import { getExplorerRows, toMapProjects } from "../lib/explorer.ts";
 import { MAP_LAYER_ID } from "../lib/transitions.ts";
 import "../styles/global.css";
 
@@ -14,8 +13,11 @@ const { title = "Kumamoto Artpolis" } = Astro.props;
 
 // The map layer lives in the layout (not the home page) so its maplibre instance
 // survives navigation via transition:persist — returning home reuses it instead of
-// re-initializing. It is shown only on "/" (toggled client-side in ProjectsMap).
-const mapProjects = toMapProjects(await getExplorerRows());
+// re-initializing. It is pointer-events-auto and covers the viewport, so off "/"
+// it must be hidden server-side — hiding it client-side only (as before) blocked
+// all clicks on non-home pages until the map script ran. The map script takes
+// over the toggling (and the lazy map init) from here (ProjectsMap.astro).
+const onHome = Astro.url.pathname === "/";
 ---
 
 <!doctype html>
@@ -27,8 +29,13 @@ const mapProjects = toMapProjects(await getExplorerRows());
     <ClientRouter />
   </head>
   <body>
-    <div id={MAP_LAYER_ID} class="pointer-events-auto fixed inset-0" transition:persist={MAP_LAYER_ID}>
-      <ProjectsMap projects={mapProjects} />
+    <div
+      id={MAP_LAYER_ID}
+      class="pointer-events-auto fixed inset-0"
+      style={onHome ? undefined : "display:none"}
+      transition:persist={MAP_LAYER_ID}
+    >
+      <ProjectsMap />
     </div>
     <Header />
     <slot />

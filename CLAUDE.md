@@ -42,14 +42,15 @@ For `projects` and `kap92`, the frontmatter **`slug` field is the entry id** —
 - `/` — explorer (table + map) of all projects and KAP'92 buildings
 - `/projects/<slug>`, `/kap92/<slug>` — one prerendered detail page per entry (`getStaticPaths`)
 - `/status` — visit timeline (newest first); `/status/<date>` — one day's record
-- `/about`
+- `/about`; `/404` — served by Workers assets for unknown paths (`not_found_handling`)
+- `/map-data.json` — prerendered endpoint with the map marker data (fetched by the map island)
 
 ## Island architecture (home page)
 
 `src/pages/index.astro` builds a unified `ExplorerRow[]` (`src/lib/explorer.ts`) merging both collections, attaching latest visit date from `getVisitDatesByProject()`, then renders two independent islands:
 
 - **`ProjectsTable.tsx`** — Preact + `@tanstack/react-table`, hydrated `client:load`. React-table libraries run on Preact via `@preact/compat` (see `astro.config.ts` `preact({ compat: true })` and the `react`/`react-dom` overrides in `package.json`).
-- **`ProjectsMap.astro`** — a plain client-side `<script>` (no framework), statically importing maplibre so it never waits for the Preact island to hydrate. maplibre (~1 MB) is code-split into its own cacheable chunk via `manualChunks` (`astro.config.ts`) and loaded at natural priority — deliberately _not_ head-preloaded (benchmarked; see `issues/maplibre-chunk-loading.md`). Map data is passed as an inline JSON `<script>` element, not props.
+- **`ProjectsMap.astro`** — a plain client-side `<script>` (no framework). The map is lazy: maplibre (~1 MB, code-split into its own cacheable chunk via `manualChunks` in `astro.config.ts`, deliberately _not_ head-preloaded — benchmarked; see `issues/maplibre-chunk-loading.md`) and the marker data (`/map-data.json`, a prerendered endpoint at `src/pages/map-data.json.ts`) are fetched only when `/` is first shown. The map layer lives in `Base.astro` under `transition:persist` so the instance survives navigation, and is hidden server-side on non-home pages so it can't block clicks before the script runs.
 
 The two islands share **hover state** through a nanostores atom `$hovered` (`src/lib/stores.ts`), keyed by each row's `href`. Hovering a table row highlights its marker and vice versa. The CSS class `.marker-active` (`src/styles/global.css`) does the highlight — note maplibre owns the marker root's `transform`, so the scale effect is applied to the inner `svg`.
 

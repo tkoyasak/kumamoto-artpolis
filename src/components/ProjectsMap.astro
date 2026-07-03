@@ -7,7 +7,7 @@ import "maplibre-gl/dist/maplibre-gl.css";
 
 <script>
   // The map is lazy: maplibre (~1 MB, code-split — see manualChunks in
-  // astro.config.ts and issues/maplibre-chunk-loading.md) and the marker data
+  // astro.config.ts and docs/issues/0001-maplibre-chunk-loading.md) and the marker data
   // (/map-data.json, a prerendered endpoint) are fetched only when "/" is first
   // shown, so direct visits to other pages never pay for the map. The type-only
   // maplibre imports below are erased at build time and don't pull the chunk.

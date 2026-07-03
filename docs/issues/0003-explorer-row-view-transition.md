@@ -6,7 +6,7 @@ Make the home explorer table and the single-row detail-page table feel like _one
 continuous table_: clicking a row animates it into the detail page, and returning
 animates it back to its original slot. Built on the View Transitions API via
 Astro's ClientRouter (already enabled for the map — see
-[map-persist-across-navigation.md](map-persist-across-navigation.md)).
+[0002-map-persist-across-navigation.md](0002-map-persist-across-navigation.md)).
 
 ## Background
 

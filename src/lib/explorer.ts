@@ -2,7 +2,7 @@ import { getCollection } from "astro:content";
 import type { CollectionEntry } from "astro:content";
 
 import type { MapProject } from "./map.ts";
-import { getVisitDatesByEntry } from "./projects.ts";
+import { getVisitDatesByEntry } from "./visits.ts";
 
 // Shared row shape for the home explorer (table + map). One row per project or
 // KAP'92 building. `href` is the unique key linking a table row to its marker.

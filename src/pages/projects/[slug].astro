@@ -1,7 +1,7 @@
 ---
 import { getCollection } from "astro:content";
 import EntryDetail from "../../components/EntryDetail.astro";
-import { getVisitDatesByEntry } from "../../lib/projects.ts";
+import { getVisitDatesByEntry } from "../../lib/visits.ts";
 
 // Prerender one page per project, keyed by the human-readable slug.
 export async function getStaticPaths() {

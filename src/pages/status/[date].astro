@@ -16,7 +16,7 @@ export async function getStaticPaths() {
 const { entry } = Astro.props;
 const date = entry.id;
 const { Content } = await render(entry);
-const visited = [
+const visitedEntries = [
   ...(await getEntries(entry.data.projects)),
   ...(await getEntries(entry.data.kap92)),
 ].sort((a, b) => {
@@ -36,17 +36,17 @@ const visited = [
     </div>
 
     {
-      visited.length > 0 && (
+      visitedEntries.length > 0 && (
         <section class="mt-8">
           <h2 class="text-base font-semibold">この日の訪問先</h2>
           <ul class="mt-2 space-y-1 text-base">
-            {visited.map((item) => (
+            {visitedEntries.map((entry) => (
               <li>
                 <a
-                  href={`/${item.collection}/${item.id}`}
+                  href={`/${entry.collection}/${entry.id}`}
                   class="text-rose-600 hover:underline"
                 >
-                  {item.data.name}
+                  {entry.data.name}
                 </a>
               </li>
             ))}

@@ -7,7 +7,7 @@ const status = (await getCollection("status")).sort((a, b) => b.id.localeCompare
 const records = await Promise.all(
   status.map(async (entry) => ({
     date: entry.id,
-    visited: [
+    visitedEntries: [
       ...(await getEntries(entry.data.projects)),
       ...(await getEntries(entry.data.kap92)),
     ].sort((a, b) => {
@@ -35,10 +35,10 @@ const records = await Promise.all(
               >
                 {record.date}
               </a>
-              {record.visited.length > 0 && (
+              {record.visitedEntries.length > 0 && (
                 <span class="text-base text-gray-600">
                   {" — "}
-                  {record.visited.map((item) => item.data.name).join("、")}
+                  {record.visitedEntries.map((entry) => entry.data.name).join("、")}
                 </span>
               )}
             </li>

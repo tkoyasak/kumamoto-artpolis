@@ -1,7 +1,7 @@
 ---
 import { getCollection } from "astro:content";
 import EntryDetail from "../../components/EntryDetail.astro";
-import { getVisitDatesByEntry } from "../../lib/projects.ts";
+import { getVisitDatesByEntry } from "../../lib/visits.ts";
 
 // Prerender one page per KAP'92 selected existing building, keyed by slug.
 export async function getStaticPaths() {

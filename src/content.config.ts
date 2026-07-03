@@ -3,18 +3,17 @@ import { z } from "astro/zod";
 import { defineCollection, reference } from "astro:content";
 
 // Both catalog collections share one schema. `projects` are Artpolis commissioned
-// new builds; `kap92` are selected existing buildings. The frontmatter `slug` is
-// the entry id (the glob loader uses a `slug` field as the id), the URL key
-// (/projects/<slug>, /kap92/<slug>), and how `status` references an entry — keep it
-// stable; code reads `entry.data.slug` explicitly rather than `entry.id`. `number`
-// is the official Artpolis / prefecture-list number, used for display and sorting.
+// new builds; `kap92` are selected existing buildings. The Markdown filename is the
+// slug: the glob loader derives `entry.id` from it, so the id is the URL key
+// (/projects/<slug>, /kap92/<slug>) and how `status` references an entry — keep
+// filenames stable. `number` is the official Artpolis / prefecture-list number, a
+// frontmatter field used only for display and sorting (never for identity).
 //
 // `completedYear` is optional and only `.positive()` (kap92 buildings can be
 // historical / lack a precise year); `use` is free text (kap92 ranges beyond
 // projects' building types).
 const catalogSchema = z.object({
   number: z.number().int().positive(),
-  slug: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
   name: z.string().min(1),
   architects: z.array(z.string().min(1)),
   lat: z.number().min(-90).max(90),

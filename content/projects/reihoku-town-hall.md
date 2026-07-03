@@ -1,6 +1,5 @@
 ---
 number: 4
-slug: reihoku-town-hall
 name: 苓北町民ホール
 architects:
   - 阿部仁史

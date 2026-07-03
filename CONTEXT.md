@@ -41,14 +41,14 @@ _Avoid_: type, purpose
 ### Identity & keys
 
 **Slug**:
-An Entry's stable public identifier: its URL path (`/projects/<slug>`) and the
-key by which a visit references it. Once published, it never changes.
-_Avoid_: id (an internal framework term — for an Entry, the id _is_ the Slug), permalink
+An Entry's stable public identifier: its Markdown filename (`<slug>.md`), its URL
+path (`/projects/<slug>`), and the key by which a visit references it.
+_Avoid_: id (an internal framework term — for an Entry, the id _is_ the Slug, derived from the filename), permalink
 
 **Number**:
 An Entry's official catalog number (its Artpolis number, or its 1–46 place in
-the KAP'92 prefecture list). Used only for display and ordering, never for
-identity or references.
+the KAP'92 prefecture list), stored as a frontmatter field. Used only for display
+and ordering, never for identity or references.
 _Avoid_: id, index
 
 ### Visits

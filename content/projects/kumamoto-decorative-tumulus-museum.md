@@ -1,6 +1,5 @@
 ---
 number: 3
-slug: kumamoto-decorative-tumulus-museum
 name: 熊本県立装飾古墳館
 architects:
   - 六角鬼丈

@@ -28,7 +28,7 @@ export async function getExplorerRows(): Promise<ExplorerRow[]> {
   const visits = await getVisitDatesByProject();
 
   const projectRows = projects.map((project) =>
-    toExplorerRow(project, (visits.get(project.data.slug) ?? [])[0] ?? null),
+    toExplorerRow(project, (visits.get(project.id) ?? [])[0] ?? null),
   );
   const kap92Rows = kap92.map((building) => toExplorerRow(building));
 
@@ -60,7 +60,7 @@ export function toExplorerRow(
   visitedDate: string | null = null,
 ): ExplorerRow {
   return {
-    href: `/${entry.collection}/${entry.data.slug}`,
+    href: `/${entry.collection}/${entry.id}`,
     category: entry.collection === "projects" ? "project" : "kap92",
     number: entry.data.number,
     name: entry.data.name,

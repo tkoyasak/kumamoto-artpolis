@@ -39,7 +39,7 @@ const projects = (await getEntries(entry.data.projects)).sort(
             {projects.map((project) => (
               <li>
                 <a
-                  href={`/projects/${project.data.slug}`}
+                  href={`/projects/${project.id}`}
                   class="text-rose-600 hover:underline"
                 >
                   {project.data.name}

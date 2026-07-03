@@ -28,9 +28,9 @@ export async function getExplorerRows(): Promise<ExplorerRow[]> {
   const visits = await getVisitDatesByProject();
 
   const projectRows = projects.map((project) =>
-    toProjectRow(project, (visits.get(project.data.slug) ?? [])[0] ?? null),
+    toExplorerRow(project, (visits.get(project.data.slug) ?? [])[0] ?? null),
   );
-  const kap92Rows = kap92.map((building) => toKap92Row(building));
+  const kap92Rows = kap92.map((building) => toExplorerRow(building));
 
   return [...projectRows, ...kap92Rows].sort((a, b) => {
     if (a.category !== b.category) return a.category === "project" ? -1 : 1;
@@ -56,39 +56,24 @@ export function toMapProjects(rows: ExplorerRow[]): MapProject[] {
   return mapProjects;
 }
 
-// Build the explorer row for a project entry. `visitedDate` is its latest visit.
-export function toProjectRow(
-  entry: CollectionEntry<"projects">,
-  visitedDate: string | null,
+// Build an explorer row from a catalog entry. Projects and KAP'92 buildings share
+// one schema, so one builder covers both: `href`/`category` follow the collection
+// name, and only projects pass a `visitedDate` (kap92 entries are never visited).
+export function toExplorerRow(
+  entry: CollectionEntry<"projects"> | CollectionEntry<"kap92">,
+  visitedDate: string | null = null,
 ): ExplorerRow {
   return {
-    href: `/projects/${entry.data.slug}`,
-    category: "project",
+    href: `/${entry.collection}/${entry.data.slug}`,
+    category: entry.collection === "projects" ? "project" : "kap92",
     number: entry.data.number,
     name: entry.data.name,
     architects: entry.data.architects,
     use: entry.data.use,
     municipality: entry.data.municipality,
-    completedYear: entry.data.completedYear,
+    completedYear: entry.data.completedYear ?? null,
     visitedDate,
     lat: entry.data.lat,
     lng: entry.data.lng,
-  };
-}
-
-// Build the explorer row for a KAP'92 entry. Most fields are optional there.
-export function toKap92Row(entry: CollectionEntry<"kap92">): ExplorerRow {
-  return {
-    href: `/kap92/${entry.data.slug}`,
-    category: "kap92",
-    number: entry.data.number,
-    name: entry.data.name,
-    architects: entry.data.architects ?? [],
-    use: entry.data.use ?? "",
-    municipality: entry.data.municipality ?? "",
-    completedYear: entry.data.completedYear ?? null,
-    visitedDate: null,
-    lat: entry.data.lat ?? null,
-    lng: entry.data.lng ?? null,
   };
 }

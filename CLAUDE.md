@@ -35,8 +35,9 @@ classes) and `oxlint` run via pre-commit hooks.
 
 Three glob-loaded Markdown collections under `content/`:
 
-- **`projects/`** — Artpolis commissioned new builds. Strict schema (enum `use`, required coordinates/architect/year).
-- **`kap92/`** — KAP'92 existing buildings. Same fields, mostly optional; `use` is free text.
+- **`projects/`** — Artpolis commissioned new builds.
+- **`kap92/`** — KAP'92 selected existing buildings.
+- Both share one schema (`catalogSchema`): `number`/`slug`/`name`/`architects`/`lat`/`lng`/`municipality`/`use` (free text) required, `completedYear` optional and only `.positive()` (kap92 can be historical).
 - **`status/`** — one file per visit date; frontmatter `projects` is a `reference("projects")` array.
 
 Two facts to code against (see the ADRs for why):

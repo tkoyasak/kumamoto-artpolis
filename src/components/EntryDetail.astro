@@ -1,0 +1,41 @@
+---
+import type { CollectionEntry } from "astro:content";
+import { render } from "astro:content";
+
+import Base from "../layouts/Base.astro";
+import { toExplorerRow } from "../lib/explorer.ts";
+import ExplorerTable from "./ExplorerTable.astro";
+
+// Shared shell for a single Entry's detail page (/projects/<slug>, /kap92/<slug>).
+// Both routes render the same layout: the persisted map cropped to the entry's
+// marker, a one-row ExplorerTable, and the entry body. The default <slot> holds
+// per-collection extras (projects append their visit records).
+interface Props {
+  entry: CollectionEntry<"projects"> | CollectionEntry<"kap92">;
+  visitedDate?: string | null;
+}
+
+const { entry, visitedDate = null } = Astro.props;
+const { Content } = await render(entry);
+
+const row = toExplorerRow(entry, visitedDate);
+---
+
+<Base
+  title={`Kumamoto Artpolis > ${entry.data.name}`}
+  mapFocus={{ lat: entry.data.lat, lng: entry.data.lng }}
+>
+  <ExplorerTable rows={[row]} />
+  {/* relative stacks the text above the persisted fixed map layer (positioned
+      elements paint over it in tree order); pointer-events-none + auto children
+      let clicks in the gaps still reach the map square behind. */}
+  <main class="pointer-events-none relative mx-auto max-w-2xl p-8">
+    <h1 class="pointer-events-auto text-base font-bold">{entry.data.name}</h1>
+
+    <div class="pointer-events-auto mt-6 text-gray-800">
+      <Content />
+    </div>
+
+    <slot />
+  </main>
+</Base>

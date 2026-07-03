@@ -6,6 +6,6 @@ through a nanostores atom keyed by each row's `href`.
 
 Keeping the map outside the framework lets its ~1 MB maplibre bundle be
 code-split and lazy-loaded on its own schedule, and lets the map instance persist
-across navigation. See [issues/maplibre-chunk-loading.md](../../issues/maplibre-chunk-loading.md)
-and [issues/map-persist-across-navigation.md](../../issues/map-persist-across-navigation.md)
+across navigation. See [docs/issues/0001-maplibre-chunk-loading.md](../issues/0001-maplibre-chunk-loading.md)
+and [docs/issues/0002-map-persist-across-navigation.md](../issues/0002-map-persist-across-navigation.md)
 for the benchmarked specifics.

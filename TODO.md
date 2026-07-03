@@ -14,11 +14,11 @@
 
 ## Performance / architecture (decided — revisit later)
 
-- [x] Home map JS loading: maplibre code-split, loaded at natural priority (not head-preloaded). See [issues/maplibre-chunk-loading.md](issues/maplibre-chunk-loading.md).
-- [x] Persist the map across navigation (ClientRouter + `transition:persist`) so returning home no longer re-inits maplibre (~1.8–1.9× faster return, benchmarked). The original load-on-every-page tradeoff was later removed: the map (maplibre chunk + `/map-data.json`) now initializes lazily, only when `/` is first shown. See [issues/map-persist-across-navigation.md](issues/map-persist-across-navigation.md).
+- [x] Home map JS loading: maplibre code-split, loaded at natural priority (not head-preloaded). See [docs/issues/0001-maplibre-chunk-loading.md](docs/issues/0001-maplibre-chunk-loading.md).
+- [x] Persist the map across navigation (ClientRouter + `transition:persist`) so returning home no longer re-inits maplibre (~1.8–1.9× faster return, benchmarked). The original load-on-every-page tradeoff was later removed: the map (maplibre chunk + `/map-data.json`) now initializes lazily, only when `/` is first shown. See [docs/issues/0002-map-persist-across-navigation.md](docs/issues/0002-map-persist-across-navigation.md).
 - [ ] Qwik island migration (resumability, smaller upfront JS): blocked for now — `@qwik.dev/astro` is Qwik v2 (beta) while `@tanstack/qwik-table` targets Qwik v1. Revisit when qwik-table supports Qwik v2.
 
 ## UI
 
-- [x] Morph the explorer row between the home table and the detail page (View Transitions), with the row's outline shown only during the morph. See [issues/explorer-row-view-transition.md](issues/explorer-row-view-transition.md).
+- [x] Morph the explorer row between the home table and the detail page (View Transitions), with the row's outline shown only during the morph. See [docs/issues/0003-explorer-row-view-transition.md](docs/issues/0003-explorer-row-view-transition.md).
 - [ ] font試す タイトル "Kumamoto Artpolis" https://fonts.google.com/specimen/Zen+Dots

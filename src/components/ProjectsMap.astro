@@ -11,7 +11,7 @@ import "maplibre-gl/dist/maplibre-gl.css";
   // (/map-data.json, a prerendered endpoint) are fetched only when "/" is first
   // shown, so direct visits to other pages never pay for the map. The type-only
   // maplibre imports below are erased at build time and don't pull the chunk.
-  import { navigate } from "astro:transitions/client";
+  import { navigate, type TransitionBeforePreparationEvent } from "astro:transitions/client";
   import type { Map as MapLibreMap, Marker } from "maplibre-gl";
   import { MAP_DATA_URL, type MapProject } from "../lib/map.ts";
   import { $hovered } from "../lib/stores.ts";
@@ -20,6 +20,8 @@ import "maplibre-gl/dist/maplibre-gl.css";
   const STYLE_URL = "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json";
   const FALLBACK_CENTER: [number, number] = [130.7417, 32.7898]; // Kumamoto City
   const FALLBACK_ZOOM = 8;
+  // Side (CSS px) of the square the map is cropped to on detail pages.
+  const FOCUS_CLIP_SIZE = 256;
 
   // Color encodes the collection; fill (below) encodes visited status.
   // Keep in sync with --color-project / --color-kap92 in global.css (used for the table hover).
@@ -65,10 +67,15 @@ import "maplibre-gl/dist/maplibre-gl.css";
       element.addEventListener("mouseleave", () => $hovered.set(null));
       // Navigate via the ClientRouter (like the table rows) so the persisted map
       // survives the trip — window.location would full-reload and rebuild it.
-      // Tag the entry's table row (markers are only clickable on the home page,
-      // where every row is rendered) so it morphs into the detail-page row, the
-      // same View Transition a direct row click gets.
+      // On the marker's own detail page it acts like the entry's table row and
+      // goes back to the explorer instead. Otherwise, tag the entry's table row
+      // (if the current page renders it) so it morphs into the detail-page row,
+      // the same View Transition a direct row click gets.
       element.addEventListener("click", () => {
+        if (location.pathname === project.href) {
+          navigate("/");
+          return;
+        }
         document
           .querySelector<HTMLElement>(`[data-row-href="${project.href}"]`)
           ?.style.setProperty("view-transition-name", rowTransitionName(project.href));
@@ -77,42 +84,139 @@ import "maplibre-gl/dist/maplibre-gl.css";
       markers.set(project.href, marker);
       bounds.extend(lngLat);
     }
-    if (!bounds.isEmpty()) map.fitBounds(bounds, { padding: 64, maxZoom: 12 });
+    // No animation: the caller may project marker positions (for the detail-page
+    // clip) as soon as this resolves, which needs the final camera transform.
+    if (!bounds.isEmpty()) map.fitBounds(bounds, { padding: 64, maxZoom: 12, animate: false });
 
-    // Reflect the shared hovered key (set by the table) onto the markers.
-    $hovered.subscribe((href) => {
+    // A marker is highlighted while its table row (or itself) is hovered, and —
+    // always — when it is the current detail page's entry (marker hrefs are the
+    // page paths, so the focused marker is the one matching location.pathname).
+    // Re-run on hover changes (subscribe) and on navigation (refreshMarkerHighlight
+    // is called from syncVisibility below).
+    const updateHighlight = () => {
+      const hovered = $hovered.get();
+      const focused = currentFocus() ? location.pathname : null;
+      // pendingPath only bridges the flicker gap where mouseleave clears $hovered
+      // mid-transition; once the user is actively hovering something (hovered
+      // non-null) it is obsolete, so ignore it then. This also stops a stale
+      // pendingPath (from a navigation that never swapped) from double-
+      // highlighting alongside a freshly hovered marker.
+      const pending = hovered === null ? pendingPath : null;
       for (const [key, marker] of markers) {
-        marker.getElement().classList.toggle("marker-active", key === href);
+        const active = key === hovered || key === focused || key === pending;
+        marker.getElement().classList.toggle("marker-active", active);
       }
-    });
+    };
+    refreshMarkerHighlight = updateHighlight;
+    $hovered.subscribe(updateHighlight);
+
+    // On a detail page show only the entry's own marker (the focused one),
+    // mirroring the single-row detail table; on "/" show every marker. Re-run on
+    // navigation via refreshMarkerVisibility (called from syncVisibility).
+    const updateVisibility = () => {
+      const focused = currentFocus() ? location.pathname : null;
+      for (const [key, marker] of markers) {
+        marker.getElement().style.display = focused && key !== focused ? "none" : "";
+      }
+    };
+    refreshMarkerVisibility = updateVisibility;
+    updateVisibility();
 
     return map;
   }
 
   // The map layer persists across navigation (transition:persist), so this script
   // runs once. The layout hides the layer server-side off "/" (so it can't block
-  // clicks before this script runs); from here on visibility is toggled per
-  // navigation. The map is initialized on the first navigation that shows it and
-  // resized on later returns, since a hidden container has no dimensions.
+  // clicks before this script runs); from here on this script sets it per
+  // navigation. The camera never moves on navigation: on "/" the layer shows
+  // fullscreen; on a detail page (<body> carries data-map-lat/lng, see
+  // Base.astro's mapFocus prop) the same fullscreen layer stays put and clip-path
+  // crops it to a square around the marker at its current on-screen position, so
+  // the detail page keeps exactly the view the index showed; elsewhere hidden.
   const container = document.getElementById("projects-map");
   const layer = document.getElementById(MAP_LAYER_ID);
   let map: MapLibreMap | null = null;
   let initStarted = false;
+  // Set by initMap once the markers exist; re-applies the marker highlight
+  // (hover + current detail page) after each navigation.
+  let refreshMarkerHighlight: (() => void) | null = null;
+  // Set by initMap; re-applies which markers are shown (only the focused one on
+  // a detail page, all of them on "/") after each navigation.
+  let refreshMarkerVisibility: (() => void) | null = null;
+  // The in-flight navigation target. Between click and swap the view-transition
+  // overlay steals the hit test, firing mouseleave on the hovered marker/row —
+  // $hovered goes null while the old page (no focus data on <body> yet) is still
+  // live and about to be snapshotted, so the ring would drop out of the old
+  // snapshot and flicker. Keeping the destination highlighted bridges that gap;
+  // syncVisibility clears it once the new page's focus attributes take over.
+  let pendingPath: string | null = null;
+  document.addEventListener("astro:before-preparation", (event) => {
+    pendingPath = (event as TransitionBeforePreparationEvent).to.pathname;
+  });
 
-  function syncVisibility() {
-    const onHome = location.pathname === "/";
-    if (layer) layer.style.display = onHome ? "" : "none";
-    if (!onHome || !container) return;
-    if (initStarted) {
-      map?.resize();
+  function currentFocus(): [number, number] | null {
+    const { mapLat, mapLng } = document.body.dataset;
+    if (mapLat === undefined || mapLng === undefined) return null;
+    return [Number(mapLng), Number(mapLat)];
+  }
+
+  // Crop the layer to a square around the current page's marker, or uncrop on
+  // "/". Re-reads the DOM because it is also called asynchronously (after init,
+  // on map resize) — the user may have navigated meanwhile. clip-path also clips
+  // hit-testing, so the cropped-away area cannot block clicks on the page; the
+  // square itself stays interactive (the focused marker links back home).
+  function applyClip() {
+    if (!layer || !container || !map) return;
+    const focus = currentFocus();
+    if (!focus) {
+      layer.style.clipPath = "";
       return;
     }
+    const point = map.project(focus);
+    const { width, height } = container.getBoundingClientRect();
+    const half = FOCUS_CLIP_SIZE / 2;
+    layer.style.clipPath =
+      `inset(${point.y - half}px ${width - point.x - half}px ` +
+      `${height - point.y - half}px ${point.x - half}px)`;
+  }
+
+  function syncVisibility() {
+    if (!layer || !container) return;
+    // The new page's <body> focus attributes are authoritative from here on.
+    pendingPath = null;
+    const focus = currentFocus();
+    if (location.pathname !== "/" && !focus) {
+      layer.style.display = "none";
+      return;
+    }
+    if (map) {
+      layer.style.display = "";
+      // The container may have been hidden (display:none has no dimensions) or
+      // the window resized meanwhile — sync the transform before projecting.
+      // resize() fires "resize" synchronously, and applyClip is subscribed to it,
+      // so the crop is reapplied without an explicit call here.
+      map.resize();
+      refreshMarkerHighlight?.();
+      refreshMarkerVisibility?.();
+      return;
+    }
+    // First page that shows the map: initialize it. The layer must be displayed
+    // for maplibre to see the container's dimensions, so until the clip can be
+    // computed keep it fully clipped instead — an unclipped empty layer would
+    // cover a detail page and block its links.
+    layer.style.display = "";
+    layer.style.clipPath = focus ? "inset(100%)" : "";
+    if (initStarted) return; // in flight; applyClip runs when it resolves
     initStarted = true;
     initMap(container).then(
       (created) => {
         map = created;
+        // Viewport resizes shift the marker's on-screen position (maplibre
+        // observes the container and fires "resize"); keep the crop in place.
+        map.on("resize", applyClip);
+        applyClip();
       },
-      // Fetch failed (offline?): allow a retry on a later navigation home.
+      // Fetch failed (offline?): allow a retry on a later navigation.
       () => {
         initStarted = false;
       },

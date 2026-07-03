@@ -21,18 +21,24 @@ const { Content } = await render(entry);
 const row = toProjectRow(entry, visitedDates[0] ?? null);
 ---
 
-<Base title={`Kumamoto Artpolis > ${entry.data.name}`}>
+<Base
+  title={`Kumamoto Artpolis > ${entry.data.name}`}
+  mapFocus={{ lat: entry.data.lat, lng: entry.data.lng }}
+>
   <ExplorerTable rows={[row]} />
-  <main class="mx-auto max-w-2xl p-8">
-    <a href="/" class="text-base text-rose-600 hover:underline">← 一覧へ戻る</a>
+  {/* relative stacks the text above the persisted fixed map layer (positioned
+      elements paint over it in tree order); pointer-events-none + auto children
+      let clicks in the gaps still reach the map square behind. */}
+  <main class="pointer-events-none relative mx-auto max-w-2xl p-8">
+    <a href="/" class="pointer-events-auto text-base text-rose-600 hover:underline">← 一覧へ戻る</a>
 
-    <h1 class="mt-4 text-base font-bold">{entry.data.name}</h1>
+    <h1 class="pointer-events-auto mt-4 text-base font-bold">{entry.data.name}</h1>
 
-    <div class="mt-6 text-gray-800">
+    <div class="pointer-events-auto mt-6 text-gray-800">
       <Content />
     </div>
 
-    <section class="mt-8">
+    <section class="pointer-events-auto mt-8">
       <h2 class="text-base font-semibold">訪問記録</h2>
       {
         visitedDates.length > 0 ? (

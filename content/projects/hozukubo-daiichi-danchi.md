@@ -1,6 +1,5 @@
 ---
 number: 1
-slug: hozukubo-daiichi-danchi
 name: 熊本県営保田窪第一団地
 architects:
   - 山本理顕

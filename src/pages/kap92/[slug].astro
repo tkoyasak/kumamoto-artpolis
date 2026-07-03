@@ -6,7 +6,7 @@ import EntryDetail from "../../components/EntryDetail.astro";
 export async function getStaticPaths() {
   const buildings = await getCollection("kap92");
   return buildings.map((entry) => ({
-    params: { slug: entry.data.slug },
+    params: { slug: entry.id },
     props: { entry },
   }));
 }

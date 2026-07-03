@@ -1,6 +1,5 @@
 ---
 number: 2
-slug: yatsushiro-municipal-museum
 name: 八代市立博物館 未来の森ミュージアム
 architects:
   - 伊東豊雄

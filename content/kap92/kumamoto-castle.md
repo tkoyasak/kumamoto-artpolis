@@ -1,6 +1,5 @@
 ---
 number: 1
-slug: kumamoto-castle
 name: 熊本城
 architects:
   - 加藤清正

@@ -16,8 +16,8 @@ export type ExplorerRow = {
   municipality: string;
   completedYear: number | null;
   visitedDate: string | null; // latest visit date (projects only)
-  lat: number | null;
-  lng: number | null;
+  lat: number;
+  lng: number;
 };
 
 // Load and merge both collections into the sorted explorer rows. Projects sort
@@ -28,7 +28,7 @@ export async function getExplorerRows(): Promise<ExplorerRow[]> {
   const visits = await getVisitDatesByProject();
 
   const projectRows = projects.map((project) =>
-    toExplorerRow(project, (visits.get(project.data.slug) ?? [])[0] ?? null),
+    toExplorerRow(project, (visits.get(project.id) ?? [])[0] ?? null),
   );
   const kap92Rows = kap92.map((building) => toExplorerRow(building));
 
@@ -38,22 +38,18 @@ export async function getExplorerRows(): Promise<ExplorerRow[]> {
   });
 }
 
-// Derive the map markers from explorer rows: only entries with coordinates.
+// Derive the map markers from explorer rows: one marker per entry (the shared
+// schema makes coordinates required, so every row has them).
 export function toMapProjects(rows: ExplorerRow[]): MapProject[] {
-  const mapProjects: MapProject[] = [];
-  for (const row of rows) {
-    if (row.lat == null || row.lng == null) continue;
-    mapProjects.push({
-      href: row.href,
-      name: row.name,
-      category: row.category,
-      completedYear: row.completedYear,
-      visited: row.visitedDate != null,
-      lat: row.lat,
-      lng: row.lng,
-    });
-  }
-  return mapProjects;
+  return rows.map((row) => ({
+    href: row.href,
+    name: row.name,
+    category: row.category,
+    completedYear: row.completedYear,
+    visited: row.visitedDate != null,
+    lat: row.lat,
+    lng: row.lng,
+  }));
 }
 
 // Build an explorer row from a catalog entry. Projects and KAP'92 buildings share
@@ -64,7 +60,7 @@ export function toExplorerRow(
   visitedDate: string | null = null,
 ): ExplorerRow {
   return {
-    href: `/${entry.collection}/${entry.data.slug}`,
+    href: `/${entry.collection}/${entry.id}`,
     category: entry.collection === "projects" ? "project" : "kap92",
     number: entry.data.number,
     name: entry.data.name,

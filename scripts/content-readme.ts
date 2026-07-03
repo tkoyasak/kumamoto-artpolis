@@ -20,10 +20,11 @@ const str = (v: unknown): string => (Array.isArray(v) ? v.join(", ") : (v ?? "")
 const slugList = (v: unknown): string =>
   (Array.isArray(v) ? v : []).map((s) => `\`${s}\``).join(", ");
 
-// projects and kap92 share the same number/slug/name shape.
+// projects and kap92 share the same number/slug/name shape. The slug is the
+// filename (the entry id), not a frontmatter field.
 const numberSlug: Column[] = [
   { header: "number", align: "right", value: (e) => str(e.data.number) },
-  { header: "slug", value: (e) => `\`${str(e.data.slug)}\`` },
+  { header: "slug", value: (e) => `\`${str(e.id)}\`` },
   { header: "name", value: (e) => str(e.data.name) },
 ];
 const byNumber = (a: Entry, b: Entry): number => Number(a.data.number) - Number(b.data.number);

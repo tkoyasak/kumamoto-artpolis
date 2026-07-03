@@ -17,13 +17,12 @@ const { entry } = Astro.props;
 const { Content } = await render(entry);
 
 const row = toKap92Row(entry);
-
-// KAP'92 entries may lack coordinates — no map focus (map stays hidden) then.
-const { lat, lng } = entry.data;
-const mapFocus = lat !== undefined && lng !== undefined ? { lat, lng } : undefined;
 ---
 
-<Base title={`Kumamoto Artpolis > ${entry.data.name}`} mapFocus={mapFocus}>
+<Base
+  title={`Kumamoto Artpolis > ${entry.data.name}`}
+  mapFocus={{ lat: entry.data.lat, lng: entry.data.lng }}
+>
   <ExplorerTable rows={[row]} />
   {/* relative stacks the text above the persisted fixed map layer (positioned
       elements paint over it in tree order); pointer-events-none + auto children

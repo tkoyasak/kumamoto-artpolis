@@ -69,26 +69,27 @@ export function toProjectRow(
     architects: entry.data.architects,
     use: entry.data.use,
     municipality: entry.data.municipality,
-    completedYear: entry.data.completedYear,
+    completedYear: entry.data.completedYear ?? null,
     visitedDate,
     lat: entry.data.lat,
     lng: entry.data.lng,
   };
 }
 
-// Build the explorer row for a KAP'92 entry. Most fields are optional there.
+// Build the explorer row for a KAP'92 entry. Shares projects' schema, so only
+// `completedYear` can be absent; kap92 entries never carry visit dates.
 export function toKap92Row(entry: CollectionEntry<"kap92">): ExplorerRow {
   return {
     href: `/kap92/${entry.data.slug}`,
     category: "kap92",
     number: entry.data.number,
     name: entry.data.name,
-    architects: entry.data.architects ?? [],
-    use: entry.data.use ?? "",
-    municipality: entry.data.municipality ?? "",
+    architects: entry.data.architects,
+    use: entry.data.use,
+    municipality: entry.data.municipality,
     completedYear: entry.data.completedYear ?? null,
     visitedDate: null,
-    lat: entry.data.lat ?? null,
-    lng: entry.data.lng ?? null,
+    lat: entry.data.lat,
+    lng: entry.data.lng,
   };
 }

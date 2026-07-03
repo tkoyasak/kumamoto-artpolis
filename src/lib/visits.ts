@@ -1,4 +1,20 @@
-import { getCollection } from "astro:content";
+import { getCollection, getEntries } from "astro:content";
+import type { CollectionEntry } from "astro:content";
+
+/**
+ * Resolve a status day's `projects` and `kap92` references into catalog entries,
+ * ordered projects-first then by official number — the shared ordering the
+ * status timeline and each day's record both render.
+ */
+export async function getVisitedEntries(
+  day: CollectionEntry<"status">,
+): Promise<(CollectionEntry<"projects"> | CollectionEntry<"kap92">)[]> {
+  const entries = [...(await getEntries(day.data.projects)), ...(await getEntries(day.data.kap92))];
+  return entries.sort((a, b) => {
+    if (a.collection !== b.collection) return a.collection === "projects" ? -1 : 1;
+    return a.data.number - b.data.number;
+  });
+}
 
 /**
  * Visit dates per entry, newest first, derived from the status collection (the

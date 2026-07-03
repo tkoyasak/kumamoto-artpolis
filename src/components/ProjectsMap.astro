@@ -104,6 +104,18 @@ import "maplibre-gl/dist/maplibre-gl.css";
     refreshMarkerHighlight = updateHighlight;
     $hovered.subscribe(updateHighlight);
 
+    // On a detail page show only the entry's own marker (the focused one),
+    // mirroring the single-row detail table; on "/" show every marker. Re-run on
+    // navigation via refreshMarkerVisibility (called from syncVisibility).
+    const updateVisibility = () => {
+      const focused = currentFocus() ? location.pathname : null;
+      for (const [key, marker] of markers) {
+        marker.getElement().style.display = focused && key !== focused ? "none" : "";
+      }
+    };
+    refreshMarkerVisibility = updateVisibility;
+    updateVisibility();
+
     return map;
   }
 
@@ -122,6 +134,9 @@ import "maplibre-gl/dist/maplibre-gl.css";
   // Set by initMap once the markers exist; re-applies the marker highlight
   // (hover + current detail page) after each navigation.
   let refreshMarkerHighlight: (() => void) | null = null;
+  // Set by initMap; re-applies which markers are shown (only the focused one on
+  // a detail page, all of them on "/") after each navigation.
+  let refreshMarkerVisibility: (() => void) | null = null;
   // The in-flight navigation target. Between click and swap the view-transition
   // overlay steals the hit test, firing mouseleave on the hovered marker/row —
   // $hovered goes null while the old page (no focus data on <body> yet) is still
@@ -175,6 +190,7 @@ import "maplibre-gl/dist/maplibre-gl.css";
       map.resize();
       applyClip();
       refreshMarkerHighlight?.();
+      refreshMarkerVisibility?.();
       return;
     }
     // First page that shows the map: initialize it. The layer must be displayed

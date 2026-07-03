@@ -1,38 +1,19 @@
 ---
 import { getCollection } from "astro:content";
 import EntryDetail from "../../components/EntryDetail.astro";
-import { getVisitDatesByProject } from "../../lib/projects.ts";
+import { getVisitDatesByEntry } from "../../lib/visits.ts";
 
 // Prerender one page per project, keyed by the human-readable slug.
 export async function getStaticPaths() {
   const projects = await getCollection("projects");
-  const visits = await getVisitDatesByProject();
+  const visits = await getVisitDatesByEntry();
   return projects.map((entry) => ({
     params: { slug: entry.id },
-    props: { entry, visitedDates: visits.get(entry.id) ?? [] },
+    props: { entry, visitedDates: visits.get(`/projects/${entry.id}`) ?? [] },
   }));
 }
 
 const { entry, visitedDates } = Astro.props;
 ---
 
-<EntryDetail entry={entry} visitedDate={visitedDates[0] ?? null}>
-  <section class="pointer-events-auto mt-8">
-    <h2 class="text-base font-semibold">訪問記録</h2>
-    {
-      visitedDates.length > 0 ? (
-        <ul class="mt-2 space-y-1 text-base">
-          {visitedDates.map((date) => (
-            <li>
-              <a href={`/status/${date}`} class="text-rose-600 hover:underline">
-                {date}
-              </a>
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p class="mt-2 text-gray-500">まだ訪問記録がありません。</p>
-      )
-    }
-  </section>
-</EntryDetail>
+<EntryDetail entry={entry} visitedDates={visitedDates} />

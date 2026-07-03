@@ -1,10 +1,11 @@
 ---
-import { getCollection, getEntries, render } from "astro:content";
+import { getCollection, render } from "astro:content";
 import Base from "../../layouts/Base.astro";
+import { getVisitedEntries } from "../../lib/visits.ts";
 
 // A day's visit record, keyed by date (YYYY-MM-DD). One page per status entry.
-// The day's projects come from the entry's `projects` references; the body
-// holds the notes and photos.
+// The day's visited entries come from the entry's `projects` and `kap92`
+// references; the body holds the notes and photos.
 export async function getStaticPaths() {
   const status = await getCollection("status");
   return status.map((entry) => ({
@@ -16,9 +17,7 @@ export async function getStaticPaths() {
 const { entry } = Astro.props;
 const date = entry.id;
 const { Content } = await render(entry);
-const projects = (await getEntries(entry.data.projects)).sort(
-  (a, b) => a.data.number - b.data.number,
-);
+const visitedEntries = await getVisitedEntries(entry);
 ---
 
 <Base title={`${date} の訪問記録 | Kumamoto Artpolis`}>
@@ -32,17 +31,17 @@ const projects = (await getEntries(entry.data.projects)).sort(
     </div>
 
     {
-      projects.length > 0 && (
+      visitedEntries.length > 0 && (
         <section class="mt-8">
-          <h2 class="text-base font-semibold">この日訪れたプロジェクト</h2>
+          <h2 class="text-base font-semibold">この日の訪問先</h2>
           <ul class="mt-2 space-y-1 text-base">
-            {projects.map((project) => (
+            {visitedEntries.map((entry) => (
               <li>
                 <a
-                  href={`/projects/${project.id}`}
+                  href={`/${entry.collection}/${entry.id}`}
                   class="text-rose-600 hover:underline"
                 >
-                  {project.data.name}
+                  {entry.data.name}
                 </a>
               </li>
             ))}

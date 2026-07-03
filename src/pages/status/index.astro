@@ -1,15 +1,14 @@
 ---
-import { getCollection, getEntries } from "astro:content";
+import { getCollection } from "astro:content";
 import Base from "../../layouts/Base.astro";
+import { getVisitedEntries } from "../../lib/visits.ts";
 
 // Timeline of all visit records, newest first.
 const status = (await getCollection("status")).sort((a, b) => b.id.localeCompare(a.id));
 const records = await Promise.all(
   status.map(async (entry) => ({
     date: entry.id,
-    projects: (await getEntries(entry.data.projects)).sort(
-      (a, b) => a.data.number - b.data.number,
-    ),
+    visitedEntries: await getVisitedEntries(entry),
   })),
 );
 ---
@@ -31,10 +30,10 @@ const records = await Promise.all(
               >
                 {record.date}
               </a>
-              {record.projects.length > 0 && (
+              {record.visitedEntries.length > 0 && (
                 <span class="text-base text-gray-600">
                   {" — "}
-                  {record.projects.map((project) => project.data.name).join("、")}
+                  {record.visitedEntries.map((entry) => entry.data.name).join("、")}
                 </span>
               )}
             </li>

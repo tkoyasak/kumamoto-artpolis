@@ -38,12 +38,12 @@ Three glob-loaded Markdown collections under `content/`:
 - **`projects/`** — Artpolis commissioned new builds.
 - **`kap92/`** — KAP'92 selected existing buildings.
 - Both share one schema (`catalogSchema`): `number`/`name`/`architects`/`lat`/`lng`/`municipality`/`use` (free text) required, `completedYear` optional and only `.positive()` (kap92 can be historical). The slug is not a field — it's the filename.
-- **`status/`** — one file per visit date; frontmatter `projects` is a `reference("projects")` array.
+- **`status/`** — one file per visit date; frontmatter `projects` and `kap92` are reference arrays (each targeting its own catalog collection), so a day can record visits to both.
 
 Two facts to code against (see the ADRs for why):
 
 - **Slug is the entry id.** Files are named by `slug` (`<slug>.md`); the glob loader derives `entry.id` from the filename, so the id is the URL (`/projects/<slug>`) and how `status` references entries; code reads `entry.id`. `number` is a frontmatter field, display/sort only. Keep filenames stable. → `docs/adr/0002`
-- **`status` is the source of truth for visit dates.** Entries don't store their own; `getVisitDatesByProject()` (`src/lib/projects.ts`) derives them, keyed by slug. → `docs/adr/0003`
+- **`status` is the source of truth for visit dates.** Entries don't store their own; `getVisitDatesByEntry()` (`src/lib/visits.ts`) derives them for both collections, keyed by entry href (`/projects/<slug>`, `/kap92/<slug>`) so slugs can't collide across collections. → `docs/adr/0003`
 
 ## Routing
 

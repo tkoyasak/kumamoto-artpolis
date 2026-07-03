@@ -9,7 +9,6 @@
 ## Features
 
 - [ ] Footer: add a link to KAP'92, and consider a `/kap92` index (list) page (only detail pages exist now).
-- [ ] Let visit records (`status`) reference KAP'92 buildings too — currently `status.projects` references only the `projects` collection, so KAP'92 has no visit dates.
 - [ ] Style the Markdown bodies (e.g. Tailwind Typography); project/kap92/status bodies currently render unstyled.
 
 ## Performance / architecture (decided — revisit later)

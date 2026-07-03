@@ -34,13 +34,15 @@ const kap92 = defineCollection({
 });
 
 // One Markdown file per day, named by date (e.g. 2025-11-03.md). Filename ->
-// entry id -> the /status/<date> route. `projects` lists which projects were
-// visited that day (the source of truth for visit dates). Body holds the day's
-// notes and photos (photos referenced as public R2 URLs).
+// entry id -> the /status/<date> route. `projects` and `kap92` list which
+// entries of each collection were visited that day (the source of truth for
+// visit dates). Body holds the day's notes and photos (photos referenced as
+// public R2 URLs).
 const status = defineCollection({
   loader: glob({ pattern: "*.md", base: "./content/status" }),
   schema: z.object({
     projects: z.array(reference("projects")).default([]),
+    kap92: z.array(reference("kap92")).default([]),
   }),
 });
 

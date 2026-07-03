@@ -1,15 +1,15 @@
 ---
 import { getCollection } from "astro:content";
 import EntryDetail from "../../components/EntryDetail.astro";
-import { getVisitDatesByProject } from "../../lib/projects.ts";
+import { getVisitDatesByEntry } from "../../lib/projects.ts";
 
 // Prerender one page per project, keyed by the human-readable slug.
 export async function getStaticPaths() {
   const projects = await getCollection("projects");
-  const visits = await getVisitDatesByProject();
+  const visits = await getVisitDatesByEntry();
   return projects.map((entry) => ({
     params: { slug: entry.id },
-    props: { entry, visitedDates: visits.get(entry.id) ?? [] },
+    props: { entry, visitedDates: visits.get(`/projects/${entry.id}`) ?? [] },
   }));
 }
 

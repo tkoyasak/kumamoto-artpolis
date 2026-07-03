@@ -2,7 +2,7 @@ import { getCollection } from "astro:content";
 import type { CollectionEntry } from "astro:content";
 
 import type { MapProject } from "./map.ts";
-import { getVisitDatesByProject } from "./projects.ts";
+import { getVisitDatesByEntry } from "./projects.ts";
 
 // Shared row shape for the home explorer (table + map). One row per project or
 // KAP'92 building. `href` is the unique key linking a table row to its marker.
@@ -15,7 +15,7 @@ export type ExplorerRow = {
   use: string;
   municipality: string;
   completedYear: number | null;
-  visitedDate: string | null; // latest visit date (projects only)
+  visitedDate: string | null; // latest visit date, or null if never visited
   lat: number;
   lng: number;
 };
@@ -25,14 +25,13 @@ export type ExplorerRow = {
 export async function getExplorerRows(): Promise<ExplorerRow[]> {
   const projects = await getCollection("projects");
   const kap92 = await getCollection("kap92");
-  const visits = await getVisitDatesByProject();
+  const visits = await getVisitDatesByEntry();
 
-  const projectRows = projects.map((project) =>
-    toExplorerRow(project, (visits.get(project.id) ?? [])[0] ?? null),
+  const rows = [...projects, ...kap92].map((entry) =>
+    toExplorerRow(entry, (visits.get(`/${entry.collection}/${entry.id}`) ?? [])[0] ?? null),
   );
-  const kap92Rows = kap92.map((building) => toExplorerRow(building));
 
-  return [...projectRows, ...kap92Rows].sort((a, b) => {
+  return rows.sort((a, b) => {
     if (a.category !== b.category) return a.category === "project" ? -1 : 1;
     return a.number - b.number;
   });
@@ -54,7 +53,7 @@ export function toMapProjects(rows: ExplorerRow[]): MapProject[] {
 
 // Build an explorer row from a catalog entry. Projects and KAP'92 buildings share
 // one schema, so one builder covers both: `href`/`category` follow the collection
-// name, and only projects pass a `visitedDate` (kap92 entries are never visited).
+// name, and either collection may pass a `visitedDate` (both can be visited).
 export function toExplorerRow(
   entry: CollectionEntry<"projects"> | CollectionEntry<"kap92">,
   visitedDate: string | null = null,

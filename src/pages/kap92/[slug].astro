@@ -1,8 +1,6 @@
 ---
-import { getCollection, render } from "astro:content";
-import ExplorerTable from "../../components/ExplorerTable.astro";
-import Base from "../../layouts/Base.astro";
-import { toKap92Row } from "../../lib/explorer.ts";
+import { getCollection } from "astro:content";
+import EntryDetail from "../../components/EntryDetail.astro";
 
 // Prerender one page per KAP'92 selected existing building, keyed by slug.
 export async function getStaticPaths() {
@@ -14,26 +12,6 @@ export async function getStaticPaths() {
 }
 
 const { entry } = Astro.props;
-const { Content } = await render(entry);
-
-const row = toKap92Row(entry);
 ---
 
-<Base
-  title={`Kumamoto Artpolis > ${entry.data.name}`}
-  mapFocus={{ lat: entry.data.lat, lng: entry.data.lng }}
->
-  <ExplorerTable rows={[row]} />
-  {/* relative stacks the text above the persisted fixed map layer (positioned
-      elements paint over it in tree order); pointer-events-none + auto children
-      let clicks in the gaps still reach the map square behind. */}
-  <main class="pointer-events-none relative mx-auto max-w-2xl p-8">
-    <a href="/" class="pointer-events-auto text-base text-rose-600 hover:underline">← トップへ</a>
-
-    <h1 class="pointer-events-auto mt-4 text-base font-bold">{entry.data.name}</h1>
-
-    <div class="pointer-events-auto mt-6 text-gray-800">
-      <Content />
-    </div>
-  </main>
-</Base>
+<EntryDetail entry={entry} />

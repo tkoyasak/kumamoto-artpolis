@@ -16,8 +16,8 @@ export type ExplorerRow = {
   municipality: string;
   completedYear: number | null;
   visitedDate: string | null; // latest visit date (projects only)
-  lat: number | null;
-  lng: number | null;
+  lat: number;
+  lng: number;
 };
 
 // Load and merge both collections into the sorted explorer rows. Projects sort
@@ -38,22 +38,18 @@ export async function getExplorerRows(): Promise<ExplorerRow[]> {
   });
 }
 
-// Derive the map markers from explorer rows: only entries with coordinates.
+// Derive the map markers from explorer rows: one marker per entry (the shared
+// schema makes coordinates required, so every row has them).
 export function toMapProjects(rows: ExplorerRow[]): MapProject[] {
-  const mapProjects: MapProject[] = [];
-  for (const row of rows) {
-    if (row.lat == null || row.lng == null) continue;
-    mapProjects.push({
-      href: row.href,
-      name: row.name,
-      category: row.category,
-      completedYear: row.completedYear,
-      visited: row.visitedDate != null,
-      lat: row.lat,
-      lng: row.lng,
-    });
-  }
-  return mapProjects;
+  return rows.map((row) => ({
+    href: row.href,
+    name: row.name,
+    category: row.category,
+    completedYear: row.completedYear,
+    visited: row.visitedDate != null,
+    lat: row.lat,
+    lng: row.lng,
+  }));
 }
 
 // Build an explorer row from a catalog entry. Projects and KAP'92 buildings share

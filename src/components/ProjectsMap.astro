@@ -96,8 +96,14 @@ import "maplibre-gl/dist/maplibre-gl.css";
     const updateHighlight = () => {
       const hovered = $hovered.get();
       const focused = currentFocus() ? location.pathname : null;
+      // pendingPath only bridges the flicker gap where mouseleave clears $hovered
+      // mid-transition; once the user is actively hovering something (hovered
+      // non-null) it is obsolete, so ignore it then. This also stops a stale
+      // pendingPath (from a navigation that never swapped) from double-
+      // highlighting alongside a freshly hovered marker.
+      const pending = hovered === null ? pendingPath : null;
       for (const [key, marker] of markers) {
-        const active = key === hovered || key === focused || key === pendingPath;
+        const active = key === hovered || key === focused || key === pending;
         marker.getElement().classList.toggle("marker-active", active);
       }
     };
@@ -187,8 +193,9 @@ import "maplibre-gl/dist/maplibre-gl.css";
       layer.style.display = "";
       // The container may have been hidden (display:none has no dimensions) or
       // the window resized meanwhile — sync the transform before projecting.
+      // resize() fires "resize" synchronously, and applyClip is subscribed to it,
+      // so the crop is reapplied without an explicit call here.
       map.resize();
-      applyClip();
       refreshMarkerHighlight?.();
       refreshMarkerVisibility?.();
       return;

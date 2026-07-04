@@ -1,0 +1,133 @@
+---
+import type { DetailRow } from "../lib/table.ts";
+import { tableWidth } from "../lib/transitions.ts";
+
+// Static fixed-layout table shared by the entry detail pages (ExplorerTable) and
+// the visit timeline (StatusTable) — the static counterpart to the interactive
+// home island (ProjectsTable.tsx). Callers map their domain rows into DetailRow
+// and pass the column widths / header transition name; this component owns the
+// markup and the row-morph behavior so the two tables can't drift apart.
+//
+// Row morph: every row carries `data-row-*` hooks. The clicked row tags itself
+// with its view-transition-name and navigates (forward); the return is paired in
+// `astro:before-swap` from the incoming document. The home island tags its rows
+// with the same hooks, so this one script drives all three tables' morphs.
+interface Props {
+  headers: string[];
+  rows: DetailRow[];
+  colWidths: readonly string[];
+  headVt: string;
+  // Tailwind max-width class for the wrapper (e.g. "max-w-5xl").
+  maxWidth: string;
+  // Single-row detail page (one row above the body): the row shows its outline
+  // always and carries its transition name up front, and clicking it navigates
+  // back to `backHref` (the list/home it morphs from).
+  detail?: boolean;
+  backHref?: string;
+  // List rows that are the *target* of a return morph get their outline flashed
+  // during the swap (mirrors the home table). Detail rows never are.
+  flourish?: boolean;
+}
+
+const { headers, rows, colWidths, headVt, maxWidth, detail = false, backHref, flourish = false } =
+  Astro.props;
+---
+
+{/* relative: paint above the persisted fixed map layer, like the page text. */}
+<section class={`relative ${maxWidth} overflow-x-auto p-4 sm:p-8`}>
+  <table class="table-fixed border-collapse text-base" style={`width:${tableWidth(colWidths)}`}>
+    <colgroup>{colWidths.map((w) => <col style={`width:${w}`} />)}</colgroup>
+    <thead>
+      <tr class="text-left" transition:name={headVt}>
+        {headers.map((header) => <th class="truncate py-1 pr-4 font-normal first:pl-4">{header}</th>)}
+      </tr>
+    </thead>
+    <tbody>
+      {
+        rows.map((row) => {
+          const outlineColor = row.category === "kap92" ? "outline-kap92" : "outline-project";
+          const cls = `cursor-pointer -outline-offset-1 ${outlineColor} ${
+            detail ? "outline" : "hover:outline"
+          }`;
+          const cells = row.cells.map((cell) => (
+            <td class="truncate py-1 pr-4 text-sm first:pl-4">
+              {cell.strong ? <span class="font-medium">{cell.text}</span> : cell.text}
+            </td>
+          ));
+          // The detail row carries its transition name up front so a list/home row
+          // morphs into it; list rows get their name from JS on click.
+          return detail ? (
+            <tr
+              data-row-nav
+              data-row-detail
+              data-row-href={row.href}
+              data-row-vt={row.vt}
+              data-row-back={backHref}
+              transition:name={row.vt}
+              class={cls}
+            >
+              {cells}
+            </tr>
+          ) : (
+            <tr
+              data-row-nav
+              data-row-href={row.href}
+              data-row-vt={row.vt}
+              data-row-flourish={flourish ? "" : undefined}
+              class={cls}
+            >
+              {cells}
+            </tr>
+          );
+        })
+      }
+    </tbody>
+  </table>
+</section>
+
+<script>
+  // One set of listeners drives the row morph for every DetailTable (and the home
+  // island, whose rows carry the same `data-row-*` hooks). Rebind on each swap
+  // since rows are fresh DOM; a dataset flag guards against double-binding.
+  import { navigate } from "astro:transitions/client";
+
+  function bindRows() {
+    for (const row of document.querySelectorAll<HTMLElement>("[data-row-nav]")) {
+      if (row.dataset.bound) continue;
+      row.dataset.bound = "1";
+      row.addEventListener("click", () => {
+        if (row.hasAttribute("data-row-detail")) {
+          // Detail row: navigate back to the list/home it morphed from.
+          navigate(row.dataset.rowBack!);
+        } else {
+          // List row: tag it so it morphs into the detail page's row, then go.
+          row.style.setProperty("view-transition-name", row.dataset.rowVt!);
+          navigate(row.dataset.rowHref!);
+        }
+      });
+    }
+  }
+
+  bindRows();
+  document.addEventListener("astro:page-load", bindRows);
+
+  // Returning to a list/home page: find the row in the incoming document whose
+  // href matches the page we're leaving and pair it (same transition name) so the
+  // detail row morphs back into its slot. `flourish` rows flash their outline for
+  // the morph only. Clean up the injected name once the animation finishes.
+  document.addEventListener("astro:before-swap", (event) => {
+    const from = event.from.pathname.replace(/\/$/, "") || "/";
+    const row = event.newDocument.querySelector<HTMLElement>(`[data-row-href="${from}"]`);
+    if (!row) return;
+    row.style.setProperty("view-transition-name", row.dataset.rowVt!);
+
+    const vt = event.viewTransition;
+    if (!vt) return;
+    const liveRow = () => document.querySelector<HTMLElement>(`[data-row-href="${from}"]`);
+    if (row.hasAttribute("data-row-flourish")) {
+      row.classList.add("outline");
+      vt.ready.finally(() => liveRow()?.classList.remove("outline"));
+    }
+    vt.finished.finally(() => liveRow()?.style.removeProperty("view-transition-name"));
+  });
+</script>

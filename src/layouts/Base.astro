@@ -1,5 +1,6 @@
 ---
 import { ClientRouter } from "astro:transitions";
+import Footer from "../components/Footer.astro";
 import Header from "../components/Header.astro";
 import ProjectsMap from "../components/ProjectsMap.astro";
 import { MAP_LAYER_ID } from "../lib/transitions.ts";
@@ -48,5 +49,6 @@ const onHome = Astro.url.pathname === "/";
     </div>
     <Header />
     <slot />
+    <Footer />
   </body>
 </html>

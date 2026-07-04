@@ -60,8 +60,13 @@ const navLink = "relative z-20 block w-fit font-medium text-base text-neutral-90
       <ProjectsMap />
     </div>
 
+    {/* Stable transition names on the whole nav so the links morph to their new
+        vertical position across navigation — the active section pushes the ones
+        below it down as its content is injected above them. The wordmark stays
+        put (always first), so its name just cross-fades it in place. */}
     <a
       href="/"
+      transition:name="nav-home"
       aria-current={section === "home" ? "page" : undefined}
       class:list={[navLink, "px-4 pt-4 pb-2 sm:px-8"]}>Kumamoto Artpolis</a
     >
@@ -69,6 +74,7 @@ const navLink = "relative z-20 block w-fit font-medium text-base text-neutral-90
 
     <a
       href="/status"
+      transition:name="nav-status"
       aria-current={section === "status" ? "page" : undefined}
       class:list={[navLink, "px-4 py-2 sm:px-8"]}>Status</a
     >
@@ -76,6 +82,7 @@ const navLink = "relative z-20 block w-fit font-medium text-base text-neutral-90
 
     <a
       href="/about"
+      transition:name="nav-about"
       aria-current={section === "about" ? "page" : undefined}
       class:list={[navLink, "px-4 py-2 sm:px-8"]}>About</a
     >

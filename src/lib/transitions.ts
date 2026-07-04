@@ -17,14 +17,15 @@ export function statusRowTransitionName(id: string): string {
   return `status${id.replace(/[^a-zA-Z0-9]+/g, "-")}`;
 }
 
+// A table's total width = the sum of its fixed columns, as a definite `rem` width.
+// Shared by every fixed-layout table (explorer + status): see the note on
+// EXPLORER_TABLE_WIDTH for why the width must be definite rather than max-content.
+export const tableWidth = (widths: readonly string[]): string =>
+  `${widths.reduce((sum, w) => sum + Number.parseFloat(w), 0)}rem`;
+
 // Fixed column widths for the StatusTable (Date, Name), same fixed-layout trick
 // as the explorer table so the header and row don't jitter as they morph.
 export const STATUS_COL_WIDTHS = ["8rem", "20rem"] as const;
-
-export const STATUS_TABLE_WIDTH = `${STATUS_COL_WIDTHS.reduce(
-  (sum, w) => sum + Number.parseFloat(w),
-  0,
-)}rem`;
 
 // The persisted map layer. Doubles as its DOM id and its `transition:persist` name
 // (Base.astro), and the id the map island toggles visibility on (ProjectsMap.astro).
@@ -61,7 +62,4 @@ export const EXPLORER_COL_WIDTHS = [
 // with `width: max-content` (Tailwind w-max) `table-layout: fixed` stops enforcing
 // the colgroup widths and columns grow to fit content (no truncation). A definite
 // width keeps columns pinned, so overflow truncates (…) and the wrapper scrolls.
-export const EXPLORER_TABLE_WIDTH = `${EXPLORER_COL_WIDTHS.reduce(
-  (sum, w) => sum + Number.parseFloat(w),
-  0,
-)}rem`;
+export const EXPLORER_TABLE_WIDTH = tableWidth(EXPLORER_COL_WIDTHS);

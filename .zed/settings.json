@@ -2,7 +2,15 @@
 // Oxc support: https://github.com/oxc-project/oxc-zed
 {
   "enable_language_server": true,
-  "language_servers": ["!eslint", "!deno", "!typescript-language-server", "..."],
+  "language_servers": [
+    "oxlint",
+    "oxfmt",
+    "nil",
+    "!eslint",
+    "!deno",
+    "!typescript-language-server",
+    "..."
+  ],
   "formatter": "language_server",
   "format_on_save": "on",
   "prettier": {
@@ -54,24 +62,6 @@
         }
       ]
     },
-    "GraphQL": {
-      "formatter": [
-        {
-          "language_server": {
-            "name": "oxfmt"
-          }
-        }
-      ]
-    },
-    "Handlebars": {
-      "formatter": [
-        {
-          "language_server": {
-            "name": "oxfmt"
-          }
-        }
-      ]
-    },
     "HTML": {
       "formatter": [
         {
@@ -102,25 +92,7 @@
         }
       ]
     },
-    "JSON5": {
-      "formatter": [
-        {
-          "language_server": {
-            "name": "oxfmt"
-          }
-        }
-      ]
-    },
     "JSONC": {
-      "formatter": [
-        {
-          "language_server": {
-            "name": "oxfmt"
-          }
-        }
-      ]
-    },
-    "Less": {
       "formatter": [
         {
           "language_server": {
@@ -150,15 +122,6 @@
     "Nix": {
       "language_servers": ["nil", "!nixd"]
     },
-    "SCSS": {
-      "formatter": [
-        {
-          "language_server": {
-            "name": "oxfmt"
-          }
-        }
-      ]
-    },
     "TypeScript": {
       "formatter": [
         {
@@ -169,15 +132,6 @@
       ]
     },
     "TSX": {
-      "formatter": [
-        {
-          "language_server": {
-            "name": "oxfmt"
-          }
-        }
-      ]
-    },
-    "Vue.js": {
       "formatter": [
         {
           "language_server": {

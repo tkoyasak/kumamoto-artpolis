@@ -105,8 +105,8 @@ export default function ProjectsTable({ rows }: { rows: ExplorerRow[] }) {
         style={{ width: EXPLORER_TABLE_WIDTH }}
       >
         <colgroup>
-          {EXPLORER_COL_WIDTHS.map((w) => (
-            <col key={w} style={{ width: w }} />
+          {EXPLORER_COL_WIDTHS.map((w, i) => (
+            <col key={i} style={{ width: w }} />
           ))}
         </colgroup>
         <thead>

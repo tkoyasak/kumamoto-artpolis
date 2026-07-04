@@ -1,7 +1,5 @@
 ---
 import { ClientRouter } from "astro:transitions";
-import Footer from "../components/Footer.astro";
-import Header from "../components/Header.astro";
 import ProjectsMap from "../components/ProjectsMap.astro";
 import { MAP_LAYER_ID } from "../lib/transitions.ts";
 import "../styles/global.css";
@@ -19,6 +17,16 @@ interface Props {
 
 const { title = "Kumamoto Artpolis", mapFocus } = Astro.props;
 
+// One unified nav column — the wordmark (home), Status, About stacked top to
+// bottom — with the current page's content (<slot />) injected right after its
+// own entry. `section` picks that slot: detail pages (/projects/*, /kap92/*)
+// belong to the home group, so their content shows under the wordmark.
+// startsWith (not ===) so it holds under the trailing-slash URLs Astro's
+// directory build emits (/about/, /status/).
+const path = Astro.url.pathname;
+const section =
+  path.startsWith("/about") ? "about" : path.startsWith("/status") ? "status" : "home";
+
 // The map layer lives in the layout (not the home page) so its maplibre instance
 // survives navigation via transition:persist — returning home reuses it instead of
 // re-initializing. It is pointer-events-auto and covers the viewport, so off "/"
@@ -27,7 +35,11 @@ const { title = "Kumamoto Artpolis", mapFocus } = Astro.props;
 // over from here (ProjectsMap.astro): lazy init, and per-navigation visibility —
 // fullscreen on "/", clipped to a square around the marker when the page sets
 // `mapFocus`, hidden elsewhere.
-const onHome = Astro.url.pathname === "/";
+const onHome = path === "/";
+
+// Nav links are `w-fit` so only their text sits over the fixed map layer, leaving
+// the rest of each line click-through; `z-20` paints them above the map.
+const navLink = "relative z-20 block w-fit font-medium text-base text-neutral-900";
 ---
 
 <!doctype html>
@@ -47,8 +59,26 @@ const onHome = Astro.url.pathname === "/";
     >
       <ProjectsMap />
     </div>
-    <Header />
-    <slot />
-    <Footer />
+
+    <a
+      href="/"
+      aria-current={section === "home" ? "page" : undefined}
+      class:list={[navLink, "px-4 pt-4 pb-2 sm:px-8"]}>Kumamoto Artpolis</a
+    >
+    {section === "home" && <slot />}
+
+    <a
+      href="/status"
+      aria-current={section === "status" ? "page" : undefined}
+      class:list={[navLink, "px-4 py-2 sm:px-8"]}>Status</a
+    >
+    {section === "status" && <slot />}
+
+    <a
+      href="/about"
+      aria-current={section === "about" ? "page" : undefined}
+      class:list={[navLink, "px-4 py-2 sm:px-8"]}>About</a
+    >
+    {section === "about" && <slot />}
   </body>
 </html>

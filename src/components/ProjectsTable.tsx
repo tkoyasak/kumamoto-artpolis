@@ -152,7 +152,12 @@ export default function ProjectsTable({ rows }: { rows: ExplorerRow[] }) {
                 return (
                   <tr
                     key={row.original.href}
+                    // Row-morph hooks read by DetailTable's shared `before-swap`
+                    // handler when a detail page morphs back into this table.
+                    // Forward clicks stay on the island (goToRow), so no data-row-nav.
                     data-row-href={row.original.href}
+                    data-row-vt={rowTransitionName(row.original.href)}
+                    data-row-flourish=""
                     onMouseEnter={() => $hovered.set(row.original.href)}
                     onMouseLeave={() => $hovered.set(null)}
                     onClick={(event) => goToRow(row.original.href, event.currentTarget)}

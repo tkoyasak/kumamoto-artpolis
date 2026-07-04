@@ -9,17 +9,19 @@ import ExplorerTable from "./ExplorerTable.astro";
 // Shared shell for a single Entry's detail page (/projects/<slug>, /kap92/<slug>).
 // Both routes render the same layout: the persisted map cropped to the entry's
 // marker, a one-row ExplorerTable, the entry body, and its visit records. Both
-// collections can be visited, so the visit section lives here (newest first);
-// the row only needs the latest date.
+// collections can be visited, so the visit section lives here. `visits` are the
+// status record ids (ISO datetimes) that visited this entry, newest first: each
+// links to `/status/<id>` and shows its date via `id.slice(0, 10)`; the row only
+// needs the latest date.
 interface Props {
   entry: CollectionEntry<"projects"> | CollectionEntry<"kap92">;
-  visitedDates?: string[];
+  visits?: string[];
 }
 
-const { entry, visitedDates = [] } = Astro.props;
+const { entry, visits = [] } = Astro.props;
 const { Content } = await render(entry);
 
-const row = toExplorerRow(entry, visitedDates[0] ?? null);
+const row = toExplorerRow(entry, visits[0] ? visits[0].slice(0, 10) : null);
 ---
 
 <Base
@@ -40,12 +42,12 @@ const row = toExplorerRow(entry, visitedDates[0] ?? null);
     <section class="pointer-events-auto mt-8">
       <h2 class="text-base font-semibold">訪問記録</h2>
       {
-        visitedDates.length > 0 ? (
+        visits.length > 0 ? (
           <ul class="mt-2 space-y-1 text-base">
-            {visitedDates.map((date) => (
+            {visits.map((id) => (
               <li>
-                <a href={`/status/${date}`} class="text-rose-600 hover:underline">
-                  {date}
+                <a href={`/status/${id}`} class="text-rose-600 hover:underline">
+                  {id.slice(0, 10)}
                 </a>
               </li>
             ))}

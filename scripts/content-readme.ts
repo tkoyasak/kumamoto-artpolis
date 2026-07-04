@@ -17,9 +17,6 @@ type Column = { header: string; align?: "right"; value: (e: Entry) => string };
 
 const str = (v: unknown): string => (Array.isArray(v) ? v.join(", ") : (v ?? "").toString());
 
-const slugList = (v: unknown): string =>
-  (Array.isArray(v) ? v : []).map((s) => `\`${s}\``).join(", ");
-
 // projects and kap92 share the same number/slug/name shape. The slug is the
 // filename (the entry id), not a frontmatter field.
 const numberSlug: Column[] = [
@@ -51,12 +48,18 @@ const COLLECTIONS: {
   },
   {
     name: "status",
-    description: "Daily visit records, one file per date.",
+    description: "Visit records, one file per visit (filename is the ISO datetime).",
     columns: [
-      { header: "date", value: (e) => e.id },
-      { header: "projects", value: (e) => slugList(e.data.projects) },
+      { header: "datetime", value: (e) => `\`${e.id}\`` },
+      {
+        header: "entry",
+        value: (e) => {
+          const slug = e.data.project ?? e.data.kap92;
+          return slug ? `\`${str(slug)}\`` : "";
+        },
+      },
     ],
-    sort: (a, b) => a.id.localeCompare(b.id),
+    sort: (a, b) => b.id.localeCompare(a.id),
   },
 ];
 

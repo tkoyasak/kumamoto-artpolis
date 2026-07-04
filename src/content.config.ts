@@ -33,17 +33,27 @@ const kap92 = defineCollection({
   schema: catalogSchema,
 });
 
-// One Markdown file per day, named by date (e.g. 2025-11-03.md). Filename ->
-// entry id -> the /status/<date> route. `projects` and `kap92` list which
-// entries of each collection were visited that day (the source of truth for
-// visit dates). Body holds the day's notes and photos (photos referenced as
-// public R2 URLs).
+// One Markdown file per visit, named `<date>-<HHMM>.md` (e.g. 2025-11-03-1420.md).
+// It reads as a colon-free ISO datetime, but stays lowercase/digits/dashes so the
+// filename survives the glob loader's slugify unchanged: filename == entry id ==
+// URL. Filename -> entry id -> the /status/<datetime> route and the single sort
+// key (it sorts lexically, so newest-first is `id` descending); the date is
+// `id.slice(0, 10)`. Each record
+// references exactly one visited entry via `project` XOR `kap92` (the schema's
+// refine enforces it), so a record maps to one collection — which is what lets
+// the timeline table outline each row in its entry's collection color. The
+// reference is the source of truth for who was visited when; body holds the
+// visit's notes and photos (photos referenced as public R2 URLs).
 const status = defineCollection({
   loader: glob({ pattern: "*.md", base: "./src/content/status" }),
-  schema: z.object({
-    projects: z.array(reference("projects")).default([]),
-    kap92: z.array(reference("kap92")).default([]),
-  }),
+  schema: z
+    .object({
+      project: reference("projects").optional(),
+      kap92: reference("kap92").optional(),
+    })
+    .refine((d) => (d.project ? 1 : 0) + (d.kap92 ? 1 : 0) === 1, {
+      message: "a status record must reference exactly one entry (project XOR kap92)",
+    }),
 });
 
 export const collections = { projects, kap92, status };

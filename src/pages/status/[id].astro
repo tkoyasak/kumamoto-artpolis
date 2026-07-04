@@ -1,0 +1,41 @@
+---
+import { getCollection, render } from "astro:content";
+import StatusTable from "../../components/StatusTable.astro";
+import Base from "../../layouts/Base.astro";
+import { toStatusRow } from "../../lib/status.ts";
+import { getVisitedEntry } from "../../lib/visits.ts";
+
+// One visit record, keyed by its datetime id (YYYY-MM-DD-HHMM). The single
+// visited entry comes from the record's `project`/`kap92` reference; the body
+// holds the notes and photos. The StatusTable row here shares its transition name
+// with the /status timeline row, so the two morph into each other on navigation.
+export async function getStaticPaths() {
+  const status = await getCollection("status");
+  return status.map((entry) => ({ params: { id: entry.id }, props: { entry } }));
+}
+
+const { entry } = Astro.props;
+const row = await toStatusRow(entry);
+const visitedEntry = await getVisitedEntry(entry);
+const { Content } = await render(entry);
+---
+
+<Base title={`${row.date} ${visitedEntry.data.name} の訪問記録 | Kumamoto Artpolis`}>
+  <StatusTable rows={[row]} detail />
+  <main class="max-w-2xl p-4 sm:p-8">
+    <h1 class="text-base font-bold">{row.date} {visitedEntry.data.name}</h1>
+
+    <div class="mt-6 text-gray-800">
+      <Content />
+    </div>
+
+    <p class="mt-8 text-base">
+      <a
+        href={`/${visitedEntry.collection}/${visitedEntry.id}`}
+        class="text-rose-600 hover:underline"
+      >
+        {visitedEntry.data.name}
+      </a>
+    </p>
+  </main>
+</Base>

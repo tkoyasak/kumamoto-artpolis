@@ -1,19 +1,19 @@
 ---
 import { getCollection } from "astro:content";
 import EntryDetail from "../../components/EntryDetail.astro";
-import { getVisitDatesByEntry } from "../../lib/visits.ts";
+import { getVisitsByEntry } from "../../lib/visits.ts";
 
 // Prerender one page per KAP'92 selected existing building, keyed by slug.
 export async function getStaticPaths() {
   const buildings = await getCollection("kap92");
-  const visits = await getVisitDatesByEntry();
+  const visits = await getVisitsByEntry();
   return buildings.map((entry) => ({
     params: { slug: entry.id },
-    props: { entry, visitedDates: visits.get(`/kap92/${entry.id}`) ?? [] },
+    props: { entry, visits: visits.get(`/kap92/${entry.id}`) ?? [] },
   }));
 }
 
-const { entry, visitedDates } = Astro.props;
+const { entry, visits } = Astro.props;
 ---
 
-<EntryDetail entry={entry} visitedDates={visitedDates} />
+<EntryDetail entry={entry} visits={visits} />

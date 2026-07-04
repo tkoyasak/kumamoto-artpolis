@@ -1,45 +1,20 @@
 ---
-import { getCollection } from "astro:content";
+import StatusTable from "../../components/StatusTable.astro";
 import Base from "../../layouts/Base.astro";
-import { getVisitedEntries } from "../../lib/visits.ts";
+import { getStatusRows } from "../../lib/status.ts";
 
-// Timeline of all visit records, newest first.
-const status = (await getCollection("status")).sort((a, b) => b.id.localeCompare(a.id));
-const records = await Promise.all(
-  status.map(async (entry) => ({
-    date: entry.id,
-    visitedEntries: await getVisitedEntries(entry),
-  })),
-);
+// Timeline of all visit records, newest first (one row per visit).
+const rows = await getStatusRows();
 ---
 
 <Base title="訪問記録 | Kumamoto Artpolis">
-  <main class="max-w-2xl p-4 sm:p-8">
-    <h1 class="text-base font-bold">訪問記録</h1>
-
-    {
-      records.length > 0 ? (
-        <ul class="mt-6 space-y-3">
-          {records.map((record) => (
-            <li>
-              <a
-                href={`/status/${record.date}`}
-                class="font-medium text-rose-600 hover:underline"
-              >
-                {record.date}
-              </a>
-              {record.visitedEntries.length > 0 && (
-                <span class="text-base text-gray-600">
-                  {" — "}
-                  {record.visitedEntries.map((entry) => entry.data.name).join("、")}
-                </span>
-              )}
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p class="mt-6 text-gray-500">まだ訪問記録がありません。</p>
-      )
-    }
-  </main>
+  {
+    rows.length > 0 ? (
+      <StatusTable rows={rows} />
+    ) : (
+      <main class="max-w-2xl p-4 sm:p-8">
+        <p class="text-gray-500">まだ訪問記録がありません。</p>
+      </main>
+    )
+  }
 </Base>

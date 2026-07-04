@@ -7,6 +7,25 @@
 // The table header row: same name on both tables, so it stays put across the swap.
 export const EXPLORER_HEAD_VT = "explorer-head";
 
+// The visit-timeline table (StatusTable) mirrors the explorer pair: the header
+// keeps this name on both /status and /status/<id>, so it stays put as the list
+// morphs into the single-row detail. A row's name is keyed by its status id,
+// applied to the clicked row on the list and to the lone row on the detail page.
+export const STATUS_HEAD_VT = "status-head";
+
+export function statusRowTransitionName(id: string): string {
+  return `status${id.replace(/[^a-zA-Z0-9]+/g, "-")}`;
+}
+
+// Fixed column widths for the StatusTable (Date, Name), same fixed-layout trick
+// as the explorer table so the header and row don't jitter as they morph.
+export const STATUS_COL_WIDTHS = ["8rem", "20rem"] as const;
+
+export const STATUS_TABLE_WIDTH = `${STATUS_COL_WIDTHS.reduce(
+  (sum, w) => sum + Number.parseFloat(w),
+  0,
+)}rem`;
+
 // The persisted map layer. Doubles as its DOM id and its `transition:persist` name
 // (Base.astro), and the id the map island toggles visibility on (ProjectsMap.astro).
 // Pinning an explicit persist name keeps it stable across pages — Astro's

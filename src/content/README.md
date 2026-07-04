@@ -23,8 +23,9 @@ KAP'92 selected existing buildings, listed at <https://www.pref.kumamoto.jp/sosh
 
 ## `status/`
 
-Daily visit records, one file per date.
+Visit records, one file per visit (filename is the ISO datetime).
 
-| date       | projects                  |
-| ---------- | ------------------------- |
-| 2025-11-03 | `hozukubo-daiichi-danchi` |
+| datetime          | entry                     |
+| ----------------- | ------------------------- |
+| `2025-11-03-1530` | `kumamoto-castle`         |
+| `2025-11-03-1300` | `hozukubo-daiichi-danchi` |

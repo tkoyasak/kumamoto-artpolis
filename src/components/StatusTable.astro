@@ -1,0 +1,128 @@
+---
+import type { StatusRow } from "../lib/status.ts";
+import {
+  STATUS_COL_WIDTHS,
+  STATUS_HEAD_VT,
+  STATUS_TABLE_WIDTH,
+  statusRowTransitionName,
+} from "../lib/transitions.ts";
+
+// Visit-timeline table, shared by /status (all rows) and /status/<id> (a single
+// row above the visit body). Counterpart to the explorer's ExplorerTable/
+// ProjectsTable pair: the header and the clicked row carry shared View Transition
+// names, so the list morphs into the detail on navigation. Each row's outline is
+// its visited entry's collection color (project = red, kap92 = blue) — the same
+// signal the explorer tables use, so a date row needs no third color.
+interface Props {
+  rows: StatusRow[];
+  // When true this is the single-row detail on /status/<id>: the row carries the
+  // shared transition name up front and clicking it navigates back to /status.
+  detail?: boolean;
+}
+
+const { rows, detail = false } = Astro.props;
+
+const headers = ["Date", "Name"];
+---
+
+{/* relative: paint above the persisted fixed map layer, like the page text. */}
+<section class="relative max-w-2xl overflow-x-auto p-4 sm:p-8">
+  <table class="table-fixed border-collapse text-base" style={`width:${STATUS_TABLE_WIDTH}`}>
+    <colgroup>{STATUS_COL_WIDTHS.map((w) => <col style={`width:${w}`} />)}</colgroup>
+    <thead>
+      <tr class="text-left" transition:name={STATUS_HEAD_VT}>
+        {headers.map((header) => <th class="truncate py-1 pr-4 font-normal first:pl-4">{header}</th>)}
+      </tr>
+    </thead>
+    <tbody>
+      {
+        rows.map((row) => {
+          const outlineColor = row.category === "kap92" ? "outline-kap92" : "outline-project";
+          // List rows reveal the outline on hover; the detail row shows it always
+          // (mirrors ProjectsTable vs ExplorerTable).
+          const cls = `cursor-pointer -outline-offset-1 ${outlineColor} ${
+            detail ? "outline" : "hover:outline"
+          }`;
+          const cells = (
+            <>
+              <td class="truncate py-1 pr-4 text-sm first:pl-4">{row.date}</td>
+              <td class="truncate py-1 pr-4 text-sm first:pl-4">
+                <span class="font-medium">{row.name}</span>
+              </td>
+            </>
+          );
+          // The detail page's lone row carries the shared transition name up front
+          // so a list row morphs into it; list rows get their name from JS on click.
+          return detail ? (
+            <tr
+              data-status-row
+              data-status-href={row.href}
+              data-status-detail
+              transition:name={statusRowTransitionName(row.id)}
+              class={cls}
+            >
+              {cells}
+            </tr>
+          ) : (
+            <tr data-status-row data-status-href={row.href} class={cls}>
+              {cells}
+            </tr>
+          );
+        })
+      }
+    </tbody>
+  </table>
+</section>
+
+<script>
+  // Rows navigate via the ClientRouter so View Transitions animate. A list row
+  // morphs into the detail page's row (tag it with the shared transition name,
+  // then navigate to /status/<id>); the detail row navigates back to /status,
+  // where the before-swap below pairs it with its list slot for the return morph.
+  // Rebind on each swap since rows are fresh DOM; a dataset flag guards against
+  // double-binding.
+  import { navigate } from "astro:transitions/client";
+  import { statusRowTransitionName } from "../lib/transitions.ts";
+
+  const STATUS = "/status";
+  const idFromHref = (href: string) => href.slice(STATUS.length + 1);
+  const isTimeline = (path: string) => path === STATUS || path === `${STATUS}/`;
+
+  function bindStatusRows() {
+    for (const row of document.querySelectorAll<HTMLElement>("[data-status-row]")) {
+      if (row.dataset.bound) continue;
+      row.dataset.bound = "1";
+      const href = row.dataset.statusHref!;
+      row.addEventListener("click", () => {
+        // Bare `data-status-detail` reads as "" (falsy) in dataset, so test presence.
+        if (row.hasAttribute("data-status-detail")) {
+          navigate(STATUS);
+        } else {
+          row.style.setProperty("view-transition-name", statusRowTransitionName(idFromHref(href)));
+          navigate(href);
+        }
+      });
+    }
+  }
+
+  bindStatusRows();
+  document.addEventListener("astro:page-load", bindStatusRows);
+
+  // Returning to the timeline: pair the detail row with its list slot (same
+  // transition name) so it morphs back into place, mirroring ExplorerTable. Clean
+  // up the transition name on the live row after the animation finishes.
+  document.addEventListener("astro:before-swap", (event) => {
+    if (!isTimeline(event.to.pathname)) return;
+    const href = event.from.pathname.replace(/\/$/, "");
+    if (!href.startsWith(`${STATUS}/`)) return;
+
+    const row = event.newDocument.querySelector<HTMLElement>(`[data-status-href="${href}"]`);
+    if (!row) return;
+    row.style.setProperty("view-transition-name", statusRowTransitionName(idFromHref(href)));
+
+    const vt = event.viewTransition;
+    if (!vt) return;
+    const liveRow = () => document.querySelector<HTMLElement>(`[data-status-href="${href}"]`);
+    vt.finished.finally(() => liveRow()?.style.removeProperty("view-transition-name"));
+  });
+</script>

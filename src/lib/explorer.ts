@@ -2,7 +2,7 @@ import { getCollection } from "astro:content";
 import type { CollectionEntry } from "astro:content";
 
 import type { MapProject } from "./map.ts";
-import { getVisitDatesByEntry } from "./visits.ts";
+import { getVisitsByEntry } from "./visits.ts";
 
 // Shared row shape for the home explorer (table + map). One row per project or
 // KAP'92 building. `href` is the unique key linking a table row to its marker.
@@ -25,11 +25,14 @@ export type ExplorerRow = {
 export async function getExplorerRows(): Promise<ExplorerRow[]> {
   const projects = await getCollection("projects");
   const kap92 = await getCollection("kap92");
-  const visits = await getVisitDatesByEntry();
+  const visits = await getVisitsByEntry();
 
-  const rows = [...projects, ...kap92].map((entry) =>
-    toExplorerRow(entry, (visits.get(`/${entry.collection}/${entry.id}`) ?? [])[0] ?? null),
-  );
+  const rows = [...projects, ...kap92].map((entry) => {
+    // Visits are status ids (ISO datetimes), newest first; the row wants the
+    // latest visit *date*, so take the first and drop its time part.
+    const latest = (visits.get(`/${entry.collection}/${entry.id}`) ?? [])[0];
+    return toExplorerRow(entry, latest ? latest.slice(0, 10) : null);
+  });
 
   return rows.sort((a, b) => {
     if (a.category !== b.category) return a.category === "project" ? -1 : 1;

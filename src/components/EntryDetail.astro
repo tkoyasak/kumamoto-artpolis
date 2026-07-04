@@ -30,7 +30,7 @@ const row = toExplorerRow(entry, visitedDates[0] ?? null);
   {/* relative stacks the text above the persisted fixed map layer (positioned
       elements paint over it in tree order); pointer-events-none + auto children
       let clicks in the gaps still reach the map square behind. */}
-  <main class="pointer-events-none relative mx-auto max-w-2xl p-8">
+  <main class="pointer-events-none relative max-w-2xl p-4 sm:p-8">
     <h1 class="pointer-events-auto text-base font-bold">{entry.data.name}</h1>
 
     <div class="pointer-events-auto mt-6 text-gray-800">

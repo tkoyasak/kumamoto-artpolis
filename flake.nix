@@ -43,11 +43,11 @@
             treefmt.enable = true;
             oxlint.enable = true;
 
-            # Regenerate content/README.md when any content Markdown changes.
+            # Regenerate src/content/README.md when any content Markdown changes.
             content-readme = {
               enable = true;
               entry = "bun run content";
-              files = "^content/.*\\.md$";
+              files = "^src/content/.*\\.md$";
               pass_filenames = false;
             };
 

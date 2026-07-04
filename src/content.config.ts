@@ -24,12 +24,12 @@ const catalogSchema = z.object({
 });
 
 const projects = defineCollection({
-  loader: glob({ pattern: "*.md", base: "./content/projects" }),
+  loader: glob({ pattern: "*.md", base: "./src/content/projects" }),
   schema: catalogSchema,
 });
 
 const kap92 = defineCollection({
-  loader: glob({ pattern: "*.md", base: "./content/kap92" }),
+  loader: glob({ pattern: "*.md", base: "./src/content/kap92" }),
   schema: catalogSchema,
 });
 
@@ -39,7 +39,7 @@ const kap92 = defineCollection({
 // visit dates). Body holds the day's notes and photos (photos referenced as
 // public R2 URLs).
 const status = defineCollection({
-  loader: glob({ pattern: "*.md", base: "./content/status" }),
+  loader: glob({ pattern: "*.md", base: "./src/content/status" }),
   schema: z.object({
     projects: z.array(reference("projects")).default([]),
     kap92: z.array(reference("kap92")).default([]),

@@ -2,14 +2,14 @@
 
 /// <reference types="bun-types" />
 
-// Regenerate content/README.md from the content collections.
+// Regenerate src/content/README.md from the content collections.
 //
 // Run by the `content-readme` pre-commit hook (and `bun run content`). It
 // owns the file end to end: render the index, then format with oxfmt so the
 // output is canonical and coexists with the treefmt hook without a reformat
 // loop.
 
-const CONTENT_DIR = "content";
+const CONTENT_DIR = "src/content";
 const README = `${CONTENT_DIR}/README.md`;
 
 type Entry = { id: string; data: Record<string, unknown> };

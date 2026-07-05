@@ -16,17 +16,17 @@ export type StatusRow = {
   category: Category;
 };
 
-// Build a timeline row from a status record and its resolved visited entry.
-// The caller resolves the entry (getVisitedEntry), so pages that already need
-// the entry for other things don't resolve the reference twice.
+// Build a timeline row from a status id and the resolved visited entry. Takes
+// the bare id (not the status record) so callers that only have visit ids —
+// the entry detail pages get them from getVisitsByEntry() — can build rows too.
 export function toStatusRow(
-  visit: CollectionEntry<"status">,
+  id: string,
   entry: CollectionEntry<"projects"> | CollectionEntry<"kap92">,
 ): StatusRow {
   return {
-    id: visit.id,
-    date: statusDate(visit.id),
-    href: statusHref(visit.id),
+    id,
+    date: statusDate(id),
+    href: statusHref(id),
     name: entry.data.name,
     category: categoryOf(entry.collection),
   };
@@ -37,7 +37,7 @@ export function toStatusRow(
 export async function getStatusRows(): Promise<StatusRow[]> {
   const status = await getCollection("status");
   const rows = await Promise.all(
-    status.map(async (visit) => toStatusRow(visit, await getVisitedEntry(visit))),
+    status.map(async (visit) => toStatusRow(visit.id, await getVisitedEntry(visit))),
   );
   return rows.sort((a, b) => b.id.localeCompare(a.id));
 }

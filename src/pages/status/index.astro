@@ -8,13 +8,15 @@ const rows = await getStatusRows();
 ---
 
 <Base title="訪問記録 | Kumamoto Artpolis">
-  {
-    rows.length > 0 ? (
-      <StatusTable rows={rows} />
-    ) : (
-      <main class="max-w-2xl p-4 sm:p-8">
-        <p class="text-gray-500">まだ訪問記録がありません。</p>
-      </main>
-    )
-  }
+  <Fragment slot="status">
+    {
+      rows.length > 0 ? (
+        <StatusTable rows={rows} />
+      ) : (
+        <main class="relative max-w-2xl p-4 sm:p-8">
+          <p class="text-gray-500">まだ訪問記録がありません。</p>
+        </main>
+      )
+    }
+  </Fragment>
 </Base>

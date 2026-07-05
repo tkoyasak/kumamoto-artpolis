@@ -10,11 +10,15 @@ import DetailTable from "./DetailTable.astro";
 // home table (clicking the row navigates to "/").
 interface Props {
   rows: EntryRow[];
+  // False on /status/<id>, where the row is the *visited* entry rather than the
+  // page's own subject: it renders list-style and clicking it navigates to the
+  // entry's detail page instead of back home.
+  detail?: boolean;
 }
 
-const { rows } = Astro.props;
+const { rows, detail = true } = Astro.props;
 
-const headers = ["No.", "Name", "Architects", "Use", "Location", "Year", "Visited"];
+const headers = ["No.", "Name", "Architects", "Use", "Location", "Year"];
 
 const detailRows: DetailRow[] = rows.map((row) => ({
   href: row.href,
@@ -26,7 +30,6 @@ const detailRows: DetailRow[] = rows.map((row) => ({
     { text: row.use },
     { text: row.municipality },
     { text: row.completedYear != null ? String(row.completedYear) : "" },
-    { text: row.visitedDate ?? "" },
   ],
 }));
 ---
@@ -37,6 +40,6 @@ const detailRows: DetailRow[] = rows.map((row) => ({
   colWidths={ENTRY_COL_WIDTHS}
   headVt={ENTRY_HEAD_VT}
   maxWidth="max-w-5xl"
-  detail
+  detail={detail}
   backHref="/"
 />

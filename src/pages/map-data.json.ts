@@ -1,9 +1,30 @@
 import type { APIRoute } from "astro";
+import { getCollection } from "astro:content";
 
-import { getEntryRows, toMapEntries } from "../lib/entries.ts";
+import type { MapEntry } from "../lib/map.ts";
+import { categoryOf, entryHref } from "../lib/routes.ts";
+import { getVisitsByEntry } from "../lib/visits.ts";
 
 // Prerendered to /map-data.json (MAP_DATA_URL in src/lib/map.ts): the marker
 // data for the persisted map island. One shared, cacheable asset fetched when
 // the map first initializes, instead of inline JSON duplicated into every page.
-export const GET: APIRoute = async () =>
-  new Response(JSON.stringify(toMapEntries(await getEntryRows())));
+// Projects come first so the map script's reverse registration layers them on
+// top of KAP'92; a marker is `visited` when the entry has any status record.
+export const GET: APIRoute = async () => {
+  const projects = await getCollection("projects");
+  const kap92 = await getCollection("kap92");
+  const visits = await getVisitsByEntry();
+
+  const markers: MapEntry[] = [...projects, ...kap92].map((entry) => {
+    const href = entryHref(entry);
+    return {
+      href,
+      name: entry.data.name,
+      category: categoryOf(entry.collection),
+      visited: visits.has(href),
+      lat: entry.data.lat,
+      lng: entry.data.lng,
+    };
+  });
+  return new Response(JSON.stringify(markers));
+};

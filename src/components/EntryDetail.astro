@@ -3,17 +3,19 @@ import type { CollectionEntry } from "astro:content";
 import { render } from "astro:content";
 
 import Base from "../layouts/Base.astro";
-import { toEntryRow } from "../lib/entries.ts";
-import { statusDate, statusHref } from "../lib/routes.ts";
+import { entryMapFocus, toEntryRow } from "../lib/entries.ts";
+import { toStatusRow } from "../lib/status.ts";
+import DetailBody from "./DetailBody.astro";
 import EntryDetailTable from "./EntryDetailTable.astro";
+import StatusTable from "./StatusTable.astro";
 
 // Shared shell for a single Entry's detail page (/projects/<id>, /kap92/<id>).
-// Both routes render the same layout: the persisted map cropped to the entry's
-// marker, a one-row EntryDetailTable, the entry body, and its visit records. Both
-// collections can be visited, so the visit section lives here. `visits` are the
-// status record ids (ISO datetimes) that visited this entry, newest first: each
-// links to `/status/<id>` and shows its date via `id.slice(0, 10)`; the row only
-// needs the latest date.
+// Both routes render the same layout into Base's slots: the persisted map
+// cropped to the entry's marker; under the wordmark a one-row EntryDetailTable
+// and the entry body; under the Status link this entry's visit rows as a
+// StatusTable (both collections can be visited). `visits` are the status
+// record ids (ISO datetimes) that visited this entry, newest first; each
+// timeline row links to `/status/<id>`.
 interface Props {
   entry: CollectionEntry<"projects"> | CollectionEntry<"kap92">;
   visits?: string[];
@@ -22,41 +24,18 @@ interface Props {
 const { entry, visits = [] } = Astro.props;
 const { Content } = await render(entry);
 
-const row = toEntryRow(entry, visits[0] ? statusDate(visits[0]) : null);
+const row = toEntryRow(entry);
+const visitRows = visits.map((id) => toStatusRow(id, entry));
 ---
 
-<Base
-  title={`Kumamoto Artpolis > ${entry.data.name}`}
-  mapFocus={{ lat: entry.data.lat, lng: entry.data.lng }}
->
-  <EntryDetailTable rows={[row]} />
-  {/* relative stacks the text above the persisted fixed map layer (positioned
-      elements paint over it in tree order); pointer-events-none + auto children
-      let clicks in the gaps still reach the map square behind. */}
-  <main class="pointer-events-none relative max-w-2xl p-4 sm:p-8">
-    <h1 class="pointer-events-auto text-base font-bold">{entry.data.name}</h1>
-
-    <div class="pointer-events-auto mt-6 text-gray-800">
+<Base title={`Kumamoto Artpolis > ${entry.data.name}`} mapFocus={entryMapFocus(entry)}>
+  <Fragment slot="entry">
+    <EntryDetailTable rows={[row]} />
+    <DetailBody title={entry.data.name}>
       <Content />
-    </div>
-
-    <section class="pointer-events-auto mt-8">
-      <h2 class="text-base font-semibold">訪問記録</h2>
-      {
-        visits.length > 0 ? (
-          <ul class="mt-2 space-y-1 text-base">
-            {visits.map((id) => (
-              <li>
-                <a href={statusHref(id)} class="text-rose-600 hover:underline">
-                  {statusDate(id)}
-                </a>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p class="mt-2 text-gray-500">まだ訪問記録がありません。</p>
-        )
-      }
-    </section>
-  </main>
+    </DetailBody>
+  </Fragment>
+  <Fragment slot="status">
+    {visitRows.length > 0 && <StatusTable rows={visitRows} />}
+  </Fragment>
 </Base>

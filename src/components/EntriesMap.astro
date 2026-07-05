@@ -8,12 +8,13 @@ import "maplibre-gl/dist/maplibre-gl.css";
 <script>
   // The map is lazy: maplibre (~1 MB, code-split — see manualChunks in
   // astro.config.ts and docs/issues/0001-maplibre-chunk-loading.md) and the marker data
-  // (/map-data.json, a prerendered endpoint) are fetched only when "/" is first
-  // shown, so direct visits to other pages never pay for the map. The type-only
-  // maplibre imports below are erased at build time and don't pull the chunk.
+  // (/map-data.json, a prerendered endpoint) are fetched only when a page that
+  // shows the map is first shown, so direct visits to the other pages never pay
+  // for it. The type-only maplibre imports below are erased at build time and
+  // don't pull the chunk.
   import { navigate, type TransitionBeforePreparationEvent } from "astro:transitions/client";
   import type { Map as MapLibreMap, Marker } from "maplibre-gl";
-  import { MAP_DATA_URL, MAP_LAYER_ID, type MapEntry } from "../lib/map.ts";
+  import { FULLSCREEN_MAP_PATHS, MAP_DATA_URL, MAP_LAYER_ID, type MapEntry } from "../lib/map.ts";
   import { normalizePath } from "../lib/routes.ts";
   import { navigateWithRowMorph } from "../lib/row-morph.ts";
   import { $hovered } from "../lib/stores.ts";
@@ -67,6 +68,8 @@ import "maplibre-gl/dist/maplibre-gl.css";
       element.setAttribute("role", "button");
       element.setAttribute("tabindex", "0");
       element.setAttribute("aria-label", entry.name);
+      // The marker key, read back by syncVisibility's hover re-seed below.
+      element.dataset.href = entry.href;
       const dot = document.createElement("div");
       dot.className = entry.visited ? "map-marker-dot map-marker-visited" : "map-marker-dot";
       dot.style.setProperty("--marker-color", markerColor(entry));
@@ -80,10 +83,12 @@ import "maplibre-gl/dist/maplibre-gl.css";
       element.addEventListener("blur", () => $hovered.set(null));
       // Navigate via the ClientRouter (like the table rows) so the persisted map
       // survives the trip — window.location would full-reload and rebuild it.
-      // On the marker's own detail page it acts like the entry's table row and
-      // goes back home instead. Otherwise, tag the entry's table row (if the
-      // current page renders it) so it morphs into the detail-page row, the
-      // same View Transition a direct row click gets (navigateWithRowMorph).
+      // A marker always acts like its entry's table row on the current page: on
+      // the entry's own detail page that row navigates back home, everywhere
+      // else (including /status/<id>, whose entry row is list-style) it goes to
+      // the entry's page — tag that row (if the current page renders it) so it
+      // morphs into the detail-page row, the same View Transition a direct row
+      // click gets (navigateWithRowMorph).
       const activate = () => {
         if (currentPath() === entry.href) {
           navigate("/");
@@ -105,13 +110,14 @@ import "maplibre-gl/dist/maplibre-gl.css";
     if (!bounds.isEmpty()) map.fitBounds(bounds, { padding: 64, maxZoom: 12, animate: false });
 
     // A marker is highlighted while its table row (or itself) is hovered, and —
-    // always — when it is the current detail page's entry (marker hrefs are the
-    // page paths, so the focused marker is the one matching the current path).
-    // Re-run on hover changes (subscribe) and on navigation (refreshMarkerHighlight
-    // is called from syncVisibility below).
+    // always — when it is the current detail page's focused entry (<body>'s
+    // data-map-href carries its marker key; on /status/<id> the key is the
+    // visited entry's href, not the page path). Re-run on hover changes
+    // (subscribe) and on navigation (refreshMarkerHighlight is called from
+    // syncVisibility below).
     const updateHighlight = () => {
       const hovered = $hovered.get();
-      const focused = currentFocus() ? currentPath() : null;
+      const focused = currentFocusHref();
       // pendingPath only bridges the flicker gap where mouseleave clears $hovered
       // mid-transition; once the user is actively hovering something (hovered
       // non-null) it is obsolete, so ignore it then. This also stops a stale
@@ -126,11 +132,12 @@ import "maplibre-gl/dist/maplibre-gl.css";
     refreshMarkerHighlight = updateHighlight;
     $hovered.subscribe(updateHighlight);
 
-    // On a detail page show only the entry's own marker (the focused one),
-    // mirroring the single-row detail table; on "/" show every marker. Re-run on
-    // navigation via refreshMarkerVisibility (called from syncVisibility).
+    // On a detail page show only the focused entry's marker, mirroring the
+    // single-row detail table; on the fullscreen pages ("/", "/status") show
+    // every marker. Re-run on navigation via refreshMarkerVisibility (called
+    // from syncVisibility).
     const updateVisibility = () => {
-      const focused = currentFocus() ? currentPath() : null;
+      const focused = currentFocusHref();
       for (const [key, marker] of markers) {
         marker.getElement().style.display = focused && key !== focused ? "none" : "";
       }
@@ -142,13 +149,14 @@ import "maplibre-gl/dist/maplibre-gl.css";
   }
 
   // The map layer persists across navigation (transition:persist), so this script
-  // runs once. The layout hides the layer server-side off "/" (so it can't block
-  // clicks before this script runs); from here on this script sets it per
-  // navigation. The camera never moves on navigation: on "/" the layer shows
-  // fullscreen; on a detail page (<body> carries data-map-lat/lng, see
-  // Base.astro's mapFocus prop) the same fullscreen layer stays put and clip-path
-  // crops it to a square around the marker at its current on-screen position, so
-  // the detail page keeps exactly the view the index showed; elsewhere hidden.
+  // runs once. The layout hides the layer server-side off the fullscreen pages
+  // (so it can't block clicks before this script runs); from here on this script
+  // sets it per navigation. The camera never moves on navigation: on "/" and
+  // "/status" the layer shows fullscreen; on a detail page (<body> carries
+  // data-map-lat/lng/href, see Base.astro's mapFocus prop) the same fullscreen
+  // layer stays put and clip-path crops it to a square around the focused marker
+  // at its current on-screen position, so the detail page keeps exactly the view
+  // the index showed; elsewhere hidden.
   const container = document.getElementById("entries-map");
   const layer = document.getElementById(MAP_LAYER_ID);
   let map: MapLibreMap | null = null;
@@ -176,6 +184,12 @@ import "maplibre-gl/dist/maplibre-gl.css";
     return [Number(mapLng), Number(mapLat)];
   }
 
+  // The focused entry's marker key (its href). Distinct from the page path:
+  // /status/<id> focuses the visited entry's marker.
+  function currentFocusHref(): string | null {
+    return document.body.dataset.mapHref ?? null;
+  }
+
   // Crop the layer to a square around the current page's marker, or uncrop on
   // "/". Re-reads the DOM because it is also called asynchronously (after init,
   // on map resize) — the user may have navigated meanwhile. clip-path also clips
@@ -200,8 +214,18 @@ import "maplibre-gl/dist/maplibre-gl.css";
     if (!layer || !container) return;
     // The new page's <body> focus attributes are authoritative from here on.
     pendingPath = null;
+    // A swap fires no mouseleave for the elements it removed (boundary events
+    // wait for the next pointer move), so $hovered can still hold a row from
+    // the page just left — which would keep that entry's marker ringed on any
+    // page that shows it. Re-seed it from the persisted markers, the only
+    // elements whose hover/focus genuinely survives a swap: the marker still
+    // under the pointer or keyboard focus, else null.
+    const marker =
+      container.querySelector<HTMLElement>(".map-marker:hover") ??
+      container.querySelector<HTMLElement>(".map-marker:focus");
+    $hovered.set(marker?.dataset.href ?? null);
     const focus = currentFocus();
-    if (currentPath() !== "/" && !focus) {
+    if (!FULLSCREEN_MAP_PATHS.includes(currentPath()) && !focus) {
       layer.style.display = "none";
       return;
     }

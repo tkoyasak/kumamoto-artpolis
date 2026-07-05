@@ -58,12 +58,6 @@ export default function EntriesTable({ rows }: { rows: EntryRow[] }) {
         cell: (info) => info.getValue() ?? "",
         sortUndefined: "last",
       }),
-      columnHelper.accessor((row) => row.visitedDate ?? undefined, {
-        id: "visitedDate",
-        header: "Visited",
-        cell: (info) => info.getValue() ?? "",
-        sortUndefined: "last",
-      }),
     ],
     [],
   );

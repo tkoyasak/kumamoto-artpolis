@@ -10,12 +10,17 @@ export const MAP_DATA_URL = "/map-data.json";
 // auto-generated persist ids are position-dependent and were colliding.
 export const MAP_LAYER_ID = "map-layer";
 
-// Minimal shape served to the vanilla map island (one marker per entry).
+// Pages that show the persisted map fullscreen with every marker. Shared by
+// the layout's server-side visibility (Base.astro) and the map script's
+// per-navigation visibility (EntriesMap.astro), so the two can't drift apart.
+export const FULLSCREEN_MAP_PATHS: readonly string[] = ["/", "/status"];
+
+// Minimal shape served to the vanilla map island (one marker per entry):
+// `category` colors the marker, `visited` fills it, `name` labels it.
 export type MapEntry = {
   href: string; // shared key with the table row
   name: string;
   category: Category;
-  completedYear: number | null;
   visited: boolean;
   lat: number;
   lng: number;

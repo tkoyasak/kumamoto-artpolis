@@ -31,11 +31,11 @@ const visitRows = visits.map((id) => toStatusRow(id, entry));
 <Base title={`Kumamoto Artpolis > ${entry.data.name}`} mapFocus={entryMapFocus(entry)}>
   <Fragment slot="entry">
     <EntryDetailTable rows={[row]} />
-    <DetailBody title={entry.data.name}>
+    <DetailBody>
       <Content />
     </DetailBody>
   </Fragment>
   <Fragment slot="status">
-    {visitRows.length > 0 && <StatusTable rows={visitRows} />}
+    <StatusTable rows={visitRows} />
   </Fragment>
 </Base>

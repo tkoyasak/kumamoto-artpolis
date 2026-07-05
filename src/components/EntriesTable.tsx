@@ -81,7 +81,7 @@ export default function EntriesTable({ rows }: { rows: EntryRow[] }) {
   ];
 
   return (
-    <section className="pointer-events-auto max-w-5xl overflow-x-auto p-4 sm:p-8">
+    <section className="pointer-events-auto max-w-5xl overflow-x-auto px-4 py-4 sm:px-8">
       <table className="table-fixed border-collapse text-base" style={{ width: ENTRY_TABLE_WIDTH }}>
         <colgroup>
           {ENTRY_COL_WIDTHS.map((w, i) => (
@@ -105,7 +105,7 @@ export default function EntriesTable({ rows }: { rows: EntryRow[] }) {
                     aria-sort={
                       sorted === "asc" ? "ascending" : sorted === "desc" ? "descending" : undefined
                     }
-                    className="truncate py-1 pr-4 font-normal first:pl-4"
+                    className="truncate py-1 pr-4 text-sm font-normal first:pl-4"
                   >
                     {canSort ? (
                       <button

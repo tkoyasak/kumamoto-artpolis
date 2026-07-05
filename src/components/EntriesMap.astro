@@ -8,13 +8,13 @@ import "maplibre-gl/dist/maplibre-gl.css";
 <script>
   // The map is lazy: maplibre (~1 MB, code-split — see manualChunks in
   // astro.config.ts and docs/issues/0001-maplibre-chunk-loading.md) and the marker data
-  // (/map-data.json, a prerendered endpoint) are fetched only when a page that
+  // (/map-markers.json, a prerendered endpoint) are fetched only when a page that
   // shows the map is first shown, so direct visits to the other pages never pay
   // for it. The type-only maplibre imports below are erased at build time and
   // don't pull the chunk.
   import { navigate, type TransitionBeforePreparationEvent } from "astro:transitions/client";
   import type { Map as MapLibreMap, Marker } from "maplibre-gl";
-  import { FULLSCREEN_MAP_PATHS, MAP_DATA_URL, MAP_LAYER_ID, type MapEntry } from "../lib/map.ts";
+  import { FULLSCREEN_MAP_PATHS, MAP_LAYER_ID, MAP_MARKERS_URL, type MapEntry } from "../lib/map.ts";
   import { normalizePath } from "../lib/routes.ts";
   import { navigateWithRowMorph } from "../lib/row-morph.ts";
   import { $hovered } from "../lib/stores.ts";
@@ -44,7 +44,7 @@ import "maplibre-gl/dist/maplibre-gl.css";
   async function initMap(container: HTMLElement): Promise<MapLibreMap> {
     const [{ default: maplibregl }, entries] = await Promise.all([
       import("maplibre-gl"),
-      fetch(MAP_DATA_URL).then((res) => res.json() as Promise<MapEntry[]>),
+      fetch(MAP_MARKERS_URL).then((res) => res.json() as Promise<MapEntry[]>),
     ]);
 
     const map = new maplibregl.Map({
@@ -57,8 +57,10 @@ import "maplibre-gl/dist/maplibre-gl.css";
 
     const markers = new Map<string, Marker>();
     const bounds = new maplibregl.LngLatBounds();
-    // Register in reverse so earlier entries (projects) are added last and sit on top of KAP'92.
-    for (const entry of [...entries].reverse()) {
+    // Markers arrive in stacking order (KAP'92 first→last, then projects
+    // first→last); register in that order so later markers paint on top —
+    // projects above KAP'92.
+    for (const entry of entries) {
       const lngLat: [number, number] = [entry.lng, entry.lat];
 
       // Custom square marker: outlined in the collection color, filled when visited.

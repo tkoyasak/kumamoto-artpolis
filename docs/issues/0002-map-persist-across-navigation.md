@@ -135,6 +135,6 @@ together:
    ClientRouter's `navigate()`, like the table rows.
 
 The marker data also moved out of the per-page inline JSON `<script>` into a
-prerendered `/map-data.json` endpoint (`src/pages/map-data.json.ts`), fetched
+prerendered `/map-markers.json` endpoint (`src/pages/map-markers.json.ts`), fetched
 alongside the maplibre import — one cacheable asset instead of duplicating the
 full dataset into every page's HTML.

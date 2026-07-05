@@ -14,7 +14,6 @@ state.
 - **`CONTEXT.md`** — domain glossary; the source for terms (Entry, Project, KAP'92 building, Id, Visit record, …).
 - **`docs/adr/`** — short ADRs recording _why_ the code is shaped this way.
 - **`docs/issues/`** — deep perf/UX write-ups (rationale, methodology, benchmarks).
-- **`TODO.md`** — pending work.
 
 ## Commands
 
@@ -51,7 +50,7 @@ Two facts to code against (see the ADRs for why):
 - `/projects/<id>`, `/kap92/<id>` — prerendered detail pages (`getStaticPaths`)
 - `/status`, `/status/<id>` — visit timeline / one visit's record (id is a datetime)
 - `/about`; `/404` — Workers assets serve it for unknown paths (`not_found_handling`)
-- `/map-data.json` — prerendered endpoint of the map marker data
+- `/map-markers.json` — prerendered endpoint of the map marker data
 
 ## Islands (home page)
 
@@ -59,7 +58,7 @@ Two facts to code against (see the ADRs for why):
 (`src/lib/entries.ts`) and renders two independent islands (→ `docs/adr/0005`):
 
 - **`EntriesTable.tsx`** — Preact + `@tanstack/react-table`, `client:load`; react-table runs on Preact via `@preact/compat`. → `docs/adr/0004`
-- **`EntriesMap.astro`** — plain client-side script (no framework); maplibre + `/map-data.json` load lazily when the map first shows. → `docs/issues/0001-maplibre-chunk-loading.md`
+- **`EntriesMap.astro`** — plain client-side script (no framework); maplibre + `/map-markers.json` load lazily when the map first shows. → `docs/issues/0001-maplibre-chunk-loading.md`
 
 Operational gotchas:
 

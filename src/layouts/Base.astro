@@ -45,7 +45,7 @@ const fullscreenMap = FULLSCREEN_MAP_PATHS.includes(normalizePath(path));
 
 // Nav links are `w-fit` so only their text sits over the fixed map layer, leaving
 // the rest of each line click-through; `z-20` paints them above the map.
-const navLink = "relative z-20 block w-fit font-medium text-base text-neutral-900";
+const navLink = "relative z-20 block w-fit font-medium text-base";
 ---
 
 <!doctype html>
@@ -76,7 +76,7 @@ const navLink = "relative z-20 block w-fit font-medium text-base text-neutral-90
       href="/"
       transition:name="nav-home"
       aria-current={section === "home" ? "page" : undefined}
-      class:list={[navLink, "px-4 pt-4 pb-2 sm:px-8"]}>Kumamoto Artpolis</a
+      class:list={[navLink, "px-4 py-4 sm:px-8"]}>Kumamoto Artpolis</a
     >
     <slot name="entry" />
 
@@ -84,7 +84,7 @@ const navLink = "relative z-20 block w-fit font-medium text-base text-neutral-90
       href="/status"
       transition:name="nav-status"
       aria-current={section === "status" ? "page" : undefined}
-      class:list={[navLink, "px-4 py-2 sm:px-8"]}>Status</a
+      class:list={[navLink, "px-4 py-4 sm:px-8"]}>Status</a
     >
     <slot name="status" />
 
@@ -92,7 +92,7 @@ const navLink = "relative z-20 block w-fit font-medium text-base text-neutral-90
       href="/about"
       transition:name="nav-about"
       aria-current={section === "about" ? "page" : undefined}
-      class:list={[navLink, "px-4 py-2 sm:px-8"]}>About</a
+      class:list={[navLink, "px-4 py-4 sm:px-8"]}>About</a
     >
     <slot name="about" />
   </body>

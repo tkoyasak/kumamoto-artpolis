@@ -38,7 +38,7 @@ Three glob-loaded Markdown collections under `src/content/`:
 - **`projects/`** — Artpolis commissioned new builds.
 - **`kap92/`** — KAP'92 selected existing buildings.
 - Both share one schema (`catalogSchema`): `number`/`name`/`architects`/`lat`/`lng`/`municipality`/`use` (free text) required, `completedYear` optional and only `.positive()` (kap92 can be historical). The id is not a field — it's the filename.
-- **`status/`** — one file per visit date; frontmatter `projects` and `kap92` are reference arrays (each targeting its own catalog collection), so a day can record visits to both.
+- **`status/`** — one file per visit (`<date>-<HHMM>.md`); frontmatter references exactly one entry via `project` XOR `kap92` (schema-enforced), so a record maps to one catalog collection.
 
 Two facts to code against (see the ADRs for why):
 

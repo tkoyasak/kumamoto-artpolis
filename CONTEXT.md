@@ -57,12 +57,12 @@ _Avoid_: id, index
 ### Visits
 
 **Visit record**:
-A single day of visiting, identified by its date, listing the Entries seen that
-day. The source of truth for when each Entry was visited.
+A single visit to one Entry, identified by its datetime. Visit records are
+collectively the source of truth for when each Entry was visited.
 _Avoid_: status (the technical collection/route name), visit log
 
 **Visit date**:
-The date that identifies a Visit record (`/status/<date>`). An Entry never stores
+The calendar date of a Visit record, derived from its id. An Entry never stores
 its own visit dates; they are always derived from Visit records.
 
 **Visited**:

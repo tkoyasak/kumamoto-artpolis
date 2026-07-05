@@ -57,8 +57,10 @@ import "maplibre-gl/dist/maplibre-gl.css";
 
     const markers = new Map<string, Marker>();
     const bounds = new maplibregl.LngLatBounds();
-    // Register in reverse so earlier entries (projects) are added last and sit on top of KAP'92.
-    for (const entry of [...entries].reverse()) {
+    // Markers arrive in stacking order (KAP'92 first→last, then projects
+    // first→last); register in that order so later markers paint on top —
+    // projects above KAP'92.
+    for (const entry of entries) {
       const lngLat: [number, number] = [entry.lng, entry.lat];
 
       // Custom square marker: outlined in the collection color, filled when visited.

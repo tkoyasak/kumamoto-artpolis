@@ -18,12 +18,12 @@ export type StatusRow = {
 // Build a timeline row from a status record: resolve its single visited entry,
 // then derive the date from the id and the outline category from the entry's
 // collection.
-export async function toStatusRow(day: CollectionEntry<"status">): Promise<StatusRow> {
-  const entry = await getVisitedEntry(day);
+export async function toStatusRow(visit: CollectionEntry<"status">): Promise<StatusRow> {
+  const entry = await getVisitedEntry(visit);
   return {
-    id: day.id,
-    date: day.id.slice(0, 10),
-    href: `/status/${day.id}`,
+    id: visit.id,
+    date: visit.id.slice(0, 10),
+    href: `/status/${visit.id}`,
     name: entry.data.name,
     category: entry.collection === "projects" ? "project" : "kap92",
   };

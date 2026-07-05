@@ -8,13 +8,13 @@ import type { CollectionEntry } from "astro:content";
  * or deleted id), so a broken reference fails the build.
  */
 export async function getVisitedEntry(
-  day: CollectionEntry<"status">,
+  visit: CollectionEntry<"status">,
 ): Promise<CollectionEntry<"projects"> | CollectionEntry<"kap92">> {
-  const ref = day.data.project ?? day.data.kap92;
-  if (!ref) throw new Error(`status ${day.id}: no entry reference`);
+  const ref = visit.data.project ?? visit.data.kap92;
+  if (!ref) throw new Error(`status ${visit.id}: no entry reference`);
   const entry = await getEntry(ref);
   if (!entry)
-    throw new Error(`status ${day.id}: references missing entry ${ref.collection}/${ref.id}`);
+    throw new Error(`status ${visit.id}: references missing entry ${ref.collection}/${ref.id}`);
   return entry;
 }
 
@@ -30,12 +30,12 @@ export async function getVisitsByEntry(): Promise<Map<string, string[]>> {
   const status = await getCollection("status");
   const byEntry = new Map<string, string[]>();
 
-  for (const day of status) {
-    const ref = day.data.project ?? day.data.kap92;
+  for (const visit of status) {
+    const ref = visit.data.project ?? visit.data.kap92;
     if (!ref) continue;
     const href = `/${ref.collection}/${ref.id}`;
     const ids = byEntry.get(href) ?? [];
-    ids.push(day.id);
+    ids.push(visit.id);
     byEntry.set(href, ids);
   }
 

@@ -1,21 +1,24 @@
 ---
 import { ClientRouter } from "astro:transitions";
 import EntriesMap from "../components/EntriesMap.astro";
-import { MAP_LAYER_ID } from "../lib/transitions.ts";
+import { MAP_LAYER_ID } from "../lib/map.ts";
 import "../styles/global.css";
 
 interface Props {
   title?: string;
+  description?: string;
   // Set by detail pages: the entry's coordinates, carried on <body> data
   // attributes. The map script reads them to keep the persisted fullscreen map
   // in place (camera untouched), clip it to a square around this marker, and
   // keep the marker's outline highlight on.
-  // (`| undefined` for exactOptionalPropertyTypes: kap92 passes an explicit
-  // undefined when an entry has no coordinates.)
-  mapFocus?: { lat: number; lng: number } | undefined;
+  mapFocus?: { lat: number; lng: number };
 }
 
-const { title = "Kumamoto Artpolis", mapFocus } = Astro.props;
+const {
+  title = "Kumamoto Artpolis",
+  description = "くまもとアートポリスの建築と、それらを訪ねた記録。",
+  mapFocus,
+} = Astro.props;
 
 // One unified nav column — the wordmark (home), Status, About stacked top to
 // bottom — with the current page's content (<slot />) injected right after its
@@ -47,6 +50,8 @@ const navLink = "relative z-20 block w-fit font-medium text-base text-neutral-90
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <title>{title}</title>
     <ClientRouter />
   </head>

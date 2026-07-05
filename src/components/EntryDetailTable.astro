@@ -1,7 +1,7 @@
 ---
 import type { EntryRow } from "../lib/entries.ts";
-import type { DetailRow } from "../lib/table.ts";
-import { ENTRY_COL_WIDTHS, ENTRY_HEAD_VT, rowTransitionName } from "../lib/transitions.ts";
+import { type DetailRow, ENTRY_COL_WIDTHS } from "../lib/table.ts";
+import { ENTRY_HEAD_VT } from "../lib/transitions.ts";
 import DetailTable from "./DetailTable.astro";
 
 // Static counterpart to the interactive home table (EntriesTable.tsx), shown on
@@ -18,7 +18,6 @@ const headers = ["No.", "Name", "Architects", "Use", "Location", "Year", "Visite
 
 const detailRows: DetailRow[] = rows.map((row) => ({
   href: row.href,
-  vt: rowTransitionName(row.href),
   category: row.category,
   cells: [
     { text: String(row.number) },

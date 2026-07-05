@@ -13,9 +13,10 @@ import "maplibre-gl/dist/maplibre-gl.css";
   // maplibre imports below are erased at build time and don't pull the chunk.
   import { navigate, type TransitionBeforePreparationEvent } from "astro:transitions/client";
   import type { Map as MapLibreMap, Marker } from "maplibre-gl";
-  import { MAP_DATA_URL, type MapEntry } from "../lib/map.ts";
+  import { MAP_DATA_URL, MAP_LAYER_ID, type MapEntry } from "../lib/map.ts";
+  import { normalizePath } from "../lib/routes.ts";
+  import { navigateWithRowMorph } from "../lib/row-morph.ts";
   import { $hovered } from "../lib/stores.ts";
-  import { MAP_LAYER_ID, rowTransitionName } from "../lib/transitions.ts";
 
   const STYLE_URL = "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json";
   const FALLBACK_CENTER: [number, number] = [130.7417, 32.7898]; // Kumamoto City
@@ -23,13 +24,20 @@ import "maplibre-gl/dist/maplibre-gl.css";
   // Side (CSS px) of the square the map is cropped to on detail pages.
   const FOCUS_CLIP_SIZE = 256;
 
-  // Color encodes the collection; fill (below) encodes visited status.
+  // Color encodes the collection; fill (map-marker-visited) encodes visited status.
   // Keep in sync with --color-project / --color-kap92 in global.css (used for the table hover).
   const COLOR_PROJECT = "#ff5031";
   const COLOR_KAP92 = "#0009f3";
 
   function markerColor(entry: MapEntry): string {
     return entry.category === "kap92" ? COLOR_KAP92 : COLOR_PROJECT;
+  }
+
+  // The live path, normalized: direct loads land on the trailing-slash URLs
+  // Cloudflare's auto-trailing-slash redirect produces (/projects/<id>/), while
+  // marker keys / entry hrefs never carry one — compare on the normalized form.
+  function currentPath(): string {
+    return normalizePath(location.pathname);
   }
 
   async function initMap(container: HTMLElement): Promise<MapLibreMap> {
@@ -51,35 +59,43 @@ import "maplibre-gl/dist/maplibre-gl.css";
     // Register in reverse so earlier entries (projects) are added last and sit on top of KAP'92.
     for (const entry of [...entries].reverse()) {
       const lngLat: [number, number] = [entry.lng, entry.lat];
-      const color = markerColor(entry);
 
       // Custom square marker: outlined in the collection color, filled when visited.
+      // Focusable button so the map is keyboard-operable, mirroring the table links.
       const element = document.createElement("div");
       element.className = "map-marker";
+      element.setAttribute("role", "button");
+      element.setAttribute("tabindex", "0");
+      element.setAttribute("aria-label", entry.name);
       const dot = document.createElement("div");
-      dot.className = "map-marker-dot";
-      dot.style.setProperty("--marker-color", color);
-      dot.style.backgroundColor = entry.visited ? color : "transparent";
+      dot.className = entry.visited ? "map-marker-dot map-marker-visited" : "map-marker-dot";
+      dot.style.setProperty("--marker-color", markerColor(entry));
       element.appendChild(dot);
 
       const marker = new maplibregl.Marker({ element }).setLngLat(lngLat).addTo(map);
       element.addEventListener("mouseenter", () => $hovered.set(entry.href));
       element.addEventListener("mouseleave", () => $hovered.set(null));
+      // Keyboard focus shares the hover highlight, on the marker and its table row.
+      element.addEventListener("focus", () => $hovered.set(entry.href));
+      element.addEventListener("blur", () => $hovered.set(null));
       // Navigate via the ClientRouter (like the table rows) so the persisted map
       // survives the trip — window.location would full-reload and rebuild it.
       // On the marker's own detail page it acts like the entry's table row and
-      // goes back home instead. Otherwise, tag the entry's table row
-      // (if the current page renders it) so it morphs into the detail-page row,
-      // the same View Transition a direct row click gets.
-      element.addEventListener("click", () => {
-        if (location.pathname === entry.href) {
+      // goes back home instead. Otherwise, tag the entry's table row (if the
+      // current page renders it) so it morphs into the detail-page row, the
+      // same View Transition a direct row click gets (navigateWithRowMorph).
+      const activate = () => {
+        if (currentPath() === entry.href) {
           navigate("/");
           return;
         }
-        document
-          .querySelector<HTMLElement>(`[data-row-href="${entry.href}"]`)
-          ?.style.setProperty("view-transition-name", rowTransitionName(entry.href));
-        navigate(entry.href);
+        navigateWithRowMorph(entry.href);
+      };
+      element.addEventListener("click", activate);
+      element.addEventListener("keydown", (event) => {
+        if (event.key !== "Enter" && event.key !== " ") return;
+        event.preventDefault();
+        activate();
       });
       markers.set(entry.href, marker);
       bounds.extend(lngLat);
@@ -90,12 +106,12 @@ import "maplibre-gl/dist/maplibre-gl.css";
 
     // A marker is highlighted while its table row (or itself) is hovered, and —
     // always — when it is the current detail page's entry (marker hrefs are the
-    // page paths, so the focused marker is the one matching location.pathname).
+    // page paths, so the focused marker is the one matching the current path).
     // Re-run on hover changes (subscribe) and on navigation (refreshMarkerHighlight
     // is called from syncVisibility below).
     const updateHighlight = () => {
       const hovered = $hovered.get();
-      const focused = currentFocus() ? location.pathname : null;
+      const focused = currentFocus() ? currentPath() : null;
       // pendingPath only bridges the flicker gap where mouseleave clears $hovered
       // mid-transition; once the user is actively hovering something (hovered
       // non-null) it is obsolete, so ignore it then. This also stops a stale
@@ -114,7 +130,7 @@ import "maplibre-gl/dist/maplibre-gl.css";
     // mirroring the single-row detail table; on "/" show every marker. Re-run on
     // navigation via refreshMarkerVisibility (called from syncVisibility).
     const updateVisibility = () => {
-      const focused = currentFocus() ? location.pathname : null;
+      const focused = currentFocus() ? currentPath() : null;
       for (const [key, marker] of markers) {
         marker.getElement().style.display = focused && key !== focused ? "none" : "";
       }
@@ -151,7 +167,7 @@ import "maplibre-gl/dist/maplibre-gl.css";
   // syncVisibility clears it once the new page's focus attributes take over.
   let pendingPath: string | null = null;
   document.addEventListener("astro:before-preparation", (event) => {
-    pendingPath = (event as TransitionBeforePreparationEvent).to.pathname;
+    pendingPath = normalizePath((event as TransitionBeforePreparationEvent).to.pathname);
   });
 
   function currentFocus(): [number, number] | null {
@@ -185,7 +201,7 @@ import "maplibre-gl/dist/maplibre-gl.css";
     // The new page's <body> focus attributes are authoritative from here on.
     pendingPath = null;
     const focus = currentFocus();
-    if (location.pathname !== "/" && !focus) {
+    if (currentPath() !== "/" && !focus) {
       layer.style.display = "none";
       return;
     }

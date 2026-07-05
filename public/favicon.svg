@@ -1,0 +1,4 @@
+<!-- The project map marker: a square outlined in --color-project (global.css). -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+  <rect x="3" y="3" width="10" height="10" fill="none" stroke="#ff5031" stroke-width="2" />
+</svg>

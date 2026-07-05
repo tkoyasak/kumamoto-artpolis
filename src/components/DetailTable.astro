@@ -1,6 +1,6 @@
 ---
-import type { DetailRow } from "../lib/table.ts";
-import { tableWidth } from "../lib/transitions.ts";
+import { type DetailRow, outlineClass, tableWidth } from "../lib/table.ts";
+import { rowTransitionName } from "../lib/transitions.ts";
 
 // Static fixed-layout table shared by the entry detail pages (EntryDetailTable) and
 // the visit timeline (StatusTable) — the static counterpart to the interactive
@@ -45,13 +45,27 @@ const { headers, rows, colWidths, headVt, maxWidth, detail = false, backHref, fl
     <tbody>
       {
         rows.map((row) => {
-          const outlineColor = row.category === "kap92" ? "outline-kap92" : "outline-project";
-          const cls = `cursor-pointer -outline-offset-1 ${outlineColor} ${
+          const vt = rowTransitionName(row.href);
+          // Where activating the row goes: a detail row navigates back to the
+          // list it morphed from; a list row goes to its detail page. The name
+          // cell's <a> carries the same target so the row works without the
+          // script (keyboard, screen readers, open-in-new-tab); the script
+          // upgrades plain clicks to a ClientRouter navigation.
+          const target = detail && backHref ? backHref : row.href;
+          const cls = `cursor-pointer -outline-offset-1 ${outlineClass(row.category)} ${
             detail ? "outline" : "hover:outline"
           }`;
           const cells = row.cells.map((cell) => (
             <td class="truncate py-1 pr-4 text-sm first:pl-4">
-              {cell.strong ? <span class="font-medium">{cell.text}</span> : cell.text}
+              {
+                cell.strong ? (
+                  <a href={target} class="font-medium">
+                    {cell.text}
+                  </a>
+                ) : (
+                  cell.text
+                )
+              }
             </td>
           ));
           // The detail row carries its transition name up front so a list/home row
@@ -61,9 +75,8 @@ const { headers, rows, colWidths, headVt, maxWidth, detail = false, backHref, fl
               data-row-nav
               data-row-detail
               data-row-href={row.href}
-              data-row-vt={row.vt}
               data-row-back={backHref}
-              transition:name={row.vt}
+              transition:name={vt}
               class={cls}
             >
               {cells}
@@ -72,7 +85,6 @@ const { headers, rows, colWidths, headVt, maxWidth, detail = false, backHref, fl
             <tr
               data-row-nav
               data-row-href={row.href}
-              data-row-vt={row.vt}
               data-row-flourish={flourish ? "" : undefined}
               class={cls}
             >
@@ -91,18 +103,26 @@ const { headers, rows, colWidths, headVt, maxWidth, detail = false, backHref, fl
   // since rows are fresh DOM; a dataset flag guards against double-binding.
   import { navigate } from "astro:transitions/client";
 
+  import { normalizePath } from "../lib/routes.ts";
+  import { navigateWithRowMorph } from "../lib/row-morph.ts";
+  import { rowTransitionName } from "../lib/transitions.ts";
+
   function bindRows() {
     for (const row of document.querySelectorAll<HTMLElement>("[data-row-nav]")) {
       if (row.dataset.bound) continue;
       row.dataset.bound = "1";
-      row.addEventListener("click", () => {
+      row.addEventListener("click", (event) => {
+        // Let the browser handle modified clicks on the name link (new tab, etc.).
+        if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+        // Cancel the name link's default full-page navigation; the ClientRouter
+        // navigation below keeps the persisted map alive.
+        event.preventDefault();
         if (row.hasAttribute("data-row-detail")) {
           // Detail row: navigate back to the list/home it morphed from.
           navigate(row.dataset.rowBack!);
         } else {
           // List row: tag it so it morphs into the detail page's row, then go.
-          row.style.setProperty("view-transition-name", row.dataset.rowVt!);
-          navigate(row.dataset.rowHref!);
+          navigateWithRowMorph(row.dataset.rowHref!);
         }
       });
     }
@@ -116,10 +136,10 @@ const { headers, rows, colWidths, headVt, maxWidth, detail = false, backHref, fl
   // detail row morphs back into its slot. `flourish` rows flash their outline for
   // the morph only. Clean up the injected name once the animation finishes.
   document.addEventListener("astro:before-swap", (event) => {
-    const from = event.from.pathname.replace(/\/$/, "") || "/";
+    const from = normalizePath(event.from.pathname);
     const row = event.newDocument.querySelector<HTMLElement>(`[data-row-href="${from}"]`);
     if (!row) return;
-    row.style.setProperty("view-transition-name", row.dataset.rowVt!);
+    row.style.setProperty("view-transition-name", rowTransitionName(from));
 
     const vt = event.viewTransition;
     if (!vt) return;

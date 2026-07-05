@@ -83,10 +83,12 @@ import "maplibre-gl/dist/maplibre-gl.css";
       element.addEventListener("blur", () => $hovered.set(null));
       // Navigate via the ClientRouter (like the table rows) so the persisted map
       // survives the trip — window.location would full-reload and rebuild it.
-      // On the marker's own detail page it acts like the entry's table row and
-      // goes back home instead. Otherwise, tag the entry's table row (if the
-      // current page renders it) so it morphs into the detail-page row, the
-      // same View Transition a direct row click gets (navigateWithRowMorph).
+      // A marker always acts like its entry's table row on the current page: on
+      // the entry's own detail page that row navigates back home, everywhere
+      // else (including /status/<id>, whose entry row is list-style) it goes to
+      // the entry's page — tag that row (if the current page renders it) so it
+      // morphs into the detail-page row, the same View Transition a direct row
+      // click gets (navigateWithRowMorph).
       const activate = () => {
         if (currentPath() === entry.href) {
           navigate("/");

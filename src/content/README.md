@@ -6,7 +6,7 @@
 
 Artpolis commissioned new builds, listed at <https://www.pref.kumamoto.jp/soshiki/115/83273.html>.
 
-| number | slug                                 | name                                |
+| number | id                                   | name                                |
 | -----: | ------------------------------------ | ----------------------------------- |
 |      1 | `hozukubo-daiichi-danchi`            | 熊本県営保田窪第一団地              |
 |      2 | `yatsushiro-municipal-museum`        | 八代市立博物館 未来の森ミュージアム |
@@ -17,7 +17,7 @@ Artpolis commissioned new builds, listed at <https://www.pref.kumamoto.jp/soshik
 
 KAP'92 selected existing buildings, listed at <https://www.pref.kumamoto.jp/soshiki/115/4477.html>.
 
-| number | slug              | name   |
+| number | id                | name   |
 | -----: | ----------------- | ------ |
 |      1 | `kumamoto-castle` | 熊本城 |
 

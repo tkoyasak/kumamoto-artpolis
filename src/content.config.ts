@@ -4,8 +4,8 @@ import { defineCollection, reference } from "astro:content";
 
 // Both catalog collections share one schema. `projects` are Artpolis commissioned
 // new builds; `kap92` are selected existing buildings. The Markdown filename is the
-// slug: the glob loader derives `entry.id` from it, so the id is the URL key
-// (/projects/<slug>, /kap92/<slug>) and how `status` references an entry — keep
+// entry id: the glob loader derives `entry.id` from it, so the id is the URL key
+// (/projects/<id>, /kap92/<id>) and how `status` references an entry — keep
 // filenames stable. `number` is the official Artpolis / prefecture-list number, a
 // frontmatter field used only for display and sorting (never for identity).
 //
@@ -36,7 +36,7 @@ const kap92 = defineCollection({
 // One Markdown file per visit, named `<date>-<HHMM>.md` (e.g. 2025-11-03-1420.md).
 // It reads as a colon-free ISO datetime, but stays lowercase/digits/dashes so the
 // filename survives the glob loader's slugify unchanged: filename == entry id ==
-// URL. Filename -> entry id -> the /status/<datetime> route and the single sort
+// URL. Filename -> entry id -> the /status/<id> route and the single sort
 // key (it sorts lexically, so newest-first is `id` descending); the date is
 // `id.slice(0, 10)`. Each record
 // references exactly one visited entry via `project` XOR `kap92` (the schema's

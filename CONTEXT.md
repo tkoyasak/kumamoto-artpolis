@@ -40,10 +40,13 @@ _Avoid_: type, purpose
 
 ### Identity & keys
 
-**Slug**:
-An Entry's stable public identifier: its Markdown filename (`<slug>.md`), its URL
-path (`/projects/<slug>`), and the key by which a visit references it.
-_Avoid_: id (an internal framework term — for an Entry, the id _is_ the Slug, derived from the filename), permalink
+**Id**:
+An Entry's stable public identifier, derived from its Markdown filename
+(`<id>.md`): a human-readable name, chosen once and kept stable. It is the URL
+path (`/projects/<id>`) and the key by which a Visit record references the
+Entry. Visit records are identified the same way — filename == id == URL — but
+their ids are datetimes, not names.
+_Avoid_: slug (retired — it named the same thing), permalink
 
 **Number**:
 An Entry's official catalog number (its Artpolis number, or its 1–46 place in
@@ -54,12 +57,12 @@ _Avoid_: id, index
 ### Visits
 
 **Visit record**:
-A single day of visiting, identified by its date, listing the Entries seen that
-day. The source of truth for when each Entry was visited.
+A single visit to one Entry, identified by its datetime. Visit records are
+collectively the source of truth for when each Entry was visited.
 _Avoid_: status (the technical collection/route name), visit log
 
 **Visit date**:
-The date that identifies a Visit record (`/status/<date>`). An Entry never stores
+The calendar date of a Visit record, derived from its id. An Entry never stores
 its own visit dates; they are always derived from Visit records.
 
 **Visited**:

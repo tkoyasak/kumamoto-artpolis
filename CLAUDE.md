@@ -14,7 +14,6 @@ state.
 - **`CONTEXT.md`** — domain glossary; the source for terms (Entry, Project, KAP'92 building, Id, Visit record, …).
 - **`docs/adr/`** — short ADRs recording _why_ the code is shaped this way.
 - **`docs/issues/`** — deep perf/UX write-ups (rationale, methodology, benchmarks).
-- **`TODO.md`** — pending work.
 
 ## Commands
 

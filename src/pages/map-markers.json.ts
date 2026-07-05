@@ -5,7 +5,7 @@ import type { MapEntry } from "../lib/map.ts";
 import { categoryOf, entryHref } from "../lib/routes.ts";
 import { getVisitsByEntry } from "../lib/visits.ts";
 
-// Prerendered to /map-data.json (MAP_DATA_URL in src/lib/map.ts): the marker
+// Prerendered to /map-markers.json (MAP_MARKERS_URL in src/lib/map.ts): the marker
 // data for the persisted map island. One shared, cacheable asset fetched when
 // the map first initializes, instead of inline JSON duplicated into every page.
 // The array is already in marker stacking order: the map script registers markers

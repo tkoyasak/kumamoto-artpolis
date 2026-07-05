@@ -1,8 +1,8 @@
 import type { Category } from "./routes.ts";
 
-// The prerendered endpoint (src/pages/map-data.json.ts) the map island fetches
+// The prerendered endpoint (src/pages/map-markers.json.ts) the map island fetches
 // its markers from, when the map first initializes.
-export const MAP_DATA_URL = "/map-data.json";
+export const MAP_MARKERS_URL = "/map-markers.json";
 
 // The persisted map layer. Doubles as its DOM id and its `transition:persist` name
 // (Base.astro), and the id the map island toggles visibility on (EntriesMap.astro).

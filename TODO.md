@@ -14,7 +14,7 @@
 ## Performance / architecture (decided — revisit later)
 
 - [x] Home map JS loading: maplibre code-split, loaded at natural priority (not head-preloaded). See [docs/issues/0001-maplibre-chunk-loading.md](docs/issues/0001-maplibre-chunk-loading.md).
-- [x] Persist the map across navigation (ClientRouter + `transition:persist`) so returning home no longer re-inits maplibre (~1.8–1.9× faster return, benchmarked). The original load-on-every-page tradeoff was later removed: the map (maplibre chunk + `/map-data.json`) now initializes lazily, only when `/` is first shown. See [docs/issues/0002-map-persist-across-navigation.md](docs/issues/0002-map-persist-across-navigation.md).
+- [x] Persist the map across navigation (ClientRouter + `transition:persist`) so returning home no longer re-inits maplibre (~1.8–1.9× faster return, benchmarked). The original load-on-every-page tradeoff was later removed: the map (maplibre chunk + `/map-markers.json`) now initializes lazily, only when `/` is first shown. See [docs/issues/0002-map-persist-across-navigation.md](docs/issues/0002-map-persist-across-navigation.md).
 - [ ] Qwik island migration (resumability, smaller upfront JS): blocked for now — `@qwik.dev/astro` is Qwik v2 (beta) while `@tanstack/qwik-table` targets Qwik v1. Revisit when qwik-table supports Qwik v2.
 
 ## UI

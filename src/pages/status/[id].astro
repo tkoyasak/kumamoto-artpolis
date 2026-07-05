@@ -28,13 +28,13 @@ const { Content } = await render(entry);
 ---
 
 <Base
-  title={`${row.date} ${visitedEntry.data.name} の訪問記録 | Kumamoto Artpolis`}
+  title={`Status > ${entry.id}`}
   mapFocus={entryMapFocus(visitedEntry)}
 >
   <EntryDetailTable slot="entry" rows={[toEntryRow(visitedEntry)]} detail={false} />
   <Fragment slot="status">
     <StatusTable rows={[row]} detail />
-    <DetailBody title={`${row.date} ${visitedEntry.data.name}`}>
+    <DetailBody>
       <Content />
     </DetailBody>
   </Fragment>

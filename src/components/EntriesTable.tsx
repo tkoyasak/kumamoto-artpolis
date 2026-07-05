@@ -105,7 +105,7 @@ export default function EntriesTable({ rows }: { rows: EntryRow[] }) {
                     aria-sort={
                       sorted === "asc" ? "ascending" : sorted === "desc" ? "descending" : undefined
                     }
-                    className="truncate py-1 pr-4 font-normal first:pl-4"
+                    className="truncate py-1 pr-4 text-sm font-normal first:pl-4"
                   >
                     {canSort ? (
                       <button

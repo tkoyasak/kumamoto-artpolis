@@ -7,16 +7,8 @@ import { getStatusRows } from "../../lib/status.ts";
 const rows = await getStatusRows();
 ---
 
-<Base title="訪問記録 | Kumamoto Artpolis">
+<Base title="Status">
   <Fragment slot="status">
-    {
-      rows.length > 0 ? (
-        <StatusTable rows={rows} />
-      ) : (
-        <main class="relative max-w-2xl p-4 sm:p-8">
-          <p class="text-gray-500">まだ訪問記録がありません。</p>
-        </main>
-      )
-    }
+    <StatusTable rows={rows} />
   </Fragment>
 </Base>

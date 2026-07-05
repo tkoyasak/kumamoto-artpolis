@@ -39,7 +39,7 @@ const { headers, rows, colWidths, headVt, maxWidth, detail = false, backHref, fl
     <colgroup>{colWidths.map((w) => <col style={`width:${w}`} />)}</colgroup>
     <thead>
       <tr class="text-left" transition:name={headVt}>
-        {headers.map((header) => <th class="truncate py-1 pr-4 font-normal first:pl-4">{header}</th>)}
+        {headers.map((header) => <th class="truncate py-1 pr-4 text-sm font-normal first:pl-4">{header}</th>)}
       </tr>
     </thead>
     <tbody>

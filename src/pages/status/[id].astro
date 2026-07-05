@@ -1,9 +1,10 @@
 ---
 import { getCollection, render } from "astro:content";
+import DetailBody from "../../components/DetailBody.astro";
 import EntryDetailTable from "../../components/EntryDetailTable.astro";
 import StatusTable from "../../components/StatusTable.astro";
 import Base from "../../layouts/Base.astro";
-import { toEntryRow } from "../../lib/entries.ts";
+import { entryMapFocus, toEntryRow } from "../../lib/entries.ts";
 import { toStatusRow } from "../../lib/status.ts";
 import { getVisitedEntry } from "../../lib/visits.ts";
 
@@ -23,25 +24,18 @@ export async function getStaticPaths() {
 const { entry } = Astro.props;
 const visitedEntry = await getVisitedEntry(entry);
 const row = toStatusRow(entry.id, visitedEntry);
-const entryRow = toEntryRow(visitedEntry);
 const { Content } = await render(entry);
 ---
 
 <Base
   title={`${row.date} ${visitedEntry.data.name} の訪問記録 | Kumamoto Artpolis`}
-  mapFocus={{ lat: visitedEntry.data.lat, lng: visitedEntry.data.lng, href: entryRow.href }}
+  mapFocus={entryMapFocus(visitedEntry)}
 >
-  <EntryDetailTable slot="entry" rows={[entryRow]} detail={false} />
+  <EntryDetailTable slot="entry" rows={[toEntryRow(visitedEntry)]} detail={false} />
   <Fragment slot="status">
     <StatusTable rows={[row]} detail />
-    {/* Same stacking dance as EntryDetail: paint above the fixed map layer but
-        let clicks in the gaps reach the map square behind. */}
-    <main class="pointer-events-none relative max-w-2xl p-4 sm:p-8">
-      <h1 class="pointer-events-auto text-base font-bold">{row.date} {visitedEntry.data.name}</h1>
-
-      <div class="pointer-events-auto mt-6 text-gray-800">
-        <Content />
-      </div>
-    </main>
+    <DetailBody title={`${row.date} ${visitedEntry.data.name}`}>
+      <Content />
+    </DetailBody>
   </Fragment>
 </Base>

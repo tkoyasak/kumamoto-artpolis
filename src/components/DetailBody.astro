@@ -1,0 +1,20 @@
+---
+// The body column of a detail page (an entry's or a visit's): the heading and
+// the rendered Markdown, shared by EntryDetail and /status/<id>. `relative`
+// stacks the text above the persisted fixed map layer (positioned elements
+// paint over it in tree order); pointer-events-none + auto children let clicks
+// in the gaps still reach the map square behind.
+interface Props {
+  title: string;
+}
+
+const { title } = Astro.props;
+---
+
+<main class="pointer-events-none relative max-w-2xl p-4 sm:p-8">
+  <h1 class="pointer-events-auto text-base font-bold">{title}</h1>
+
+  <div class="pointer-events-auto mt-6 text-gray-800">
+    <slot />
+  </div>
+</main>

@@ -1,7 +1,7 @@
 ---
 import { ClientRouter } from "astro:transitions";
 import EntriesMap from "../components/EntriesMap.astro";
-import { MAP_LAYER_ID } from "../lib/map.ts";
+import { FULLSCREEN_MAP_PATHS, MAP_LAYER_ID } from "../lib/map.ts";
 import { normalizePath } from "../lib/routes.ts";
 import "../styles/global.css";
 
@@ -39,9 +39,9 @@ const section =
 // fullscreen-map pages it must be hidden server-side — hiding it client-side only
 // (as before) blocked all clicks on other pages until the map script ran. The map
 // script takes over from here (EntriesMap.astro): lazy init, and per-navigation
-// visibility — fullscreen on "/" and "/status", clipped to a square around the
-// marker when the page sets `mapFocus`, hidden elsewhere.
-const fullscreenMap = ["/", "/status"].includes(normalizePath(path));
+// visibility — fullscreen on the FULLSCREEN_MAP_PATHS, clipped to a square
+// around the marker when the page sets `mapFocus`, hidden elsewhere.
+const fullscreenMap = FULLSCREEN_MAP_PATHS.includes(normalizePath(path));
 
 // Nav links are `w-fit` so only their text sits over the fixed map layer, leaving
 // the rest of each line click-through; `z-20` paints them above the map.

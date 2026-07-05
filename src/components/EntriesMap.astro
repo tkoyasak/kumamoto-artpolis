@@ -14,7 +14,7 @@ import "maplibre-gl/dist/maplibre-gl.css";
   // don't pull the chunk.
   import { navigate, type TransitionBeforePreparationEvent } from "astro:transitions/client";
   import type { Map as MapLibreMap, Marker } from "maplibre-gl";
-  import { MAP_DATA_URL, MAP_LAYER_ID, type MapEntry } from "../lib/map.ts";
+  import { FULLSCREEN_MAP_PATHS, MAP_DATA_URL, MAP_LAYER_ID, type MapEntry } from "../lib/map.ts";
   import { normalizePath } from "../lib/routes.ts";
   import { navigateWithRowMorph } from "../lib/row-morph.ts";
   import { $hovered } from "../lib/stores.ts";
@@ -223,9 +223,7 @@ import "maplibre-gl/dist/maplibre-gl.css";
       container.querySelector<HTMLElement>(".map-marker:focus");
     $hovered.set(marker?.dataset.href ?? null);
     const focus = currentFocus();
-    const path = currentPath();
-    // Fullscreen-map pages (keep in sync with Base.astro's server-side list).
-    if (path !== "/" && path !== "/status" && !focus) {
+    if (!FULLSCREEN_MAP_PATHS.includes(currentPath()) && !focus) {
       layer.style.display = "none";
       return;
     }

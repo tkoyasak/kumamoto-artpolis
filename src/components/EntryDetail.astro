@@ -3,8 +3,9 @@ import type { CollectionEntry } from "astro:content";
 import { render } from "astro:content";
 
 import Base from "../layouts/Base.astro";
-import { toEntryRow } from "../lib/entries.ts";
+import { entryMapFocus, toEntryRow } from "../lib/entries.ts";
 import { toStatusRow } from "../lib/status.ts";
+import DetailBody from "./DetailBody.astro";
 import EntryDetailTable from "./EntryDetailTable.astro";
 import StatusTable from "./StatusTable.astro";
 
@@ -27,22 +28,12 @@ const row = toEntryRow(entry);
 const visitRows = visits.map((id) => toStatusRow(id, entry));
 ---
 
-<Base
-  title={`Kumamoto Artpolis > ${entry.data.name}`}
-  mapFocus={{ lat: entry.data.lat, lng: entry.data.lng, href: row.href }}
->
+<Base title={`Kumamoto Artpolis > ${entry.data.name}`} mapFocus={entryMapFocus(entry)}>
   <Fragment slot="entry">
     <EntryDetailTable rows={[row]} />
-    {/* relative stacks the text above the persisted fixed map layer (positioned
-        elements paint over it in tree order); pointer-events-none + auto children
-        let clicks in the gaps still reach the map square behind. */}
-    <main class="pointer-events-none relative max-w-2xl p-4 sm:p-8">
-      <h1 class="pointer-events-auto text-base font-bold">{entry.data.name}</h1>
-
-      <div class="pointer-events-auto mt-6 text-gray-800">
-        <Content />
-      </div>
-    </main>
+    <DetailBody title={entry.data.name}>
+      <Content />
+    </DetailBody>
   </Fragment>
   <Fragment slot="status">
     {visitRows.length > 0 && <StatusTable rows={visitRows} />}

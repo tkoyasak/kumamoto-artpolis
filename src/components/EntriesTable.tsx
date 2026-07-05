@@ -81,7 +81,7 @@ export default function EntriesTable({ rows }: { rows: EntryRow[] }) {
   ];
 
   return (
-    <section className="pointer-events-auto max-w-5xl overflow-x-auto p-4 sm:p-8">
+    <section className="pointer-events-auto max-w-5xl overflow-x-auto px-4 py-4 sm:px-8">
       <table className="table-fixed border-collapse text-base" style={{ width: ENTRY_TABLE_WIDTH }}>
         <colgroup>
           {ENTRY_COL_WIDTHS.map((w, i) => (

@@ -34,7 +34,7 @@ const { headers, rows, colWidths, headVt, maxWidth, detail = false, backHref, fl
 ---
 
 {/* relative: paint above the persisted fixed map layer, like the page text. */}
-<section class={`relative ${maxWidth} overflow-x-auto p-4 sm:p-8`}>
+<section class={`relative ${maxWidth} overflow-x-auto px-4 py-4 sm:px-8`}>
   <table class="table-fixed border-collapse text-base" style={`width:${tableWidth(colWidths)}`}>
     <colgroup>{colWidths.map((w) => <col style={`width:${w}`} />)}</colgroup>
     <thead>

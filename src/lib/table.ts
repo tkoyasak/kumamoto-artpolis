@@ -42,9 +42,9 @@ export const tableWidth = (widths: readonly string[]): string =>
 // identical fixed widths stops the header/row from jittering as they morph across
 // the swap. Cells truncate (…) past their width; when the whole table is wider
 // than the viewport it scrolls horizontally (overflow-x on the wrapper).
-// Order: No., Name, Architects, Use, Location, Year, Visited. Name is the widest;
-// Architects narrower; Use/Location/Year/Visited share one width.
-export const ENTRY_COL_WIDTHS = ["4rem", "20rem", "8rem", "8rem", "8rem", "6rem", "6rem"] as const;
+// Order: No., Name, Architects, Use, Location, Year. Name is the widest;
+// Architects narrower; Use/Location share one width.
+export const ENTRY_COL_WIDTHS = ["4rem", "20rem", "8rem", "8rem", "8rem", "6rem"] as const;
 
 // The table's total width = sum of the fixed columns. It MUST be a definite width:
 // with `width: max-content` (Tailwind w-max) `table-layout: fixed` stops enforcing

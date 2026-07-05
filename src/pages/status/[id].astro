@@ -1,8 +1,9 @@
 ---
 import { getCollection, render } from "astro:content";
+import EntryDetailTable from "../../components/EntryDetailTable.astro";
 import StatusTable from "../../components/StatusTable.astro";
 import Base from "../../layouts/Base.astro";
-import { entryHref } from "../../lib/routes.ts";
+import { toEntryRow } from "../../lib/entries.ts";
 import { toStatusRow } from "../../lib/status.ts";
 import { getVisitedEntry } from "../../lib/visits.ts";
 
@@ -10,6 +11,10 @@ import { getVisitedEntry } from "../../lib/visits.ts";
 // visited entry comes from the record's `project`/`kap92` reference; the body
 // holds the notes and photos. The StatusTable row here shares its transition name
 // with the /status timeline row, so the two morph into each other on navigation.
+// The layout follows Base's slots: under the wordmark the visited entry's own
+// row (EntryDetailTable, list-style, linking to its detail page); under the
+// Status link the visit row and the record body; the persisted map is cropped
+// to the entry's marker.
 export async function getStaticPaths() {
   const status = await getCollection("status");
   return status.map((entry) => ({ params: { id: entry.id }, props: { entry } }));
@@ -17,23 +22,26 @@ export async function getStaticPaths() {
 
 const { entry } = Astro.props;
 const visitedEntry = await getVisitedEntry(entry);
-const row = toStatusRow(entry, visitedEntry);
+const row = toStatusRow(entry.id, visitedEntry);
+const entryRow = toEntryRow(visitedEntry);
 const { Content } = await render(entry);
 ---
 
-<Base title={`${row.date} ${visitedEntry.data.name} の訪問記録 | Kumamoto Artpolis`}>
-  <StatusTable rows={[row]} detail />
-  <main class="max-w-2xl p-4 sm:p-8">
-    <h1 class="text-base font-bold">{row.date} {visitedEntry.data.name}</h1>
+<Base
+  title={`${row.date} ${visitedEntry.data.name} の訪問記録 | Kumamoto Artpolis`}
+  mapFocus={{ lat: visitedEntry.data.lat, lng: visitedEntry.data.lng, href: entryRow.href }}
+>
+  <EntryDetailTable slot="entry" rows={[entryRow]} detail={false} />
+  <Fragment slot="status">
+    <StatusTable rows={[row]} detail />
+    {/* Same stacking dance as EntryDetail: paint above the fixed map layer but
+        let clicks in the gaps reach the map square behind. */}
+    <main class="pointer-events-none relative max-w-2xl p-4 sm:p-8">
+      <h1 class="pointer-events-auto text-base font-bold">{row.date} {visitedEntry.data.name}</h1>
 
-    <div class="mt-6 text-gray-800">
-      <Content />
-    </div>
-
-    <p class="mt-8 text-base">
-      <a href={entryHref(visitedEntry)} class="text-rose-600 hover:underline">
-        {visitedEntry.data.name}
-      </a>
-    </p>
-  </main>
+      <div class="pointer-events-auto mt-6 text-gray-800">
+        <Content />
+      </div>
+    </main>
+  </Fragment>
 </Base>

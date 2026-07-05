@@ -2,16 +2,18 @@
 import { ClientRouter } from "astro:transitions";
 import EntriesMap from "../components/EntriesMap.astro";
 import { MAP_LAYER_ID } from "../lib/map.ts";
+import { normalizePath } from "../lib/routes.ts";
 import "../styles/global.css";
 
 interface Props {
   title?: string;
   description?: string;
-  // Set by detail pages: the entry's coordinates, carried on <body> data
-  // attributes. The map script reads them to keep the persisted fullscreen map
-  // in place (camera untouched), clip it to a square around this marker, and
-  // keep the marker's outline highlight on.
-  mapFocus?: { lat: number; lng: number };
+  // Set by detail pages: the focused entry's coordinates and href (the marker
+  // key — on /status/<id> it differs from the page path), carried on <body>
+  // data attributes. The map script reads them to keep the persisted fullscreen
+  // map in place (camera untouched), clip it to a square around this marker,
+  // and keep the marker's outline highlight on.
+  mapFocus?: { lat: number; lng: number; href: string };
 }
 
 const {
@@ -21,24 +23,25 @@ const {
 } = Astro.props;
 
 // One unified nav column — the wordmark (home), Status, About stacked top to
-// bottom — with the current page's content (<slot />) injected right after its
-// own entry. `section` picks that slot: detail pages (/projects/*, /kap92/*)
-// belong to the home group, so their content shows under the wordmark.
-// startsWith (not ===) so it holds under the trailing-slash URLs Astro's
-// directory build emits (/about/, /status/).
+// bottom — with named slots after each link, so every page keeps the same
+// vertical order: wordmark → entry table(s) → Status → status table → About.
+// Pages fill only the slots they have content for. `section` only marks the
+// current page's nav link (aria-current); startsWith (not ===) so it holds
+// under the trailing-slash URLs Astro's directory build emits (/about/,
+// /status/).
 const path = Astro.url.pathname;
 const section =
   path.startsWith("/about") ? "about" : path.startsWith("/status") ? "status" : "home";
 
 // The map layer lives in the layout (not the home page) so its maplibre instance
 // survives navigation via transition:persist — returning home reuses it instead of
-// re-initializing. It is pointer-events-auto and covers the viewport, so off "/"
-// it must be hidden server-side — hiding it client-side only (as before) blocked
-// all clicks on non-home pages until the map script ran. The map script takes
-// over from here (EntriesMap.astro): lazy init, and per-navigation visibility —
-// fullscreen on "/", clipped to a square around the marker when the page sets
-// `mapFocus`, hidden elsewhere.
-const onHome = path === "/";
+// re-initializing. It is pointer-events-auto and covers the viewport, so off the
+// fullscreen-map pages it must be hidden server-side — hiding it client-side only
+// (as before) blocked all clicks on other pages until the map script ran. The map
+// script takes over from here (EntriesMap.astro): lazy init, and per-navigation
+// visibility — fullscreen on "/" and "/status", clipped to a square around the
+// marker when the page sets `mapFocus`, hidden elsewhere.
+const fullscreenMap = ["/", "/status"].includes(normalizePath(path));
 
 // Nav links are `w-fit` so only their text sits over the fixed map layer, leaving
 // the rest of each line click-through; `z-20` paints them above the map.
@@ -55,11 +58,11 @@ const navLink = "relative z-20 block w-fit font-medium text-base text-neutral-90
     <title>{title}</title>
     <ClientRouter />
   </head>
-  <body data-map-lat={mapFocus?.lat} data-map-lng={mapFocus?.lng}>
+  <body data-map-lat={mapFocus?.lat} data-map-lng={mapFocus?.lng} data-map-href={mapFocus?.href}>
     <div
       id={MAP_LAYER_ID}
       class="pointer-events-auto fixed inset-0"
-      style={onHome ? undefined : "display:none"}
+      style={fullscreenMap ? undefined : "display:none"}
       transition:persist={MAP_LAYER_ID}
     >
       <EntriesMap />
@@ -75,7 +78,7 @@ const navLink = "relative z-20 block w-fit font-medium text-base text-neutral-90
       aria-current={section === "home" ? "page" : undefined}
       class:list={[navLink, "px-4 pt-4 pb-2 sm:px-8"]}>Kumamoto Artpolis</a
     >
-    {section === "home" && <slot />}
+    <slot name="entry" />
 
     <a
       href="/status"
@@ -83,7 +86,7 @@ const navLink = "relative z-20 block w-fit font-medium text-base text-neutral-90
       aria-current={section === "status" ? "page" : undefined}
       class:list={[navLink, "px-4 py-2 sm:px-8"]}>Status</a
     >
-    {section === "status" && <slot />}
+    <slot name="status" />
 
     <a
       href="/about"
@@ -91,6 +94,6 @@ const navLink = "relative z-20 block w-fit font-medium text-base text-neutral-90
       aria-current={section === "about" ? "page" : undefined}
       class:list={[navLink, "px-4 py-2 sm:px-8"]}>About</a
     >
-    {section === "about" && <slot />}
+    <slot name="about" />
   </body>
 </html>

@@ -17,11 +17,11 @@ type Column = { header: string; align?: "right"; value: (e: Entry) => string };
 
 const str = (v: unknown): string => (Array.isArray(v) ? v.join(", ") : (v ?? "").toString());
 
-// projects and kap92 share the same number/slug/name shape. The slug is the
-// filename (the entry id), not a frontmatter field.
-const numberSlug: Column[] = [
+// projects and kap92 share the same number/id/name shape. The id is the
+// filename, not a frontmatter field.
+const numberId: Column[] = [
   { header: "number", align: "right", value: (e) => str(e.data.number) },
-  { header: "slug", value: (e) => `\`${str(e.id)}\`` },
+  { header: "id", value: (e) => `\`${str(e.id)}\`` },
   { header: "name", value: (e) => str(e.data.name) },
 ];
 const byNumber = (a: Entry, b: Entry): number => Number(a.data.number) - Number(b.data.number);
@@ -36,14 +36,14 @@ const COLLECTIONS: {
     name: "projects",
     description:
       "Artpolis commissioned new builds, listed at <https://www.pref.kumamoto.jp/soshiki/115/83273.html>.",
-    columns: numberSlug,
+    columns: numberId,
     sort: byNumber,
   },
   {
     name: "kap92",
     description:
       "KAP'92 selected existing buildings, listed at <https://www.pref.kumamoto.jp/soshiki/115/4477.html>.",
-    columns: numberSlug,
+    columns: numberId,
     sort: byNumber,
   },
   {
@@ -54,8 +54,8 @@ const COLLECTIONS: {
       {
         header: "entry",
         value: (e) => {
-          const slug = e.data.project ?? e.data.kap92;
-          return slug ? `\`${str(slug)}\`` : "";
+          const id = e.data.project ?? e.data.kap92;
+          return id ? `\`${str(id)}\`` : "";
         },
       },
     ],

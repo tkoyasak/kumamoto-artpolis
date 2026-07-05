@@ -5,7 +5,7 @@ import type { CollectionEntry } from "astro:content";
  * Resolve a status record's single visited entry — its `project` or `kap92`
  * reference (the schema's refine guarantees exactly one is set). Throws if a
  * record somehow carries neither, or if the reference doesn't resolve (a typo'd
- * or deleted slug), so a broken reference fails the build.
+ * or deleted id), so a broken reference fails the build.
  */
 export async function getVisitedEntry(
   day: CollectionEntry<"status">,
@@ -21,7 +21,7 @@ export async function getVisitedEntry(
 /**
  * Visit records per entry, newest first, derived from the status collection (the
  * source of truth for who was visited when). Covers both catalog collections:
- * keyed by the entry href (`/projects/<slug>` or `/kap92/<slug>`). Each value is
+ * keyed by the entry href (`/projects/<id>` or `/kap92/<id>`). Each value is
  * the list of status ids (ISO datetimes) visiting that entry — the id doubles as
  * the `/status/<id>` link and, via `id.slice(0, 10)`, the visit date. Entries
  * with no visits are absent.

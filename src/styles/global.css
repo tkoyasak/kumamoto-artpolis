@@ -8,7 +8,7 @@
 
 /* Slow the explorer row/header morph (and the root cross-fade) past the browser
    default (~0.25s) so the returning row's outline flourish is visible before it
-   settles. Group names for rows are dynamic (entry-<slug>), so target all groups. */
+   settles. Group names for rows are dynamic (entry-<collection>-<id>), so target all groups. */
 ::view-transition-group(*) {
   animation-duration: 0.3s;
 }

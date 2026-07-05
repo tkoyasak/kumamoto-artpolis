@@ -16,3 +16,16 @@ The slug lives in exactly one place, the filename. An earlier version carried a
 special-cased into the id; naming the file by the slug drops that duplication and
 the file-name-≠-id indirection. `number` is not put in the filename on purpose:
 doing so would fold it into the id and re-couple URLs and references to it.
+
+## Amendment (2026-07-05)
+
+"Slug" is retired as a term (issue #16). Once `status` moved to one file per
+visit, filename == `entry.id` == URL held across all collections, leaving one
+identifier concept — but two names for it: the catalog routes were
+`[slug].astro` while `status` used `[id].astro`, and `Astro.params.slug` was
+never even read. The routes are now `[id].astro` everywhere, and docs say "id"
+(the glossary's Slug entry became Id, marking "slug" avoided).
+
+The decision above stands unchanged — the id is still the filename, still a
+human-readable stable name rather than the `number`. Where this ADR says
+"slug", read "the entry id".

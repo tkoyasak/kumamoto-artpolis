@@ -11,7 +11,7 @@ hover state.
 
 ## Docs
 
-- **`CONTEXT.md`** — domain glossary; the source for terms (Entry, Project, KAP'92 building, Slug, Visit record, Explorer, …).
+- **`CONTEXT.md`** — domain glossary; the source for terms (Entry, Project, KAP'92 building, Id, Visit record, Explorer, …).
 - **`docs/adr/`** — short ADRs recording _why_ the code is shaped this way.
 - **`docs/issues/`** — deep perf/UX write-ups (rationale, methodology, benchmarks).
 - **`TODO.md`** — pending work.
@@ -37,19 +37,19 @@ Three glob-loaded Markdown collections under `src/content/`:
 
 - **`projects/`** — Artpolis commissioned new builds.
 - **`kap92/`** — KAP'92 selected existing buildings.
-- Both share one schema (`catalogSchema`): `number`/`name`/`architects`/`lat`/`lng`/`municipality`/`use` (free text) required, `completedYear` optional and only `.positive()` (kap92 can be historical). The slug is not a field — it's the filename.
+- Both share one schema (`catalogSchema`): `number`/`name`/`architects`/`lat`/`lng`/`municipality`/`use` (free text) required, `completedYear` optional and only `.positive()` (kap92 can be historical). The id is not a field — it's the filename.
 - **`status/`** — one file per visit date; frontmatter `projects` and `kap92` are reference arrays (each targeting its own catalog collection), so a day can record visits to both.
 
 Two facts to code against (see the ADRs for why):
 
-- **Slug is the entry id.** Files are named by `slug` (`<slug>.md`); the glob loader derives `entry.id` from the filename, so the id is the URL (`/projects/<slug>`) and how `status` references entries; code reads `entry.id`. `number` is a frontmatter field, display/sort only. Keep filenames stable. → `docs/adr/0002`
-- **`status` is the source of truth for visit dates.** Entries don't store their own; `getVisitDatesByEntry()` (`src/lib/visits.ts`) derives them for both collections, keyed by entry href (`/projects/<slug>`, `/kap92/<slug>`) so slugs can't collide across collections. → `docs/adr/0003`
+- **The filename is the entry id.** The glob loader derives `entry.id` from the filename (`<id>.md`), so the id is the URL (`/projects/<id>`) and how `status` references entries; code reads `entry.id`, and the dynamic routes are all `[id].astro`. Catalog ids are human-readable names — keep filenames stable. `number` is a frontmatter field, display/sort only. → `docs/adr/0002`
+- **`status` is the source of truth for visit dates.** Entries don't store their own; `getVisitsByEntry()` (`src/lib/visits.ts`) derives them for both collections, keyed by entry href (`/projects/<id>`, `/kap92/<id>`) so ids can't collide across collections. → `docs/adr/0003`
 
 ## Routing
 
 - `/` — explorer (table + map)
-- `/projects/<slug>`, `/kap92/<slug>` — prerendered detail pages (`getStaticPaths`)
-- `/status`, `/status/<date>` — visit timeline / one day's record
+- `/projects/<id>`, `/kap92/<id>` — prerendered detail pages (`getStaticPaths`)
+- `/status`, `/status/<id>` — visit timeline / one visit's record (id is a datetime)
 - `/about`; `/404` — Workers assets serve it for unknown paths (`not_found_handling`)
 - `/map-data.json` — prerendered endpoint of the map marker data
 

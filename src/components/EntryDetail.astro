@@ -3,12 +3,12 @@ import type { CollectionEntry } from "astro:content";
 import { render } from "astro:content";
 
 import Base from "../layouts/Base.astro";
-import { toExplorerRow } from "../lib/explorer.ts";
-import ExplorerTable from "./ExplorerTable.astro";
+import { toEntryRow } from "../lib/entries.ts";
+import EntryDetailTable from "./EntryDetailTable.astro";
 
 // Shared shell for a single Entry's detail page (/projects/<id>, /kap92/<id>).
 // Both routes render the same layout: the persisted map cropped to the entry's
-// marker, a one-row ExplorerTable, the entry body, and its visit records. Both
+// marker, a one-row EntryDetailTable, the entry body, and its visit records. Both
 // collections can be visited, so the visit section lives here. `visits` are the
 // status record ids (ISO datetimes) that visited this entry, newest first: each
 // links to `/status/<id>` and shows its date via `id.slice(0, 10)`; the row only
@@ -21,14 +21,14 @@ interface Props {
 const { entry, visits = [] } = Astro.props;
 const { Content } = await render(entry);
 
-const row = toExplorerRow(entry, visits[0] ? visits[0].slice(0, 10) : null);
+const row = toEntryRow(entry, visits[0] ? visits[0].slice(0, 10) : null);
 ---
 
 <Base
   title={`Kumamoto Artpolis > ${entry.data.name}`}
   mapFocus={{ lat: entry.data.lat, lng: entry.data.lng }}
 >
-  <ExplorerTable rows={[row]} />
+  <EntryDetailTable rows={[row]} />
   {/* relative stacks the text above the persisted fixed map layer (positioned
       elements paint over it in tree order); pointer-events-none + auto children
       let clicks in the gaps still reach the map square behind. */}

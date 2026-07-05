@@ -7,9 +7,9 @@ splitting it into its own chunk and/or preloading it from `<head>` actually help
 
 ## Background
 
-The home page (`/`) is an "explorer": a Preact + `@tanstack/react-table` island
-(`ProjectsTable.tsx`, `client:load`) next to a vanilla maplibre map island
-(`ProjectsMap.astro`, a client-only `<script>`), linked by a shared `$hovered`
+The home page (`/`) is a Preact + `@tanstack/react-table` island
+(`EntriesTable.tsx`, `client:load`) next to a vanilla maplibre map island
+(`EntriesMap.astro`, a client-only `<script>`), linked by a shared `$hovered`
 nanostore. maplibre is by far the largest asset on the page.
 
 An old `TODO.md` note claimed the map JS "waterfalls" because maplibre was
@@ -88,6 +88,6 @@ two independent runs — same ordering both times:
 
 - `astro.config.ts`: `vite.build.rollupOptions.output.manualChunks` puts
   `maplibre-gl` in a `maplibre` chunk. The preload integration was removed.
-- `src/components/ProjectsMap.astro`: comment documents why it is not
+- `src/components/EntriesMap.astro`: comment documents why it is not
   head-preloaded.
 - `TODO.md`: the loading item is closed with the benchmark result.

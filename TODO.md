@@ -19,5 +19,5 @@
 
 ## UI
 
-- [x] Morph the explorer row between the home table and the detail page (View Transitions), with the row's outline shown only during the morph. See [docs/issues/0003-explorer-row-view-transition.md](docs/issues/0003-explorer-row-view-transition.md).
+- [x] Morph the entry row between the home table and the detail page (View Transitions), with the row's outline shown only during the morph. See [docs/issues/0003-entry-row-view-transition.md](docs/issues/0003-entry-row-view-transition.md).
 - [ ] font試す タイトル "Kumamoto Artpolis" https://fonts.google.com/specimen/Zen+Dots

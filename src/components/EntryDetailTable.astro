@@ -1,15 +1,15 @@
 ---
-import type { ExplorerRow } from "../lib/explorer.ts";
+import type { EntryRow } from "../lib/entries.ts";
 import type { DetailRow } from "../lib/table.ts";
-import { EXPLORER_COL_WIDTHS, EXPLORER_HEAD_VT, rowTransitionName } from "../lib/transitions.ts";
+import { ENTRY_COL_WIDTHS, ENTRY_HEAD_VT, rowTransitionName } from "../lib/transitions.ts";
 import DetailTable from "./DetailTable.astro";
 
-// Static counterpart to the interactive home table (ProjectsTable.tsx), shown on
-// detail pages as a header + one row. Maps the ExplorerRow into DetailTable's row
+// Static counterpart to the interactive home table (EntriesTable.tsx), shown on
+// detail pages as a header + one row. Maps the EntryRow into DetailTable's row
 // shape; DetailTable owns the markup and the View Transition morph back to the
 // home table (clicking the row navigates to "/").
 interface Props {
-  rows: ExplorerRow[];
+  rows: EntryRow[];
 }
 
 const { rows } = Astro.props;
@@ -35,8 +35,8 @@ const detailRows: DetailRow[] = rows.map((row) => ({
 <DetailTable
   headers={headers}
   rows={detailRows}
-  colWidths={EXPLORER_COL_WIDTHS}
-  headVt={EXPLORER_HEAD_VT}
+  colWidths={ENTRY_COL_WIDTHS}
+  headVt={ENTRY_HEAD_VT}
   maxWidth="max-w-5xl"
   detail
   backHref="/"

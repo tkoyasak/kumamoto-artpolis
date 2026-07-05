@@ -1,15 +1,15 @@
 ---
-import ProjectsTable from "../components/ProjectsTable.tsx";
+import EntriesTable from "../components/EntriesTable.tsx";
 import Base from "../layouts/Base.astro";
-import { getExplorerRows } from "../lib/explorer.ts";
+import { getEntryRows } from "../lib/entries.ts";
 
-const rows = await getExplorerRows();
+const rows = await getEntryRows();
 ---
 
 <Base>
   {/* The map is a fixed fullscreen background rendered by the layout (persisted
       across navigation). The table scrolls on top; overlapping is intentional. */}
   <main class="pointer-events-none relative">
-    <ProjectsTable rows={rows} client:load />
+    <EntriesTable rows={rows} client:load />
   </main>
 </Base>

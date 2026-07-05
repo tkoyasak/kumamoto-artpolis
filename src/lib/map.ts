@@ -3,7 +3,7 @@
 export const MAP_DATA_URL = "/map-data.json";
 
 // Minimal shape served to the vanilla map island (one marker per entry).
-export type MapProject = {
+export type MapEntry = {
   href: string; // shared key with the table row
   name: string;
   category: "project" | "kap92";

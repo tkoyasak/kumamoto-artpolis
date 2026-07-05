@@ -1,6 +1,6 @@
 // Presentation-only row shape for DetailTable, the static fixed-layout table
-// shared by the entry detail pages (ExplorerTable) and the visit timeline
-// (StatusTable). Each caller maps its own domain row (ExplorerRow, StatusRow)
+// shared by the entry detail pages (EntryDetailTable) and the visit timeline
+// (StatusTable). Each caller maps its own domain row (EntryRow, StatusRow)
 // into this shape; DetailTable knows nothing about the collections beyond the
 // outline `category`.
 export type DetailCell = {

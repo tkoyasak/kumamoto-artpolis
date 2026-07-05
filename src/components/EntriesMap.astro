@@ -68,6 +68,8 @@ import "maplibre-gl/dist/maplibre-gl.css";
       element.setAttribute("role", "button");
       element.setAttribute("tabindex", "0");
       element.setAttribute("aria-label", entry.name);
+      // The marker key, read back by syncVisibility's hover re-seed below.
+      element.dataset.href = entry.href;
       const dot = document.createElement("div");
       dot.className = entry.visited ? "map-marker-dot map-marker-visited" : "map-marker-dot";
       dot.style.setProperty("--marker-color", markerColor(entry));
@@ -210,6 +212,16 @@ import "maplibre-gl/dist/maplibre-gl.css";
     if (!layer || !container) return;
     // The new page's <body> focus attributes are authoritative from here on.
     pendingPath = null;
+    // A swap fires no mouseleave for the elements it removed (boundary events
+    // wait for the next pointer move), so $hovered can still hold a row from
+    // the page just left — which would keep that entry's marker ringed on any
+    // page that shows it. Re-seed it from the persisted markers, the only
+    // elements whose hover/focus genuinely survives a swap: the marker still
+    // under the pointer or keyboard focus, else null.
+    const marker =
+      container.querySelector<HTMLElement>(".map-marker:hover") ??
+      container.querySelector<HTMLElement>(".map-marker:focus");
+    $hovered.set(marker?.dataset.href ?? null);
     const focus = currentFocus();
     const path = currentPath();
     // Fullscreen-map pages (keep in sync with Base.astro's server-side list).

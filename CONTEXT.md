@@ -68,10 +68,3 @@ its own visit dates; they are always derived from Visit records.
 **Visited**:
 The derived state of an Entry that has at least one Visit record. Drives the
 visited-or-not styling of its map marker.
-
-### The explorer
-
-**Explorer**:
-The home page's interactive catalog view: a filterable, sortable listing of every
-Entry shown beside a map, linked so that focusing an Entry in one highlights it in
-the other.

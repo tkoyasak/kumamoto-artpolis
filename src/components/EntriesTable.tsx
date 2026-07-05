@@ -11,12 +11,12 @@ import { navigate } from "astro:transitions/client";
 import { Fragment } from "preact";
 import { useMemo, useState } from "preact/hooks";
 
-import type { ExplorerRow } from "../lib/explorer.ts";
+import type { EntryRow } from "../lib/entries.ts";
 import { $hovered } from "../lib/stores.ts";
 import {
-  EXPLORER_COL_WIDTHS,
-  EXPLORER_HEAD_VT,
-  EXPLORER_TABLE_WIDTH,
+  ENTRY_COL_WIDTHS,
+  ENTRY_HEAD_VT,
+  ENTRY_TABLE_WIDTH,
   rowTransitionName,
 } from "../lib/transitions.ts";
 
@@ -28,9 +28,9 @@ function goToRow(href: string, el: HTMLElement) {
   navigate(href);
 }
 
-const columnHelper = createColumnHelper<ExplorerRow>();
+const columnHelper = createColumnHelper<EntryRow>();
 
-export default function ProjectsTable({ rows }: { rows: ExplorerRow[] }) {
+export default function EntriesTable({ rows }: { rows: EntryRow[] }) {
   // Hover state is shared with the map island via nanostores.
   const hovered = useStore($hovered);
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -93,19 +93,16 @@ export default function ProjectsTable({ rows }: { rows: ExplorerRow[] }) {
 
   // Keep the two collections grouped (projects first, then KAP'92); sort order is
   // preserved within each group.
-  const sections: { key: ExplorerRow["category"]; rows: typeof visibleRows }[] = [
+  const sections: { key: EntryRow["category"]; rows: typeof visibleRows }[] = [
     { key: "project", rows: visibleRows.filter((row) => row.original.category === "project") },
     { key: "kap92", rows: visibleRows.filter((row) => row.original.category === "kap92") },
   ];
 
   return (
     <section className="pointer-events-auto max-w-5xl overflow-x-auto p-4 sm:p-8">
-      <table
-        className="table-fixed border-collapse text-base"
-        style={{ width: EXPLORER_TABLE_WIDTH }}
-      >
+      <table className="table-fixed border-collapse text-base" style={{ width: ENTRY_TABLE_WIDTH }}>
         <colgroup>
-          {EXPLORER_COL_WIDTHS.map((w, i) => (
+          {ENTRY_COL_WIDTHS.map((w, i) => (
             <col key={i} style={{ width: w }} />
           ))}
         </colgroup>
@@ -114,7 +111,7 @@ export default function ProjectsTable({ rows }: { rows: ExplorerRow[] }) {
             <tr
               key={headerGroup.id}
               className="text-left"
-              style={{ viewTransitionName: EXPLORER_HEAD_VT }}
+              style={{ viewTransitionName: ENTRY_HEAD_VT }}
             >
               {headerGroup.headers.map((header) => {
                 const canSort = header.column.getCanSort();

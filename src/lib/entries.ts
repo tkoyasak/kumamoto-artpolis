@@ -1,12 +1,12 @@
 import { getCollection } from "astro:content";
 import type { CollectionEntry } from "astro:content";
 
-import type { MapProject } from "./map.ts";
+import type { MapEntry } from "./map.ts";
 import { getVisitsByEntry } from "./visits.ts";
 
-// Shared row shape for the home explorer (table + map). One row per project or
+// Shared row shape for the home page (table + map). One row per project or
 // KAP'92 building. `href` is the unique key linking a table row to its marker.
-export type ExplorerRow = {
+export type EntryRow = {
   href: string;
   category: "project" | "kap92";
   number: number;
@@ -20,9 +20,9 @@ export type ExplorerRow = {
   lng: number;
 };
 
-// Load and merge both collections into the sorted explorer rows. Projects sort
+// Load and merge both collections into the sorted entry rows. Projects sort
 // before KAP'92, then by official number. Used by the home table and the map layer.
-export async function getExplorerRows(): Promise<ExplorerRow[]> {
+export async function getEntryRows(): Promise<EntryRow[]> {
   const projects = await getCollection("projects");
   const kap92 = await getCollection("kap92");
   const visits = await getVisitsByEntry();
@@ -31,7 +31,7 @@ export async function getExplorerRows(): Promise<ExplorerRow[]> {
     // Visits are status ids (ISO datetimes), newest first; the row wants the
     // latest visit *date*, so take the first and drop its time part.
     const latest = (visits.get(`/${entry.collection}/${entry.id}`) ?? [])[0];
-    return toExplorerRow(entry, latest ? latest.slice(0, 10) : null);
+    return toEntryRow(entry, latest ? latest.slice(0, 10) : null);
   });
 
   return rows.sort((a, b) => {
@@ -40,9 +40,9 @@ export async function getExplorerRows(): Promise<ExplorerRow[]> {
   });
 }
 
-// Derive the map markers from explorer rows: one marker per entry (the shared
+// Derive the map markers from entry rows: one marker per entry (the shared
 // schema makes coordinates required, so every row has them).
-export function toMapProjects(rows: ExplorerRow[]): MapProject[] {
+export function toMapEntries(rows: EntryRow[]): MapEntry[] {
   return rows.map((row) => ({
     href: row.href,
     name: row.name,
@@ -54,13 +54,13 @@ export function toMapProjects(rows: ExplorerRow[]): MapProject[] {
   }));
 }
 
-// Build an explorer row from a catalog entry. Projects and KAP'92 buildings share
+// Build an entry row from a catalog entry. Projects and KAP'92 buildings share
 // one schema, so one builder covers both: `href`/`category` follow the collection
 // name, and either collection may pass a `visitedDate` (both can be visited).
-export function toExplorerRow(
+export function toEntryRow(
   entry: CollectionEntry<"projects"> | CollectionEntry<"kap92">,
   visitedDate: string | null = null,
-): ExplorerRow {
+): EntryRow {
   return {
     href: `/${entry.collection}/${entry.id}`,
     category: entry.collection === "projects" ? "project" : "kap92",

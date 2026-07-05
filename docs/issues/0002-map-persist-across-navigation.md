@@ -8,10 +8,10 @@ maplibre instance alive across navigation instead.
 
 ## Background
 
-The home page (`/`) is an "explorer": a fixed fullscreen maplibre map
-(`ProjectsMap.astro`, a vanilla client `<script>`) with the table
-(`ProjectsTable.tsx`) scrolling on top. Detail pages (`/projects/<slug>`,
-`/kap92/<slug>`) have no map.
+The home page (`/`) is a fixed fullscreen maplibre map
+(`EntriesMap.astro`, a vanilla client `<script>`) with the table
+(`EntriesTable.tsx`) scrolling on top. Detail pages (`/projects/<id>`,
+`/kap92/<id>`) have no map.
 
 The site was a plain Astro MPA: every navigation is a full document load. So
 `/` → detail → back to `/` destroyed and recreated the whole page, and the map
@@ -102,13 +102,13 @@ survives navigation; hidden off `/` and resized on return.**
 ## Implementation
 
 - `src/layouts/Base.astro`: adds `<ClientRouter />` and an `#map-layer`
-  (`transition:persist`) wrapping `ProjectsMap`; builds the marker data via
-  `getExplorerRows()` / `toMapProjects()`.
-- `src/lib/explorer.ts`: `getExplorerRows()` (merge + sort both collections) and
-  `toMapProjects()`, shared by the home table and the layout map.
+  (`transition:persist`) wrapping `EntriesMap`; builds the marker data via
+  `getEntryRows()` / `toMapEntries()`.
+- `src/lib/entries.ts`: `getEntryRows()` (merge + sort both collections) and
+  `toMapEntries()`, shared by the home table and the layout map.
 - `src/pages/index.astro`: no longer renders the map — just the table over the
   persisted layer.
-- `src/components/ProjectsMap.astro`: init runs once (bundled module script);
+- `src/components/EntriesMap.astro`: init runs once (bundled module script);
   `astro:after-swap` toggles `#map-layer` visibility to `/` only and calls
   `map.resize()` on return.
 

@@ -2,9 +2,9 @@
 import type { DetailRow } from "../lib/table.ts";
 import { tableWidth } from "../lib/transitions.ts";
 
-// Static fixed-layout table shared by the entry detail pages (ExplorerTable) and
+// Static fixed-layout table shared by the entry detail pages (EntryDetailTable) and
 // the visit timeline (StatusTable) — the static counterpart to the interactive
-// home island (ProjectsTable.tsx). Callers map their domain rows into DetailRow
+// home island (EntriesTable.tsx). Callers map their domain rows into DetailRow
 // and pass the column widths / header transition name; this component owns the
 // markup and the row-morph behavior so the two tables can't drift apart.
 //

@@ -1,8 +1,8 @@
-# Explorer row: morph between home and detail pages
+# Entry row: morph between home and detail pages
 
 Status: **resolved** (2026-07-01)
 
-Make the home explorer table and the single-row detail-page table feel like _one
+Make the home table and the single-row detail-page table feel like _one
 continuous table_: clicking a row animates it into the detail page, and returning
 animates it back to its original slot. Built on the View Transitions API via
 Astro's ClientRouter (already enabled for the map — see
@@ -10,9 +10,9 @@ Astro's ClientRouter (already enabled for the map — see
 
 ## Background
 
-- `/` renders `ProjectsTable.tsx` — an interactive Preact + `@tanstack/react-table`
+- `/` renders `EntriesTable.tsx` — an interactive Preact + `@tanstack/react-table`
   island (`client:load`) listing every entry.
-- `/projects/<slug>` and `/kap92/<slug>` render `ExplorerTable.astro` — a static,
+- `/projects/<id>` and `/kap92/<id>` render `EntryDetailTable.astro` — a static,
   same-styled table showing just that one entry as header + one row.
 
 These are two different components, but visually identical rows. The goal is for
@@ -27,11 +27,11 @@ names to the right elements at the right time.**
 ## Shared names
 
 `src/lib/transitions.ts` — its own module (no `astro:content` import) so it is
-safe to import from the Preact island, unlike `explorer.ts`:
+safe to import from the Preact island, unlike `entries.ts`:
 
-- `EXPLORER_HEAD_VT = "explorer-head"` — the header row, named on both tables so
+- `ENTRY_HEAD_VT = "entry-head"` — the header row, named on both tables so
   it stays put across the swap.
-- `rowTransitionName(href)` → `entry-projects-<slug>` — a stable per-row name
+- `rowTransitionName(href)` → `entry-projects-<id>` — a stable per-row name
   keyed by href, so the home row and the detail row for the same entry pair up.
 
 ## Home → detail
@@ -40,11 +40,11 @@ safe to import from the Preact island, unlike `explorer.ts`:
   to `navigate()` from `astro:transitions/client`, so it goes through the
   ClientRouter and a View Transition fires.
 - Only the **clicked** row is tagged with its `view-transition-name`, set
-  imperatively just before `navigate()` (`goToRow` in `ProjectsTable.tsx`).
+  imperatively just before `navigate()` (`goToRow` in `EntriesTable.tsx`).
   Naming _every_ row up front would make each one its own transition group and
   animate them all independently — janky, and slow with many rows. The header
-  carries `explorer-head` permanently (it is unique per page, so that is fine).
-- The detail table (`ExplorerTable.astro`) names its header and its one row
+  carries `entry-head` permanently (it is unique per page, so that is fine).
+- The detail table (`EntryDetailTable.astro`) names its header and its one row
   statically with `transition:name`.
 
 Result: the clicked row and header morph; the rest of the table and the map
@@ -55,9 +55,9 @@ background cross-fade as the page root; the map itself is untouched (persisted).
 Two problems on the way back:
 
 1. **The destination row is anonymous.** The home table names rows only on click,
-   so a fresh `/` has no `entry-<slug>` to pair with the detail row — it would
+   so a fresh `/` has no `entry-<id>` to pair with the detail row — it would
    just fade instead of returning to its slot. Fix: an `astro:before-swap`
-   listener (in `ExplorerTable.astro`) detects navigation _to_ `/`, finds the
+   listener (in `EntryDetailTable.astro`) detects navigation _to_ `/`, finds the
    incoming row whose `data-row-href` matches the page we are leaving, and gives
    it the shared name. This works because the `client:load` island is
    server-rendered, so `event.newDocument` already contains the rows.
@@ -93,10 +93,10 @@ Two problems on the way back:
 
 ## Implementation
 
-- `src/lib/transitions.ts`: shared names (`EXPLORER_HEAD_VT`, `rowTransitionName`).
-- `src/components/ProjectsTable.tsx`: `navigate()` on click, tag the clicked row,
-  `data-row-href` for reverse matching, `explorer-head` on the header.
-- `src/components/ExplorerTable.astro`: static `transition:name`s; row navigates
+- `src/lib/transitions.ts`: shared names (`ENTRY_HEAD_VT`, `rowTransitionName`).
+- `src/components/EntriesTable.tsx`: `navigate()` on click, tag the clicked row,
+  `data-row-href` for reverse matching, `entry-head` on the header.
+- `src/components/EntryDetailTable.astro`: static `transition:name`s; row navigates
   back to `/`; `astro:before-swap` names the destination row and runs the
   outline-only-during-morph logic.
 - `src/layouts/Base.astro`: `transition:persist="map-layer"` (stable persist id).

@@ -1,12 +1,12 @@
 @import "tailwindcss";
 
-/* Collection colors. Keep in sync with the marker color constants in ProjectsMap.astro. */
+/* Collection colors. Keep in sync with the marker color constants in EntriesMap.astro. */
 @theme {
   --color-project: #ff5031;
   --color-kap92: #0009f3;
 }
 
-/* Slow the explorer row/header morph (and the root cross-fade) past the browser
+/* Slow the entry row/header morph (and the root cross-fade) past the browser
    default (~0.25s) so the returning row's outline flourish is visible before it
    settles. Group names for rows are dynamic (entry-<collection>-<id>), so target all groups. */
 ::view-transition-group(*) {

@@ -5,13 +5,13 @@ Guidance for Claude Code working in this repo.
 ## What this is
 
 A static site cataloging Kumamoto Artpolis architecture and visits to it. Astro
-SSG (every page prerendered) on Cloudflare Workers static assets. The home page is
-the "explorer": a Preact table island beside a vanilla maplibre island, linked by
-hover state.
+SSG (every page prerendered) on Cloudflare Workers static assets. The home page
+pairs a Preact table island with a vanilla maplibre island, linked by hover
+state.
 
 ## Docs
 
-- **`CONTEXT.md`** — domain glossary; the source for terms (Entry, Project, KAP'92 building, Id, Visit record, Explorer, …).
+- **`CONTEXT.md`** — domain glossary; the source for terms (Entry, Project, KAP'92 building, Id, Visit record, …).
 - **`docs/adr/`** — short ADRs recording _why_ the code is shaped this way.
 - **`docs/issues/`** — deep perf/UX write-ups (rationale, methodology, benchmarks).
 - **`TODO.md`** — pending work.
@@ -47,7 +47,7 @@ Two facts to code against (see the ADRs for why):
 
 ## Routing
 
-- `/` — explorer (table + map)
+- `/` — home (table + map)
 - `/projects/<id>`, `/kap92/<id>` — prerendered detail pages (`getStaticPaths`)
 - `/status`, `/status/<id>` — visit timeline / one visit's record (id is a datetime)
 - `/about`; `/404` — Workers assets serve it for unknown paths (`not_found_handling`)
@@ -55,16 +55,16 @@ Two facts to code against (see the ADRs for why):
 
 ## Islands (home page)
 
-`src/pages/index.astro` merges both collections into `ExplorerRow[]`
-(`src/lib/explorer.ts`) and renders two independent islands (→ `docs/adr/0005`):
+`src/pages/index.astro` merges both collections into `EntryRow[]`
+(`src/lib/entries.ts`) and renders two independent islands (→ `docs/adr/0005`):
 
-- **`ProjectsTable.tsx`** — Preact + `@tanstack/react-table`, `client:load`; react-table runs on Preact via `@preact/compat`. → `docs/adr/0004`
-- **`ProjectsMap.astro`** — plain client-side script (no framework); maplibre + `/map-data.json` load lazily when the map first shows. → `docs/issues/0001-maplibre-chunk-loading.md`
+- **`EntriesTable.tsx`** — Preact + `@tanstack/react-table`, `client:load`; react-table runs on Preact via `@preact/compat`. → `docs/adr/0004`
+- **`EntriesMap.astro`** — plain client-side script (no framework); maplibre + `/map-data.json` load lazily when the map first shows. → `docs/issues/0001-maplibre-chunk-loading.md`
 
 Operational gotchas:
 
 - The map layer lives in `Base.astro` under `transition:persist` (survives navigation) and is hidden server-side off the home page. → `docs/issues/0002-map-persist-across-navigation.md`
-- Detail pages don't move the camera: the script `clip-path`-crops the fullscreen layer to a square around the marker, shows only that entry's marker, and clicking it returns to the explorer. (`mapFocus` → `Base.astro` → `<body>` data attributes.)
+- Detail pages don't move the camera: the script `clip-path`-crops the fullscreen layer to a square around the marker, shows only that entry's marker, and clicking it returns home. (`mapFocus` → `Base.astro` → `<body>` data attributes.)
 - Islands share hover state via the nanostores atom `$hovered` (`src/lib/stores.ts`), keyed by `href`. `.marker-active` (`src/styles/global.css`) does the highlight — maplibre owns the marker root's `transform`, so the scale applies to the inner `svg`.
 
 ## Notes

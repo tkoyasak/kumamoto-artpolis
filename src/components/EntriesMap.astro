@@ -3,7 +3,7 @@
 import "maplibre-gl/dist/maplibre-gl.css";
 ---
 
-<div id="projects-map" class="h-full w-full"></div>
+<div id="entries-map" class="h-full w-full"></div>
 
 <script>
   // The map is lazy: maplibre (~1 MB, code-split — see manualChunks in
@@ -13,7 +13,7 @@ import "maplibre-gl/dist/maplibre-gl.css";
   // maplibre imports below are erased at build time and don't pull the chunk.
   import { navigate, type TransitionBeforePreparationEvent } from "astro:transitions/client";
   import type { Map as MapLibreMap, Marker } from "maplibre-gl";
-  import { MAP_DATA_URL, type MapProject } from "../lib/map.ts";
+  import { MAP_DATA_URL, type MapEntry } from "../lib/map.ts";
   import { $hovered } from "../lib/stores.ts";
   import { MAP_LAYER_ID, rowTransitionName } from "../lib/transitions.ts";
 
@@ -28,14 +28,14 @@ import "maplibre-gl/dist/maplibre-gl.css";
   const COLOR_PROJECT = "#ff5031";
   const COLOR_KAP92 = "#0009f3";
 
-  function markerColor(project: MapProject): string {
-    return project.category === "kap92" ? COLOR_KAP92 : COLOR_PROJECT;
+  function markerColor(entry: MapEntry): string {
+    return entry.category === "kap92" ? COLOR_KAP92 : COLOR_PROJECT;
   }
 
   async function initMap(container: HTMLElement): Promise<MapLibreMap> {
-    const [{ default: maplibregl }, projects] = await Promise.all([
+    const [{ default: maplibregl }, entries] = await Promise.all([
       import("maplibre-gl"),
-      fetch(MAP_DATA_URL).then((res) => res.json() as Promise<MapProject[]>),
+      fetch(MAP_DATA_URL).then((res) => res.json() as Promise<MapEntry[]>),
     ]);
 
     const map = new maplibregl.Map({
@@ -49,9 +49,9 @@ import "maplibre-gl/dist/maplibre-gl.css";
     const markers = new Map<string, Marker>();
     const bounds = new maplibregl.LngLatBounds();
     // Register in reverse so earlier entries (projects) are added last and sit on top of KAP'92.
-    for (const project of [...projects].reverse()) {
-      const lngLat: [number, number] = [project.lng, project.lat];
-      const color = markerColor(project);
+    for (const entry of [...entries].reverse()) {
+      const lngLat: [number, number] = [entry.lng, entry.lat];
+      const color = markerColor(entry);
 
       // Custom square marker: outlined in the collection color, filled when visited.
       const element = document.createElement("div");
@@ -59,29 +59,29 @@ import "maplibre-gl/dist/maplibre-gl.css";
       const dot = document.createElement("div");
       dot.className = "map-marker-dot";
       dot.style.setProperty("--marker-color", color);
-      dot.style.backgroundColor = project.visited ? color : "transparent";
+      dot.style.backgroundColor = entry.visited ? color : "transparent";
       element.appendChild(dot);
 
       const marker = new maplibregl.Marker({ element }).setLngLat(lngLat).addTo(map);
-      element.addEventListener("mouseenter", () => $hovered.set(project.href));
+      element.addEventListener("mouseenter", () => $hovered.set(entry.href));
       element.addEventListener("mouseleave", () => $hovered.set(null));
       // Navigate via the ClientRouter (like the table rows) so the persisted map
       // survives the trip — window.location would full-reload and rebuild it.
       // On the marker's own detail page it acts like the entry's table row and
-      // goes back to the explorer instead. Otherwise, tag the entry's table row
+      // goes back home instead. Otherwise, tag the entry's table row
       // (if the current page renders it) so it morphs into the detail-page row,
       // the same View Transition a direct row click gets.
       element.addEventListener("click", () => {
-        if (location.pathname === project.href) {
+        if (location.pathname === entry.href) {
           navigate("/");
           return;
         }
         document
-          .querySelector<HTMLElement>(`[data-row-href="${project.href}"]`)
-          ?.style.setProperty("view-transition-name", rowTransitionName(project.href));
-        navigate(project.href);
+          .querySelector<HTMLElement>(`[data-row-href="${entry.href}"]`)
+          ?.style.setProperty("view-transition-name", rowTransitionName(entry.href));
+        navigate(entry.href);
       });
-      markers.set(project.href, marker);
+      markers.set(entry.href, marker);
       bounds.extend(lngLat);
     }
     // No animation: the caller may project marker positions (for the detail-page
@@ -133,7 +133,7 @@ import "maplibre-gl/dist/maplibre-gl.css";
   // Base.astro's mapFocus prop) the same fullscreen layer stays put and clip-path
   // crops it to a square around the marker at its current on-screen position, so
   // the detail page keeps exactly the view the index showed; elsewhere hidden.
-  const container = document.getElementById("projects-map");
+  const container = document.getElementById("entries-map");
   const layer = document.getElementById(MAP_LAYER_ID);
   let map: MapLibreMap | null = null;
   let initStarted = false;

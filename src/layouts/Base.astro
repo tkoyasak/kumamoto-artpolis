@@ -1,6 +1,6 @@
 ---
 import { ClientRouter } from "astro:transitions";
-import ProjectsMap from "../components/ProjectsMap.astro";
+import EntriesMap from "../components/EntriesMap.astro";
 import { MAP_LAYER_ID } from "../lib/transitions.ts";
 import "../styles/global.css";
 
@@ -32,7 +32,7 @@ const section =
 // re-initializing. It is pointer-events-auto and covers the viewport, so off "/"
 // it must be hidden server-side — hiding it client-side only (as before) blocked
 // all clicks on non-home pages until the map script ran. The map script takes
-// over from here (ProjectsMap.astro): lazy init, and per-navigation visibility —
+// over from here (EntriesMap.astro): lazy init, and per-navigation visibility —
 // fullscreen on "/", clipped to a square around the marker when the page sets
 // `mapFocus`, hidden elsewhere.
 const onHome = path === "/";
@@ -57,7 +57,7 @@ const navLink = "relative z-20 block w-fit font-medium text-base text-neutral-90
       style={onHome ? undefined : "display:none"}
       transition:persist={MAP_LAYER_ID}
     >
-      <ProjectsMap />
+      <EntriesMap />
     </div>
 
     {/* Stable transition names on the whole nav so the links morph to their new

@@ -1,16 +1,10 @@
 ---
-import { getCollection } from "astro:content";
 import EntryDetail from "../../components/EntryDetail.astro";
-import { getVisitsByEntry } from "../../lib/visits.ts";
+import { entryStaticPaths } from "../../lib/entries.ts";
 
 // Prerender one page per KAP'92 selected existing building, keyed by the entry id.
 export async function getStaticPaths() {
-  const buildings = await getCollection("kap92");
-  const visits = await getVisitsByEntry();
-  return buildings.map((entry) => ({
-    params: { id: entry.id },
-    props: { entry, visits: visits.get(`/kap92/${entry.id}`) ?? [] },
-  }));
+  return entryStaticPaths("kap92");
 }
 
 const { entry, visits } = Astro.props;

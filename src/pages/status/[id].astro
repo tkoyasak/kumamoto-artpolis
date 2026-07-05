@@ -2,6 +2,7 @@
 import { getCollection, render } from "astro:content";
 import StatusTable from "../../components/StatusTable.astro";
 import Base from "../../layouts/Base.astro";
+import { entryHref } from "../../lib/routes.ts";
 import { toStatusRow } from "../../lib/status.ts";
 import { getVisitedEntry } from "../../lib/visits.ts";
 
@@ -15,8 +16,8 @@ export async function getStaticPaths() {
 }
 
 const { entry } = Astro.props;
-const row = await toStatusRow(entry);
 const visitedEntry = await getVisitedEntry(entry);
+const row = toStatusRow(entry, visitedEntry);
 const { Content } = await render(entry);
 ---
 
@@ -30,10 +31,7 @@ const { Content } = await render(entry);
     </div>
 
     <p class="mt-8 text-base">
-      <a
-        href={`/${visitedEntry.collection}/${visitedEntry.id}`}
-        class="text-rose-600 hover:underline"
-      >
+      <a href={entryHref(visitedEntry)} class="text-rose-600 hover:underline">
         {visitedEntry.data.name}
       </a>
     </p>

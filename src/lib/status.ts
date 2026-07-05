@@ -1,6 +1,7 @@
 import { getCollection } from "astro:content";
 import type { CollectionEntry } from "astro:content";
 
+import { type Category, categoryOf, statusDate, statusHref } from "./routes.ts";
 import { getVisitedEntry } from "./visits.ts";
 
 // Row shape for the visit timeline table (StatusTable), shared by /status (all
@@ -12,20 +13,22 @@ export type StatusRow = {
   date: string; // YYYY-MM-DD, derived from the id
   href: string; // /status/<id>
   name: string;
-  category: "project" | "kap92";
+  category: Category;
 };
 
-// Build a timeline row from a status record: resolve its single visited entry,
-// then derive the date from the id and the outline category from the entry's
-// collection.
-export async function toStatusRow(visit: CollectionEntry<"status">): Promise<StatusRow> {
-  const entry = await getVisitedEntry(visit);
+// Build a timeline row from a status record and its resolved visited entry.
+// The caller resolves the entry (getVisitedEntry), so pages that already need
+// the entry for other things don't resolve the reference twice.
+export function toStatusRow(
+  visit: CollectionEntry<"status">,
+  entry: CollectionEntry<"projects"> | CollectionEntry<"kap92">,
+): StatusRow {
   return {
     id: visit.id,
-    date: visit.id.slice(0, 10),
-    href: `/status/${visit.id}`,
+    date: statusDate(visit.id),
+    href: statusHref(visit.id),
     name: entry.data.name,
-    category: entry.collection === "projects" ? "project" : "kap92",
+    category: categoryOf(entry.collection),
   };
 }
 
@@ -33,6 +36,8 @@ export async function toStatusRow(visit: CollectionEntry<"status">): Promise<Sta
 // string sort orders records across days and within a day in one key.
 export async function getStatusRows(): Promise<StatusRow[]> {
   const status = await getCollection("status");
-  const rows = await Promise.all(status.map(toStatusRow));
+  const rows = await Promise.all(
+    status.map(async (visit) => toStatusRow(visit, await getVisitedEntry(visit))),
+  );
   return rows.sort((a, b) => b.id.localeCompare(a.id));
 }

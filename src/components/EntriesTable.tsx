@@ -7,26 +7,14 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { navigate } from "astro:transitions/client";
 import { Fragment } from "preact";
 import { useMemo, useState } from "preact/hooks";
 
 import type { EntryRow } from "../lib/entries.ts";
+import { navigateWithRowMorph } from "../lib/row-morph.ts";
 import { $hovered } from "../lib/stores.ts";
-import {
-  ENTRY_COL_WIDTHS,
-  ENTRY_HEAD_VT,
-  ENTRY_TABLE_WIDTH,
-  rowTransitionName,
-} from "../lib/transitions.ts";
-
-// Navigate via the ClientRouter (enables View Transitions). Before navigating, tag
-// the clicked row with the shared transition name so it morphs into the detail
-// page's row. `el` is any element inside the row (the <tr> or the name <a>).
-function goToRow(href: string, el: HTMLElement) {
-  el.closest("tr")?.style.setProperty("view-transition-name", rowTransitionName(href));
-  navigate(href);
-}
+import { ENTRY_COL_WIDTHS, ENTRY_TABLE_WIDTH, outlineClass } from "../lib/table.ts";
+import { ENTRY_HEAD_VT } from "../lib/transitions.ts";
 
 const columnHelper = createColumnHelper<EntryRow>();
 
@@ -50,7 +38,7 @@ export default function EntriesTable({ rows }: { rows: EntryRow[] }) {
               // Let the browser handle modified clicks (open in new tab, etc.).
               if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
               event.preventDefault();
-              goToRow(info.row.original.href, event.currentTarget);
+              navigateWithRowMorph(info.row.original.href);
             }}
           >
             {info.getValue()}
@@ -116,22 +104,29 @@ export default function EntriesTable({ rows }: { rows: EntryRow[] }) {
               {headerGroup.headers.map((header) => {
                 const canSort = header.column.getCanSort();
                 const sorted = header.column.getIsSorted();
+                const label = flexRender(header.column.columnDef.header, header.getContext());
                 return (
                   <th
                     key={header.id}
-                    className={`truncate py-1 pr-4 first:pl-4 font-normal${canSort ? " cursor-pointer select-none" : ""}`}
-                    onClick={
-                      canSort
-                        ? (event) => header.column.getToggleSortingHandler()?.(event)
-                        : undefined
+                    aria-sort={
+                      sorted === "asc" ? "ascending" : sorted === "desc" ? "descending" : undefined
                     }
+                    className="truncate py-1 pr-4 font-normal first:pl-4"
                   >
-                    {flexRender(header.column.columnDef.header, header.getContext())}
-                    {/* Reserve a fixed-width slot so toggling the arrow doesn't shift column widths. */}
-                    {canSort && (
-                      <span className="ml-1 inline-block w-3 text-center">
-                        {sorted === "asc" ? "↓" : sorted === "desc" ? "↑" : ""}
-                      </span>
+                    {canSort ? (
+                      <button
+                        type="button"
+                        className="cursor-pointer select-none"
+                        onClick={header.column.getToggleSortingHandler()}
+                      >
+                        {label}
+                        {/* Reserve a fixed-width slot so toggling the arrow doesn't shift column widths. */}
+                        <span className="ml-1 inline-block w-3 text-center">
+                          {sorted === "asc" ? "↑" : sorted === "desc" ? "↓" : ""}
+                        </span>
+                      </button>
+                    ) : (
+                      label
                     )}
                   </th>
                 );
@@ -142,34 +137,28 @@ export default function EntriesTable({ rows }: { rows: EntryRow[] }) {
         <tbody>
           {sections.map(({ key, rows: sectionRows }) => (
             <Fragment key={key}>
-              {sectionRows.map((row) => {
-                // Outline color mirrors the map marker color for the collection.
-                const outlineColor =
-                  row.original.category === "kap92" ? "outline-kap92" : "outline-project";
-                return (
-                  <tr
-                    key={row.original.href}
-                    // Row-morph hooks read by DetailTable's shared `before-swap`
-                    // handler when a detail page morphs back into this table.
-                    // Forward clicks stay on the island (goToRow), so no data-row-nav.
-                    data-row-href={row.original.href}
-                    data-row-vt={rowTransitionName(row.original.href)}
-                    data-row-flourish=""
-                    onMouseEnter={() => $hovered.set(row.original.href)}
-                    onMouseLeave={() => $hovered.set(null)}
-                    onClick={(event) => goToRow(row.original.href, event.currentTarget)}
-                    className={`cursor-pointer -outline-offset-1 ${outlineColor} ${
-                      hovered === row.original.href ? "outline" : "hover:outline"
-                    }`}
-                  >
-                    {row.getVisibleCells().map((cell) => (
-                      <td key={cell.id} className="truncate py-1 pr-4 text-sm first:pl-4">
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                      </td>
-                    ))}
-                  </tr>
-                );
-              })}
+              {sectionRows.map((row) => (
+                <tr
+                  key={row.original.href}
+                  // Row-morph hooks read by DetailTable's shared `before-swap`
+                  // handler when a detail page morphs back into this table.
+                  // Forward clicks stay on the island, so no data-row-nav.
+                  data-row-href={row.original.href}
+                  data-row-flourish=""
+                  onMouseEnter={() => $hovered.set(row.original.href)}
+                  onMouseLeave={() => $hovered.set(null)}
+                  onClick={() => navigateWithRowMorph(row.original.href)}
+                  className={`cursor-pointer -outline-offset-1 ${outlineClass(row.original.category)} ${
+                    hovered === row.original.href ? "outline" : "hover:outline"
+                  }`}
+                >
+                  {row.getVisibleCells().map((cell) => (
+                    <td key={cell.id} className="truncate py-1 pr-4 text-sm first:pl-4">
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    </td>
+                  ))}
+                </tr>
+              ))}
             </Fragment>
           ))}
         </tbody>

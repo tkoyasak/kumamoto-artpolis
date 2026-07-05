@@ -8,7 +8,7 @@
 
 /* Slow the entry row/header morph (and the root cross-fade) past the browser
    default (~0.25s) so the returning row's outline flourish is visible before it
-   settles. Group names for rows are dynamic (entry-<collection>-<id>), so target all groups. */
+   settles. Group names for rows are dynamic (row-<collection>-<id>), so target all groups. */
 ::view-transition-group(*) {
   animation-duration: 0.3s;
 }
@@ -22,6 +22,9 @@
   width: 12px;
   height: 12px;
   border: 1px solid var(--marker-color);
+}
+.map-marker-visited {
+  background-color: var(--marker-color);
 }
 
 /* Highlight when the marker or its table row is hovered: surround it with an

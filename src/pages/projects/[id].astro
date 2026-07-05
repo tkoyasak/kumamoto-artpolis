@@ -1,16 +1,10 @@
 ---
-import { getCollection } from "astro:content";
 import EntryDetail from "../../components/EntryDetail.astro";
-import { getVisitsByEntry } from "../../lib/visits.ts";
+import { entryStaticPaths } from "../../lib/entries.ts";
 
 // Prerender one page per project, keyed by the entry id (the filename).
 export async function getStaticPaths() {
-  const projects = await getCollection("projects");
-  const visits = await getVisitsByEntry();
-  return projects.map((entry) => ({
-    params: { id: entry.id },
-    props: { entry, visits: visits.get(`/projects/${entry.id}`) ?? [] },
-  }));
+  return entryStaticPaths("projects");
 }
 
 const { entry, visits } = Astro.props;

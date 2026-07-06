@@ -3,7 +3,6 @@ import StatusTable from "../../components/StatusTable.astro";
 import Base from "../../layouts/Base.astro";
 import { getStatusRows } from "../../lib/status.ts";
 
-// Timeline of all visit records, newest first (one row per visit).
 const rows = await getStatusRows();
 ---
 

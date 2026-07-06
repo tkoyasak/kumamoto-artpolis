@@ -1,22 +1,32 @@
-// View Transition names shared between list pages and detail pages, so
-// navigating list -> detail morphs the clicked row and the header into place.
-// Kept in its own module (no astro:content imports) so it is safe to import
-// from the Preact client island.
+/// <reference types="vitest/importMeta" />
 
-// The entry-table header row: same name on the home table (EntriesTable.tsx) and
-// the detail-page table (EntryDetailTable.astro), so it stays put across the swap.
+// View Transition names shared between list pages and detail pages. No
+// astro:content imports, so safe to import from the Preact client island.
+
+// Same name on the home and detail entry tables, so the header stays put
+// across the swap.
 export const ENTRY_HEAD_VT = "entry-head";
 
-// The visit-timeline table (StatusTable) mirrors the entry-table pair: the header
-// keeps this name on both /status and /status/<id>, so it stays put as the list
-// morphs into the single-row detail.
+// Likewise for /status and /status/<id>.
 export const STATUS_HEAD_VT = "status-head";
 
-// A stable name for one row, keyed by its href — hrefs are unique site-wide, so
-// one function covers the entry tables and the status timeline. On a list page
-// it is applied only to the row being clicked (all rows sharing a name would
-// each become their own transition group); a detail page applies it to its
-// single row.
+// Keyed by href (unique site-wide). On a list page apply it only to the row
+// being clicked — rows sharing a name would each become their own transition
+// group; a detail page applies it to its single row.
 export function rowTransitionName(href: string): string {
   return `row${href.replace(/[^a-zA-Z0-9]+/g, "-")}`;
+}
+
+if (import.meta.vitest) {
+  const { expect, test } = import.meta.vitest;
+
+  test("a row's transition name is a CSS-safe ident: hrefs contain slashes, which view-transition-name forbids", () => {
+    const name = rowTransitionName("/projects/foo-bar");
+    expect(name).toBe("row-projects-foo-bar");
+    expect(name).toMatch(/^[a-zA-Z][a-zA-Z0-9-]*$/);
+  });
+
+  test("same-id rows in different collections get distinct transition names, so a morph can't pair the wrong rows", () => {
+    expect(rowTransitionName("/projects/foo")).not.toBe(rowTransitionName("/kap92/foo"));
+  });
 }

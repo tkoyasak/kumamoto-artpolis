@@ -19,7 +19,6 @@ import { ENTRY_HEAD_VT } from "../lib/transitions.ts";
 const columnHelper = createColumnHelper<EntryRow>();
 
 export default function EntriesTable({ rows }: { rows: EntryRow[] }) {
-  // Hover state is shared with the map island via nanostores.
   const hovered = useStore($hovered);
   const [sorting, setSorting] = useState<SortingState>([]);
 
@@ -73,8 +72,7 @@ export default function EntriesTable({ rows }: { rows: EntryRow[] }) {
 
   const visibleRows = table.getRowModel().rows;
 
-  // Keep the two collections grouped (projects first, then KAP'92); sort order is
-  // preserved within each group.
+  // Sorting reorders rows only within each collection group.
   const sections: { key: EntryRow["category"]; rows: typeof visibleRows }[] = [
     { key: "project", rows: visibleRows.filter((row) => row.original.category === "project") },
     { key: "kap92", rows: visibleRows.filter((row) => row.original.category === "kap92") },
@@ -134,8 +132,7 @@ export default function EntriesTable({ rows }: { rows: EntryRow[] }) {
               {sectionRows.map((row) => (
                 <tr
                   key={row.original.href}
-                  // Row-morph hooks read by DetailTable's shared `before-swap`
-                  // handler when a detail page morphs back into this table.
+                  // Row-morph hooks read by DetailTable's `before-swap` handler.
                   // Forward clicks stay on the island, so no data-row-nav.
                   data-row-href={row.original.href}
                   data-row-flourish=""

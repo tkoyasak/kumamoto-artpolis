@@ -8,43 +8,31 @@ import "../styles/global.css";
 interface Props {
   title?: string;
   description?: string;
-  // Set by detail pages: the focused entry's coordinates and href (the marker
-  // key — on /status/<id> it differs from the page path), carried on <body>
-  // data attributes. The map script reads them to keep the persisted fullscreen
-  // map in place (camera untouched), clip it to a square around this marker,
-  // and keep the marker's outline highlight on.
+  // Set by detail pages: the focused entry's coordinates and marker key,
+  // carried on <body> data attributes for the map script (EntriesMap.astro).
   mapFocus?: { lat: number; lng: number; href: string };
 }
 
 const {
   title = "Kumamoto Artpolis",
-  description = "くまもとアートポリスの建築と、それらを訪ねた記録。",
+  description = "くまもとアートポリス",
   mapFocus,
 } = Astro.props;
 
-// One unified nav column — the wordmark (home), Status, About stacked top to
-// bottom — with named slots after each link, so every page keeps the same
-// vertical order: wordmark → entry table(s) → Status → status table → About.
-// Pages fill only the slots they have content for. `section` only marks the
-// current page's nav link (aria-current); startsWith (not ===) so it holds
-// under the trailing-slash URLs Astro's directory build emits (/about/,
-// /status/).
+// startsWith (not ===) so aria-current holds under the trailing-slash URLs
+// Astro's directory build emits (/about/, /status/).
 const path = Astro.url.pathname;
 const section =
   path.startsWith("/about") ? "about" : path.startsWith("/status") ? "status" : "home";
 
-// The map layer lives in the layout (not the home page) so its maplibre instance
-// survives navigation via transition:persist — returning home reuses it instead of
-// re-initializing. It is pointer-events-auto and covers the viewport, so off the
-// fullscreen-map pages it must be hidden server-side — hiding it client-side only
-// (as before) blocked all clicks on other pages until the map script ran. The map
-// script takes over from here (EntriesMap.astro): lazy init, and per-navigation
-// visibility — fullscreen on the FULLSCREEN_MAP_PATHS, clipped to a square
-// around the marker when the page sets `mapFocus`, hidden elsewhere.
+// The map layer lives in the layout so its maplibre instance survives
+// navigation via transition:persist (docs/issues/0002). It must be hidden
+// server-side off the fullscreen pages — hiding it client-side only blocked
+// all clicks until the map script ran; that script owns visibility from there.
 const fullscreenMap = FULLSCREEN_MAP_PATHS.includes(normalizePath(path));
 
-// Nav links are `w-fit` so only their text sits over the fixed map layer, leaving
-// the rest of each line click-through; `z-20` paints them above the map.
+// `w-fit` leaves the rest of each line click-through to the map layer below;
+// `z-20` paints the text above it.
 const navLink = "relative z-20 block w-fit font-medium text-base";
 ---
 
@@ -68,10 +56,8 @@ const navLink = "relative z-20 block w-fit font-medium text-base";
       <EntriesMap />
     </div>
 
-    {/* Stable transition names on the whole nav so the links morph to their new
-        vertical position across navigation — the active section pushes the ones
-        below it down as its content is injected above them. The wordmark stays
-        put (always first), so its name just cross-fades it in place. */}
+    {/* Stable transition names so the nav links morph to their new vertical
+        position as each page injects content between them. */}
     <a
       href="/"
       transition:name="nav-home"

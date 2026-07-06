@@ -4,16 +4,11 @@ import { type DetailRow, STATUS_COL_WIDTHS } from "../lib/table.ts";
 import { STATUS_HEAD_VT } from "../lib/transitions.ts";
 import DetailTable from "./DetailTable.astro";
 
-// Visit-timeline table, shared by /status (all rows) and /status/<id> (a single
-// row above the visit body). Maps the StatusRow into DetailTable's row shape;
-// DetailTable owns the markup and the morph between the list and the detail row.
-// Each row's outline is its visited entry's collection color (project = red,
-// kap92 = blue) — the same signal the entry tables use, so a date row needs
-// no third color.
+// Visit-timeline table, shared by /status and /status/<id>. A row's outline
+// is its visited entry's collection color — the same signal the entry tables
+// use, so a date row needs no third color.
 interface Props {
   rows: StatusRow[];
-  // When true this is the single-row detail on /status/<id>: the row shows its
-  // outline always and clicking it navigates back to /status.
   detail?: boolean;
 }
 

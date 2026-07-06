@@ -2,30 +2,23 @@
 import { type DetailRow, outlineClass, tableWidth } from "../lib/table.ts";
 import { rowTransitionName } from "../lib/transitions.ts";
 
-// Static fixed-layout table shared by the entry detail pages (EntryDetailTable) and
-// the visit timeline (StatusTable) — the static counterpart to the interactive
-// home island (EntriesTable.tsx). Callers map their domain rows into DetailRow
-// and pass the column widths / header transition name; this component owns the
-// markup and the row-morph behavior so the two tables can't drift apart.
-//
-// Row morph: every row carries `data-row-*` hooks. The clicked row tags itself
-// with its view-transition-name and navigates (forward); the return is paired in
-// `astro:before-swap` from the incoming document. The home island tags its rows
-// with the same hooks, so this one script drives all three tables' morphs.
+// The static table shared by the entry detail pages and the visit timeline.
+// Rows carry `data-row-*` hooks: the clicked row tags itself with its
+// view-transition-name and navigates; the return is paired in
+// `astro:before-swap` from the incoming document. The home island tags its
+// rows with the same hooks, so this one script drives all three tables' morphs.
 interface Props {
   headers: string[];
   rows: DetailRow[];
   colWidths: readonly string[];
   headVt: string;
-  // Tailwind max-width class for the wrapper (e.g. "max-w-5xl").
+  // Tailwind max-width class for the wrapper.
   maxWidth: string;
-  // Single-row detail page (one row above the body): the row shows its outline
-  // always and carries its transition name up front, and clicking it navigates
-  // back to `backHref` (the list/home it morphs from).
+  // Single-row detail page: the row always shows its outline, carries its
+  // transition name up front, and clicking it navigates back to `backHref`.
   detail?: boolean;
   backHref?: string;
-  // List rows that are the *target* of a return morph get their outline flashed
-  // during the swap (mirrors the home table). Detail rows never are.
+  // Flash the outline of a row targeted by a return morph during the swap.
   flourish?: boolean;
 }
 
@@ -46,11 +39,9 @@ const { headers, rows, colWidths, headVt, maxWidth, detail = false, backHref, fl
       {
         rows.map((row) => {
           const vt = rowTransitionName(row.href);
-          // Where activating the row goes: a detail row navigates back to the
-          // list it morphed from; a list row goes to its detail page. The name
-          // cell's <a> carries the same target so the row works without the
-          // script (keyboard, screen readers, open-in-new-tab); the script
-          // upgrades plain clicks to a ClientRouter navigation.
+          // The name cell's <a> carries the same target as the row so it works
+          // without the script (keyboard, screen readers, open-in-new-tab);
+          // the script upgrades plain clicks to a ClientRouter navigation.
           const target = detail && backHref ? backHref : row.href;
           const cls = `cursor-pointer -outline-offset-1 ${outlineClass(row.category)} ${
             detail ? "outline" : "hover:outline"
@@ -68,8 +59,8 @@ const { headers, rows, colWidths, headVt, maxWidth, detail = false, backHref, fl
               }
             </td>
           ));
-          // The detail row carries its transition name up front so a list/home row
-          // morphs into it; list rows get their name from JS on click.
+          // The detail row carries its transition name up front; list rows get
+          // theirs from JS on click.
           return detail ? (
             <tr
               data-row-nav
@@ -98,9 +89,8 @@ const { headers, rows, colWidths, headVt, maxWidth, detail = false, backHref, fl
 </section>
 
 <script>
-  // One set of listeners drives the row morph for every DetailTable (and the home
-  // island, whose rows carry the same `data-row-*` hooks). Rebind on each swap
-  // since rows are fresh DOM; a dataset flag guards against double-binding.
+  // Rebind on each swap since rows are fresh DOM; a dataset flag guards
+  // against double-binding.
   import { navigate } from "astro:transitions/client";
 
   import { normalizePath } from "../lib/routes.ts";
@@ -114,14 +104,12 @@ const { headers, rows, colWidths, headVt, maxWidth, detail = false, backHref, fl
       row.addEventListener("click", (event) => {
         // Let the browser handle modified clicks on the name link (new tab, etc.).
         if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-        // Cancel the name link's default full-page navigation; the ClientRouter
-        // navigation below keeps the persisted map alive.
+        // Cancel the name link's full-page navigation; the ClientRouter keeps
+        // the persisted map alive.
         event.preventDefault();
         if (row.hasAttribute("data-row-detail")) {
-          // Detail row: navigate back to the list/home it morphed from.
           navigate(row.dataset.rowBack!);
         } else {
-          // List row: tag it so it morphs into the detail page's row, then go.
           navigateWithRowMorph(row.dataset.rowHref!);
         }
       });
@@ -131,10 +119,9 @@ const { headers, rows, colWidths, headVt, maxWidth, detail = false, backHref, fl
   bindRows();
   document.addEventListener("astro:page-load", bindRows);
 
-  // Returning to a list/home page: find the row in the incoming document whose
-  // href matches the page we're leaving and pair it (same transition name) so the
-  // detail row morphs back into its slot. `flourish` rows flash their outline for
-  // the morph only. Clean up the injected name once the animation finishes.
+  // Returning to a list/home page: pair the incoming row matching the page
+  // we're leaving (same transition name) so the detail row morphs back into
+  // its slot; clean up the injected name once the animation finishes.
   document.addEventListener("astro:before-swap", (event) => {
     const from = normalizePath(event.from.pathname);
     const row = event.newDocument.querySelector<HTMLElement>(`[data-row-href="${from}"]`);

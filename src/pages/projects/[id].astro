@@ -2,7 +2,6 @@
 import EntryDetail from "../../components/EntryDetail.astro";
 import { entryStaticPaths } from "../../lib/entries.ts";
 
-// Prerender one page per project, keyed by the entry id (the filename).
 export async function getStaticPaths() {
   return entryStaticPaths("projects");
 }

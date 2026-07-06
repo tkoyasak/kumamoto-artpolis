@@ -2,12 +2,9 @@ import { navigate } from "astro:transitions/client";
 
 import { rowTransitionName } from "./transitions.ts";
 
-// Navigate to a row's page via the ClientRouter (enables the View Transition
-// and keeps the persisted map alive — window.location would full-reload and
-// rebuild it). Before navigating, tag the matching row on the current page
-// (if it renders one; rows carry `data-row-href`) with the shared transition
-// name so it morphs into its counterpart on the destination page. Used by the
-// home island, the static tables, and the map markers alike.
+// Navigate via the ClientRouter — window.location would full-reload and
+// rebuild the persisted map. Tag the matching row on the current page first,
+// so it morphs into its counterpart on the destination page.
 export function navigateWithRowMorph(href: string): void {
   document
     .querySelector<HTMLElement>(`[data-row-href="${href}"]`)

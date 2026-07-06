@@ -4,21 +4,18 @@ import type { CollectionEntry } from "astro:content";
 import { type Category, categoryOf, statusDate, statusHref } from "./routes.ts";
 import { getVisitedEntry } from "./visits.ts";
 
-// Row shape for the visit timeline table (StatusTable), shared by /status (all
-// rows) and /status/<id> (one row). One row per status record. `id` is the ISO
-// datetime (the entry id) that keys both the `/status/<id>` link and the View
-// Transition morph; `category` picks the row's outline color.
+// Row for the visit timeline (StatusTable); `id` keys both the /status/<id>
+// link and the View Transition morph.
 export type StatusRow = {
   id: string;
-  date: string; // YYYY-MM-DD, derived from the id
-  href: string; // /status/<id>
+  date: string;
+  href: string;
   name: string;
   category: Category;
 };
 
-// Build a timeline row from a status id and the resolved visited entry. Takes
-// the bare id (not the status record) so callers that only have visit ids —
-// the entry detail pages get them from getVisitsByEntry() — can build rows too.
+// Takes the bare id (not the status record) so callers holding only visit ids
+// — the entry detail pages — can build rows too.
 export function toStatusRow(
   id: string,
   entry: CollectionEntry<"projects"> | CollectionEntry<"kap92">,
@@ -32,8 +29,6 @@ export function toStatusRow(
   };
 }
 
-// All timeline rows, newest first. The id is an ISO datetime, so a descending
-// string sort orders records across days and within a day in one key.
 export async function getStatusRows(): Promise<StatusRow[]> {
   const status = await getCollection("status");
   const rows = await Promise.all(

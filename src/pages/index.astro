@@ -7,8 +7,7 @@ const rows = await getEntryRows();
 ---
 
 <Base>
-  {/* The map is a fixed fullscreen background rendered by the layout (persisted
-      across navigation). The table scrolls on top; overlapping is intentional. */}
+  {/* The table scrolls over the layout's fixed fullscreen map; overlapping is intentional. */}
   <main slot="entry" class="pointer-events-none relative">
     <EntriesTable rows={rows} client:load />
   </main>

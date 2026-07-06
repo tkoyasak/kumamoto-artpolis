@@ -2,7 +2,6 @@
 import EntryDetail from "../../components/EntryDetail.astro";
 import { entryStaticPaths } from "../../lib/entries.ts";
 
-// Prerender one page per KAP'92 selected existing building, keyed by the entry id.
 export async function getStaticPaths() {
   return entryStaticPaths("kap92");
 }

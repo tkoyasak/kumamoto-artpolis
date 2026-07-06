@@ -1,9 +1,8 @@
 ---
-// The body column of a detail page (an entry's or a visit's): the rendered
-// Markdown only, shared by EntryDetail and /status/<id>. `relative` stacks the
-// text above the persisted fixed map layer (positioned elements paint over it in
-// tree order); pointer-events-none + auto children let clicks in the gaps still
-// reach the map square behind, while the text stays selectable.
+// A detail page's rendered Markdown body. `relative` stacks the text above
+// the persisted fixed map layer; pointer-events-none + auto children let
+// clicks in the gaps reach the map square behind, while the text stays
+// selectable.
 ---
 
 <main class="pointer-events-none relative max-w-2xl px-4 py-4 pl-8 text-sm sm:px-8 sm:pl-12">

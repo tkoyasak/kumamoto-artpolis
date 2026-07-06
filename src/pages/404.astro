@@ -1,8 +1,7 @@
 ---
 import Base from "../layouts/Base.astro";
 
-// Prerendered to dist/404.html, which Cloudflare Workers static assets serves
-// for unknown paths (wrangler.json `not_found_handling: "404-page"`).
+// Served by Workers assets for unknown paths (wrangler.json `not_found_handling`).
 ---
 
 <Base title="ページが見つかりません | Kumamoto Artpolis">

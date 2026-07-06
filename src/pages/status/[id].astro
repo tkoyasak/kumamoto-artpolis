@@ -8,14 +8,8 @@ import { entryMapFocus, toEntryRow } from "../../lib/entries.ts";
 import { toStatusRow } from "../../lib/status.ts";
 import { getVisitedEntry } from "../../lib/visits.ts";
 
-// One visit record, keyed by its datetime id (YYYY-MM-DD-HHMM). The single
-// visited entry comes from the record's `project`/`kap92` reference; the body
-// holds the notes and photos. The StatusTable row here shares its transition name
-// with the /status timeline row, so the two morph into each other on navigation.
-// The layout follows Base's slots: under the wordmark the visited entry's own
-// row (EntryDetailTable, list-style, linking to its detail page); under the
-// Status link the visit row and the record body; the persisted map is cropped
-// to the entry's marker.
+// One visit record. The entry slot shows the *visited* entry's row
+// (list-style, linking to its page) rather than the page's own subject.
 export async function getStaticPaths() {
   const status = await getCollection("status");
   return status.map((entry) => ({ params: { id: entry.id }, props: { entry } }));

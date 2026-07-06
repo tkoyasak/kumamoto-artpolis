@@ -2,16 +2,10 @@ import { glob } from "astro/loaders";
 import { z } from "astro/zod";
 import { defineCollection, reference } from "astro:content";
 
-// Both catalog collections share one schema. `projects` are Artpolis commissioned
-// new builds; `kap92` are selected existing buildings. The Markdown filename is the
-// entry id: the glob loader derives `entry.id` from it, so the id is the URL key
-// (/projects/<id>, /kap92/<id>) and how `status` references an entry — keep
-// filenames stable. `number` is the official Artpolis / prefecture-list number, a
-// frontmatter field used only for display and sorting (never for identity).
-//
+// Both catalog collections share one schema. The Markdown filename is the
+// entry id (ADR 0002) — keep filenames stable; `number` is display/sort only.
 // `completedYear` is optional and only `.positive()` (kap92 buildings can be
-// historical / lack a precise year); `use` is free text (kap92 ranges beyond
-// projects' building types).
+// historical); `use` is free text.
 const catalogSchema = z.object({
   number: z.number().int().positive(),
   name: z.string().min(1),
@@ -33,17 +27,11 @@ const kap92 = defineCollection({
   schema: catalogSchema,
 });
 
-// One Markdown file per visit, named `<date>-<HHMM>.md` (e.g. 2025-11-03-1420.md).
-// It reads as a colon-free ISO datetime, but stays lowercase/digits/dashes so the
-// filename survives the glob loader's slugify unchanged: filename == entry id ==
-// URL. Filename -> entry id -> the /status/<id> route and the single sort
-// key (it sorts lexically, so newest-first is `id` descending); the date is
-// `id.slice(0, 10)`. Each record
-// references exactly one visited entry via `project` XOR `kap92` (the schema's
-// refine enforces it), so a record maps to one collection — which is what lets
-// the timeline table outline each row in its entry's collection color. The
-// reference is the source of truth for who was visited when; body holds the
-// visit's notes and photos (photos referenced as public R2 URLs).
+// One Markdown file per visit, named `<date>-<HHMM>.md` — a colon-free ISO
+// datetime kept lowercase/digits/dashes so the filename survives the glob
+// loader's slugify unchanged (filename == entry id == URL). Each record
+// references exactly one visited entry (ADR 0003); the body holds the visit's
+// notes and photos (public R2 URLs).
 const status = defineCollection({
   loader: glob({ pattern: "*.md", base: "./src/content/status" }),
   schema: z

@@ -1,11 +1,13 @@
-/// <reference types="bun-types" />
+import { readdirSync } from "node:fs";
 
-import { expect, test } from "bun:test";
+import { expect, test } from "vitest";
 
 import { rowTransitionName } from "../src/lib/transitions.ts";
 
-const contentDir = (dir: string) => new URL(`../src/content/${dir}`, import.meta.url).pathname;
-const mdFiles = (dir: string) => [...new Bun.Glob("*.md").scanSync(contentDir(dir))].sort();
+const mdFiles = (dir: string) =>
+  readdirSync(new URL(`../src/content/${dir}`, import.meta.url))
+    .filter((name) => name.endsWith(".md"))
+    .sort();
 const ids = (dir: string) => mdFiles(dir).map((name) => name.replace(/\.md$/, ""));
 
 test("a status filename is YYYY-MM-DD-HHMM.md — statusDate and the descending sort silently break otherwise", () => {

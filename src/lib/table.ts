@@ -1,3 +1,5 @@
+/// <reference types="vitest/importMeta" />
+
 import type { Category } from "./routes.ts";
 
 // Presentation module for the fixed-layout tables (client-safe, shared with
@@ -36,3 +38,17 @@ export const ENTRY_TABLE_WIDTH = tableWidth(ENTRY_COL_WIDTHS);
 
 // Order: Date, Name.
 export const STATUS_COL_WIDTHS = ["8rem", "20rem"] as const;
+
+if (import.meta.vitest) {
+  const { expect, test } = import.meta.vitest;
+
+  test("tableWidth sums the fixed columns into a definite rem width: table-layout fixed only truncates under a definite width", () => {
+    expect(tableWidth(["4rem", "20rem"])).toBe("24rem");
+    expect(ENTRY_TABLE_WIDTH).toBe(tableWidth(ENTRY_COL_WIDTHS));
+  });
+
+  test("the row outline follows the collection, mirroring the map marker colors", () => {
+    expect(outlineClass("project")).toBe("outline-project");
+    expect(outlineClass("kap92")).toBe("outline-kap92");
+  });
+}

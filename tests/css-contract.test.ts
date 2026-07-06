@@ -1,10 +1,10 @@
-/// <reference types="bun-types" />
+import { readFileSync } from "node:fs";
 
-import { expect, test } from "bun:test";
+import { expect, test } from "vitest";
 
 import { MARKER_COLORS } from "../src/lib/map.ts";
 
-const css = await Bun.file(new URL("../src/styles/global.css", import.meta.url)).text();
+const css = readFileSync(new URL("../src/styles/global.css", import.meta.url), "utf8");
 
 test("global.css theme colors match the marker colors the map script hardcodes — neither build nor TS checks this", () => {
   expect(css).toContain(`--color-project: ${MARKER_COLORS.project}`);

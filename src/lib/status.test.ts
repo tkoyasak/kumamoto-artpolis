@@ -1,35 +1,40 @@
-/// <reference types="bun-types" />
+import { beforeEach, expect, test, vi } from "vitest";
 
-import { beforeEach, expect, test } from "bun:test";
-
-import {
-  content,
-  type MockRef,
-  refKey,
-  resetContent,
-} from "../../tests/helpers/astro-content-mock.ts";
+import { getStatusRows } from "./status.ts";
 
 type Collection = "projects" | "kap92";
 type CatalogFixture = { collection: Collection; id: string; data: { name: string } };
-type StatusFixture = { id: string; data: { project?: MockRef; kap92?: MockRef } };
+type Ref = { collection: Collection; id: string };
+type StatusFixture = { id: string; data: { project?: Ref; kap92?: Ref } };
 
-// Dynamic: a static import would link astro:content before the helper's mock registers.
-const { getStatusRows } = await import("./status.ts");
+const fixtures = vi.hoisted(() => ({
+  status: [] as unknown[],
+  entries: new Map<string, unknown>(),
+}));
 
-const catalog = (collection: Collection, id: string) => {
+vi.mock("astro:content", () => ({
+  getCollection: async () => fixtures.status,
+  getEntry: async (ref: { collection: string; id: string }) =>
+    fixtures.entries.get(`${ref.collection}/${ref.id}`),
+}));
+
+const catalog = (collection: Collection, id: string): Ref => {
   const fixture: CatalogFixture = { collection, id, data: { name: id } };
-  content.entries.set(refKey(fixture), fixture);
+  fixtures.entries.set(`${collection}/${id}`, fixture);
   return fixture;
 };
 
-const visitOf = (id: string, ref: MockRef): StatusFixture =>
+const visitOf = (id: string, ref: Ref): StatusFixture =>
   ref.collection === "projects" ? { id, data: { project: ref } } : { id, data: { kap92: ref } };
 
-beforeEach(resetContent);
+beforeEach(() => {
+  fixtures.status = [];
+  fixtures.entries = new Map();
+});
 
 test("timeline rows come newest first: the datetime id orders across days and within one day by one descending sort", async () => {
   const ref = catalog("projects", "foo");
-  content.status = [
+  fixtures.status = [
     visitOf("2026-01-10-0900", ref),
     visitOf("2026-02-20-1400", ref),
     visitOf("2026-02-20-0800", ref),
@@ -40,7 +45,7 @@ test("timeline rows come newest first: the datetime id orders across days and wi
 
 test("a timeline row derives date and href from its id, and name and outline category from the visited entry", async () => {
   const ref = catalog("kap92", "old-hall");
-  content.status = [visitOf("2026-01-10-0900", ref)];
+  fixtures.status = [visitOf("2026-01-10-0900", ref)];
   const [row] = await getStatusRows();
   expect(row).toEqual({
     id: "2026-01-10-0900",
@@ -52,11 +57,6 @@ test("a timeline row derives date and href from its id, and name and outline cat
 });
 
 test("a status record referencing a missing entry (typo'd or deleted id) fails the build instead of being dropped", async () => {
-  content.status = [visitOf("2026-01-10-0900", { collection: "projects", id: "no-such-entry" })];
-  const failure = await getStatusRows().then(
-    () => null,
-    (error: unknown) => error,
-  );
-  expect(failure).toBeInstanceOf(Error);
-  expect((failure as Error).message).toContain("references missing entry");
+  fixtures.status = [visitOf("2026-01-10-0900", { collection: "projects", id: "no-such-entry" })];
+  await expect(getStatusRows()).rejects.toThrow("references missing entry");
 });

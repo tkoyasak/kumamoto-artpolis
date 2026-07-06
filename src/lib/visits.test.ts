@@ -1,22 +1,28 @@
-/// <reference types="bun-types" />
+import { beforeEach, expect, test, vi } from "vitest";
 
-import { beforeEach, expect, test } from "bun:test";
-
-import { content, resetContent } from "../../tests/helpers/astro-content-mock.ts";
+import { getVisitsByEntry } from "./visits.ts";
 
 type Ref = { collection: "projects" | "kap92"; id: string };
 type StatusFixture = { id: string; data: { project?: Ref; kap92?: Ref } };
 
-// Dynamic: a static import would link astro:content before the helper's mock registers.
-const { getVisitsByEntry } = await import("./visits.ts");
+const fixtures = vi.hoisted(() => ({
+  status: [] as { id: string; data: Record<string, { collection: string; id: string }> }[],
+}));
+
+vi.mock("astro:content", () => ({
+  getCollection: async () => fixtures.status,
+  getEntry: async () => undefined,
+}));
 
 const project = (id: string): Ref => ({ collection: "projects", id });
 const kap92 = (id: string): Ref => ({ collection: "kap92", id });
 const visits = (records: StatusFixture[]) => {
-  content.status = records;
+  fixtures.status = records as typeof fixtures.status;
 };
 
-beforeEach(resetContent);
+beforeEach(() => {
+  fixtures.status = [];
+});
 
 test("visits are keyed by entry href, so the same id in projects and kap92 cannot collide", async () => {
   visits([
@@ -44,10 +50,5 @@ test("an entry's visit ids come newest first, whatever order the records load in
 
 test("a status record with no entry reference fails the build instead of being silently dropped", async () => {
   visits([{ id: "2026-01-10-0900", data: {} }]);
-  const failure = await getVisitsByEntry().then(
-    () => null,
-    (error: unknown) => error,
-  );
-  expect(failure).toBeInstanceOf(Error);
-  expect((failure as Error).message).toContain("no entry reference");
+  await expect(getVisitsByEntry()).rejects.toThrow("no entry reference");
 });

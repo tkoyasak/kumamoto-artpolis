@@ -23,17 +23,17 @@ Use **bun**, never npm/npx/bunx. Tools (`bun`, `oxfmt`, `oxlint`, `wrangler`,
 - `bun run dev` — dev server
 - `bun run build` — production build to `dist/`
 - `bun run check` — `astro check` (TypeScript + content schema; the only type check)
-- `bun run test` — invariant tests, the why in the test name; colocated `src/**/*.test.ts` where possible, cross-file and route-constrained ones in `tests/`
+- `bun run test` — `vitest run` (Astro's `getViteConfig`); invariant tests, the why in the test name. In-source (`import.meta.vitest`) inside the module where possible; tests needing `vi.mock("astro:content")` fixtures are colocated `*.test.ts`; cross-file / route-constrained ones in `tests/`
 - `bun run content` — regenerate `src/content/README.md` (also a pre-commit hook on `src/content/*.md`)
 - `bun run deploy` — build + `wrangler deploy`
 - `bun run clean` — remove Astro caches and `dist/`
 
-Tests mock the `astro:content` virtual module through the one shared helper
-`tests/helpers/astro-content-mock.ts` (bun's module registry spans test files,
-so per-file mocks with different shapes clobber each other); modules under
-test are imported dynamically after that registration. `oxfmt` (formatting
-incl. Markdown; sorts imports + Tailwind classes) and `oxlint` run via
-pre-commit hooks.
+Under `getViteConfig` the `astro:content` virtual module resolves for real;
+tests needing counterfactual fixtures `vi.mock` it per file. In-source test
+blocks are stripped from production bundles by
+`define: { "import.meta.vitest": "undefined" }` in astro.config.ts. `oxfmt`
+(formatting incl. Markdown; sorts imports + Tailwind classes) and `oxlint`
+run via pre-commit hooks.
 
 ## Content model (`src/content.config.ts`)
 

@@ -10,6 +10,8 @@ export default defineConfig({
   integrations: [preact({ compat: true })],
   vite: {
     plugins: [tailwindcss()],
+    // Strip the in-source vitest blocks from production bundles.
+    define: { "import.meta.vitest": "undefined" },
     build: {
       rollupOptions: {
         output: {

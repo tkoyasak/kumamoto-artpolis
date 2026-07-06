@@ -45,16 +45,15 @@ desync from the code or fails loudly when it does:
   these homes, not by deleting the knowledge they hold.
 - Answering "why" means following a pointer (CLAUDE.md → ADR / issue) rather
   than reading it inline next to the code.
-- Pinning invariants presumes a test suite: `bun test`, each test colocated
-  next to its subject where possible (`src/pages` can't hold one — a test
-  file there would become a route — so endpoint and cross-file tests live in
-  `tests/`). The code under test imports the `astro:content` virtual module,
-  which exists only inside Astro's build, so tests feed it fixture
-  collections via `mock.module` registered before a dynamic import of the
-  module under test.
-  Astro's official Vitest integration (`getViteConfig()`) was considered and
-  rejected: the invariants need counterfactual fixtures (id collisions, XOR
-  violations, dangling references) that real collections cannot contain, so
-  mocking remains either way, while `getViteConfig` boots the Vite pipeline
-  on every run and moves the runner to Node. Revisit if `.astro` component
-  output becomes worth testing — that is what the Container API buys.
+- Pinning invariants presumes a test suite: Vitest through Astro's
+  `getViteConfig()`, preferring in-source tests (`import.meta.vitest`)
+  inside the very module they pin; `astro.config.ts` defines
+  `import.meta.vitest` away so production bundles carry none of it. Under
+  `getViteConfig` the `astro:content` virtual module resolves for real;
+  behaviors needing counterfactual fixtures (id collisions, XOR violations,
+  dangling references) `vi.mock` it in colocated `*.test.ts` files, and
+  cross-file or route-constrained tests live in `tests/` (`src/pages` can't
+  hold one — a test file there would become a route). A bun-test suite came
+  first — cheaper to boot — but it could not host in-source tests and its
+  shared module registry forced one canonical astro:content mock; in-source
+  colocation reversed that trade against Vitest's Vite-pipeline boot cost.

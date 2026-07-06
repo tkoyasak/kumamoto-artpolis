@@ -1,13 +1,9 @@
-/// <reference types="bun-types" />
-
-import { beforeEach, expect, test } from "bun:test";
-
 import type { APIContext } from "astro";
+import { beforeEach, expect, test, vi } from "vitest";
 
 import type { MapEntry } from "../src/lib/map.ts";
-import { content, resetContent } from "./helpers/astro-content-mock.ts";
-
 // Not colocated: a test file in src/pages would itself become a route.
+import { GET } from "../src/pages/map-markers.json.ts";
 
 type Collection = "projects" | "kap92";
 type CatalogFixture = {
@@ -16,8 +12,16 @@ type CatalogFixture = {
   data: { name: string; lat: number; lng: number };
 };
 
-// Dynamic: a static import would link astro:content before the helper's mock registers.
-const { GET } = await import("../src/pages/map-markers.json.ts");
+const fixtures = vi.hoisted(() => ({
+  projects: [] as unknown[],
+  kap92: [] as unknown[],
+  status: [] as unknown[],
+}));
+
+vi.mock("astro:content", () => ({
+  getCollection: async (name: keyof typeof fixtures) => fixtures[name],
+  getEntry: async () => undefined,
+}));
 
 const entry = (collection: Collection, id: string): CatalogFixture => ({
   collection,
@@ -30,11 +34,15 @@ async function markers(): Promise<MapEntry[]> {
   return (await res.json()) as MapEntry[];
 }
 
-beforeEach(resetContent);
+beforeEach(() => {
+  fixtures.projects = [];
+  fixtures.kap92 = [];
+  fixtures.status = [];
+});
 
 test("kap92 markers come before projects: array order is stacking order, so projects paint on top", async () => {
-  content.projects = [entry("projects", "a"), entry("projects", "b")];
-  content.kap92 = [entry("kap92", "c"), entry("kap92", "d")];
+  fixtures.projects = [entry("projects", "a"), entry("projects", "b")];
+  fixtures.kap92 = [entry("kap92", "c"), entry("kap92", "d")];
   expect((await markers()).map((m) => m.href)).toEqual([
     "/kap92/c",
     "/kap92/d",
@@ -44,9 +52,9 @@ test("kap92 markers come before projects: array order is stacking order, so proj
 });
 
 test("visited is keyed by href, so visiting a project never marks the same-id kap92 building", async () => {
-  content.projects = [entry("projects", "foo")];
-  content.kap92 = [entry("kap92", "foo")];
-  content.status = [
+  fixtures.projects = [entry("projects", "foo")];
+  fixtures.kap92 = [entry("kap92", "foo")];
+  fixtures.status = [
     { id: "2026-01-10-0900", data: { project: { collection: "projects", id: "foo" } } },
   ];
   const visited = new Map((await markers()).map((m) => [m.href, m.visited]));

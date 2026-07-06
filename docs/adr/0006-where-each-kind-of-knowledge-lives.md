@@ -45,7 +45,13 @@ desync from the code or fails loudly when it does:
   these homes, not by deleting the knowledge they hold.
 - Answering "why" means following a pointer (CLAUDE.md → ADR / issue) rather
   than reading it inline next to the code.
-- Pinning invariants presumes a test suite; none exists yet — it starts when
-  the first invariant is pinned (candidates: `getVisitsByEntry()` keying by
-  href so ids can't collide across collections, the server-side map-marker
-  ordering).
+- Pinning invariants presumes a test suite: `bun test` over `tests/`. The
+  code under test imports the `astro:content` virtual module, which exists
+  only inside Astro's build, so tests feed it fixture collections via
+  `mock.module` registered before a dynamic import of the module under test.
+  Astro's official Vitest integration (`getViteConfig()`) was considered and
+  rejected: the invariants need counterfactual fixtures (id collisions, XOR
+  violations, dangling references) that real collections cannot contain, so
+  mocking remains either way, while `getViteConfig` boots the Vite pipeline
+  on every run and moves the runner to Node. Revisit if `.astro` component
+  output becomes worth testing — that is what the Container API buys.

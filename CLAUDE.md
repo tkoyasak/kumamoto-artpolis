@@ -23,12 +23,17 @@ Use **bun**, never npm/npx/bunx. Tools (`bun`, `oxfmt`, `oxlint`, `wrangler`,
 - `bun run dev` — dev server
 - `bun run build` — production build to `dist/`
 - `bun run check` — `astro check` (TypeScript + content schema; the only type check)
+- `bun run test` — `bun test` over `tests/` (invariant tests, the why in the test name)
 - `bun run content` — regenerate `src/content/README.md` (also a pre-commit hook on `src/content/*.md`)
 - `bun run deploy` — build + `wrangler deploy`
 - `bun run clean` — remove Astro caches and `dist/`
 
-No test suite. `oxfmt` (formatting incl. Markdown; sorts imports + Tailwind
-classes) and `oxlint` run via pre-commit hooks.
+Tests mock the `astro:content` virtual module through the one shared helper
+`tests/helpers/astro-content-mock.ts` (bun's module registry spans test files,
+so per-file mocks with different shapes clobber each other); modules under
+test are imported dynamically after that registration. `oxfmt` (formatting
+incl. Markdown; sorts imports + Tailwind classes) and `oxlint` run via
+pre-commit hooks.
 
 ## Content model (`src/content.config.ts`)
 

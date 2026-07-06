@@ -2,14 +2,19 @@
 
 import { beforeEach, expect, test } from "bun:test";
 
-import { content, type MockRef, refKey, resetContent } from "./helpers/astro-content-mock.ts";
+import {
+  content,
+  type MockRef,
+  refKey,
+  resetContent,
+} from "../../tests/helpers/astro-content-mock.ts";
 
 type Collection = "projects" | "kap92";
 type CatalogFixture = { collection: Collection; id: string; data: { name: string } };
 type StatusFixture = { id: string; data: { project?: MockRef; kap92?: MockRef } };
 
 // Dynamic: a static import would link astro:content before the helper's mock registers.
-const { getStatusRows } = await import("../src/lib/status.ts");
+const { getStatusRows } = await import("./status.ts");
 
 const catalog = (collection: Collection, id: string) => {
   const fixture: CatalogFixture = { collection, id, data: { name: id } };

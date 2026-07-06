@@ -2,7 +2,7 @@
 
 import { expect, test } from "bun:test";
 
-import { entryHref, normalizePath, statusDate } from "../src/lib/routes.ts";
+import { entryHref, normalizePath, statusDate } from "./routes.ts";
 
 test("normalizePath strips Cloudflare's auto-trailing-slash, so live paths compare equal to built hrefs", () => {
   expect(normalizePath("/projects/foo/")).toBe("/projects/foo");

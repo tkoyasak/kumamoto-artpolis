@@ -2,7 +2,7 @@
 
 import { beforeEach, expect, test } from "bun:test";
 
-import { content, resetContent } from "./helpers/astro-content-mock.ts";
+import { content, resetContent } from "../../tests/helpers/astro-content-mock.ts";
 
 type Collection = "projects" | "kap92";
 type CatalogFixture = {
@@ -19,7 +19,7 @@ type CatalogFixture = {
 };
 
 // Dynamic: a static import would link astro:content before the helper's mock registers.
-const { entryStaticPaths, getEntryRows } = await import("../src/lib/entries.ts");
+const { entryStaticPaths, getEntryRows } = await import("./entries.ts");
 
 const entry = (collection: Collection, id: string, number: number): CatalogFixture => ({
   collection,

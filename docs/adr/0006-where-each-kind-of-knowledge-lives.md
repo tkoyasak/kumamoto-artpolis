@@ -45,10 +45,13 @@ desync from the code or fails loudly when it does:
   these homes, not by deleting the knowledge they hold.
 - Answering "why" means following a pointer (CLAUDE.md → ADR / issue) rather
   than reading it inline next to the code.
-- Pinning invariants presumes a test suite: `bun test` over `tests/`. The
-  code under test imports the `astro:content` virtual module, which exists
-  only inside Astro's build, so tests feed it fixture collections via
-  `mock.module` registered before a dynamic import of the module under test.
+- Pinning invariants presumes a test suite: `bun test`, each test colocated
+  next to its subject where possible (`src/pages` can't hold one — a test
+  file there would become a route — so endpoint and cross-file tests live in
+  `tests/`). The code under test imports the `astro:content` virtual module,
+  which exists only inside Astro's build, so tests feed it fixture
+  collections via `mock.module` registered before a dynamic import of the
+  module under test.
   Astro's official Vitest integration (`getViteConfig()`) was considered and
   rejected: the invariants need counterfactual fixtures (id collisions, XOR
   violations, dangling references) that real collections cannot contain, so

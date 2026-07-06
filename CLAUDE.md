@@ -23,7 +23,7 @@ Use **bun**, never npm/npx/bunx. Tools (`bun`, `oxfmt`, `oxlint`, `wrangler`,
 - `bun run dev` — dev server
 - `bun run build` — production build to `dist/`
 - `bun run check` — `astro check` (TypeScript + content schema; the only type check)
-- `bun run test` — `bun test` over `tests/` (invariant tests, the why in the test name)
+- `bun run test` — invariant tests, the why in the test name; colocated `src/**/*.test.ts` where possible, cross-file and route-constrained ones in `tests/`
 - `bun run content` — regenerate `src/content/README.md` (also a pre-commit hook on `src/content/*.md`)
 - `bun run deploy` — build + `wrangler deploy`
 - `bun run clean` — remove Astro caches and `dist/`

@@ -4,10 +4,10 @@ import { expect, test } from "bun:test";
 
 import { z } from "astro/zod";
 
-import "./helpers/astro-content-mock.ts";
+import "../tests/helpers/astro-content-mock.ts";
 
 // Dynamic: a static import would link astro:content before the helper's mock registers.
-const { collections } = await import("../src/content.config.ts");
+const { collections } = await import("./content.config.ts");
 const schemas = collections as unknown as Record<
   "projects" | "kap92" | "status",
   { schema: z.ZodTypeAny }

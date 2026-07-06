@@ -2,7 +2,7 @@
 
 import { expect, test } from "bun:test";
 
-import { rowTransitionName } from "../src/lib/transitions.ts";
+import { rowTransitionName } from "./transitions.ts";
 
 test("a row's transition name is a CSS-safe ident: hrefs contain slashes, which view-transition-name forbids", () => {
   const name = rowTransitionName("/projects/foo-bar");

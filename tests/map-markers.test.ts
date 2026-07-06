@@ -7,6 +7,8 @@ import type { APIContext } from "astro";
 import type { MapEntry } from "../src/lib/map.ts";
 import { content, resetContent } from "./helpers/astro-content-mock.ts";
 
+// Not colocated: a test file in src/pages would itself become a route.
+
 type Collection = "projects" | "kap92";
 type CatalogFixture = {
   collection: Collection;

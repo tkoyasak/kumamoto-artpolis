@@ -2,7 +2,7 @@
 
 import { expect, test } from "bun:test";
 
-import { ENTRY_COL_WIDTHS, ENTRY_TABLE_WIDTH, outlineClass, tableWidth } from "../src/lib/table.ts";
+import { ENTRY_COL_WIDTHS, ENTRY_TABLE_WIDTH, outlineClass, tableWidth } from "./table.ts";
 
 test("tableWidth sums the fixed columns into a definite rem width: table-layout fixed only truncates under a definite width", () => {
   expect(tableWidth(["4rem", "20rem"])).toBe("24rem");

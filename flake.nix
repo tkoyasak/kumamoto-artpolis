@@ -21,8 +21,8 @@
       systems = [ "x86_64-darwin" ];
 
       imports = [
-        inputs.treefmt-nix.flakeModule
         inputs.git-hooks.flakeModule
+        inputs.treefmt-nix.flakeModule
       ];
 
       perSystem =

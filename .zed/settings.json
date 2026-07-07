@@ -1,7 +1,10 @@
-// Nix language support: https://github.com/zed-extensions/nix
-// Oxc support: https://github.com/oxc-project/oxc-zed
 {
   "enable_language_server": true,
+  "formatter": "language_server",
+  "format_on_save": "on",
+  "prettier": {
+    "allowed": false
+  },
   "language_servers": [
     "oxlint",
     "oxfmt",
@@ -9,13 +12,9 @@
     "!eslint",
     "!deno",
     "!typescript-language-server",
+    "!nixd",
     "..."
   ],
-  "formatter": "language_server",
-  "format_on_save": "on",
-  "prettier": {
-    "allowed": false
-  },
   "lsp": {
     "nil": {
       "initialization_options": {
@@ -26,8 +25,9 @@
     },
     "oxfmt": {
       "binary": {
-        "path": "/usr/bin/env",
-        "arguments": ["oxfmt", "--lsp"]
+        "ignore_system_version": false,
+        "path": "oxfmt",
+        "arguments": ["--lsp"]
       },
       "initialization_options": {
         "settings": {
@@ -38,8 +38,9 @@
     },
     "oxlint": {
       "binary": {
-        "path": "/usr/bin/env",
-        "arguments": ["oxlint", "--lsp"]
+        "ignore_system_version": false,
+        "path": "oxlint",
+        "arguments": ["--lsp"]
       },
       "initialization_options": {
         "settings": {
@@ -118,9 +119,6 @@
           }
         }
       ]
-    },
-    "Nix": {
-      "language_servers": ["nil", "!nixd"]
     },
     "TypeScript": {
       "formatter": [

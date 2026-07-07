@@ -10,3 +10,6 @@
 .env
 .env.production
 .dev.vars
+
+/test-results
+/playwright-report

@@ -9,6 +9,7 @@ export default getViteConfig({
     includeSource: ["src/**/*.ts"],
     // .direnv/flake-inputs contains a Nix store snapshot of this repo itself;
     // without this, Vitest crawls it and runs every test file twice.
-    exclude: [...configDefaults.exclude, "**/.direnv/**"],
+    // e2e/ holds Playwright tests, run by Playwright (`bun run e2e`).
+    exclude: [...configDefaults.exclude, "**/.direnv/**", "e2e/**"],
   },
 });

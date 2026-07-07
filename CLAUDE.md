@@ -24,6 +24,7 @@ Use **bun**, never npm/npx/bunx. Tools (`bun`, `oxfmt`, `oxlint`, `wrangler`,
 - `bun run build` — production build to `dist/`
 - `bun run check` — `astro check` (TypeScript + content schema; the only type check)
 - `bun run test` — `vitest run` (Astro's `getViteConfig`); invariant tests, the why in the test name. In-source (`import.meta.vitest`) inside the module where possible; tests needing `vi.mock("astro:content")` fixtures are colocated `*.test.ts`; cross-file / route-constrained ones in `tests/`
+- `bun run e2e` — Playwright (`e2e/`, excluded from Vitest) against the production build via `astro preview`; system Chrome (`channel: "chrome"`, no downloaded browsers), carto style URL mocked, expected rows/markers derived from content filenames
 - `bun run content` — regenerate `src/content/README.md` (also a pre-commit hook on `src/content/*.md`)
 - `bun run deploy` — build + `wrangler deploy`
 - `bun run clean` — remove Astro caches and `dist/`

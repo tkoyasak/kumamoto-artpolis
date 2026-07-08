@@ -1,5 +1,5 @@
 {
-  "$schema": "/nix/store/xzr6q3q3nirybhy6px4vmvmklyfm9ady-oxfmt-0.53.0/lib/oxfmt/configuration_schema.json",
+  "$schema": "/nix/store/968wzqr86s65chchibha25afazxh5ghi-oxfmt-0.57.0/lib/oxfmt/configuration_schema.json",
   "sortImports": true,
   "sortTailwindcss": true
 }

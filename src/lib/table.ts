@@ -17,6 +17,9 @@ export type DetailRow = {
   href: string;
   category: Category;
   cells: DetailCell[];
+  // Map marker key ($hovered) when it differs from `href`: a status row
+  // hover-highlights its *visited entry's* marker, not /status/<id>.
+  markerHref?: string;
 };
 
 // Colors live in global.css (--color-project / --color-kap92).

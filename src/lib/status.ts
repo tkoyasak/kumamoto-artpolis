@@ -1,7 +1,7 @@
 import { getCollection } from "astro:content";
 import type { CollectionEntry } from "astro:content";
 
-import { type Category, categoryOf, statusDate, statusHref } from "./routes.ts";
+import { type Category, categoryOf, entryHref, statusDate, statusHref } from "./routes.ts";
 import { getVisitedEntry } from "./visits.ts";
 
 // Row for the visit timeline (StatusTable); `id` keys both the /status/<id>
@@ -12,6 +12,9 @@ export type StatusRow = {
   href: string;
   name: string;
   category: Category;
+  // The visited entry's href — the map marker key, so hovering a timeline row
+  // can highlight that entry's marker.
+  entryHref: string;
 };
 
 // Takes the bare id (not the status record) so callers holding only visit ids
@@ -26,6 +29,7 @@ export function toStatusRow(
     href: statusHref(id),
     name: entry.data.name,
     category: categoryOf(entry.collection),
+    entryHref: entryHref(entry),
   };
 }
 

@@ -43,7 +43,7 @@ test("timeline rows come newest first: the datetime id orders across days and wi
   expect(rows.map((r) => r.id)).toEqual(["2026-02-20-1400", "2026-02-20-0800", "2026-01-10-0900"]);
 });
 
-test("a timeline row derives date and href from its id, and name and outline category from the visited entry", async () => {
+test("a timeline row derives date and href from its id, and name, outline category, and marker key from the visited entry", async () => {
   const ref = catalog("kap92", "old-hall");
   fixtures.status = [visitOf("2026-01-10-0900", ref)];
   const [row] = await getStatusRows();
@@ -53,6 +53,7 @@ test("a timeline row derives date and href from its id, and name and outline cat
     href: "/status/2026-01-10-0900",
     name: "old-hall",
     category: "kap92",
+    entryHref: "/kap92/old-hall",
   });
 });
 

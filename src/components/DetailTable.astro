@@ -67,6 +67,7 @@ const { headers, rows, colWidths, headVt, maxWidth, detail = false, backHref, fl
               data-row-detail
               data-row-href={row.href}
               data-row-back={backHref}
+              data-marker-href={row.markerHref}
               transition:name={vt}
               class={cls}
             >
@@ -77,6 +78,7 @@ const { headers, rows, colWidths, headVt, maxWidth, detail = false, backHref, fl
               data-row-nav
               data-row-href={row.href}
               data-row-flourish={flourish ? "" : undefined}
+              data-marker-href={row.markerHref}
               class={cls}
             >
               {cells}
@@ -95,12 +97,20 @@ const { headers, rows, colWidths, headVt, maxWidth, detail = false, backHref, fl
 
   import { normalizePath } from "../lib/routes.ts";
   import { navigateWithRowMorph } from "../lib/row-morph.ts";
+  import { $hovered } from "../lib/stores.ts";
   import { rowTransitionName } from "../lib/transitions.ts";
 
   function bindRows() {
     for (const row of document.querySelectorAll<HTMLElement>("[data-row-nav]")) {
       if (row.dataset.bound) continue;
       row.dataset.bound = "1";
+      // Rows carrying a marker key share hover state with the map island,
+      // like the home table's rows.
+      const markerHref = row.dataset.markerHref;
+      if (markerHref) {
+        row.addEventListener("mouseenter", () => $hovered.set(markerHref));
+        row.addEventListener("mouseleave", () => $hovered.set(null));
+      }
       row.addEventListener("click", (event) => {
         // Let the browser handle modified clicks on the name link (new tab, etc.).
         if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;

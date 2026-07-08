@@ -2,79 +2,31 @@
 
 Guidance for Claude Code working in this repo.
 
-## What this is
+A static site cataloging Kumamoto Artpolis architecture and visits to it.
+Astro SSG (every page prerendered) on Cloudflare Workers static assets. The
+home page pairs a Preact table island with a vanilla maplibre island, linked
+by hover state.
 
-A static site cataloging Kumamoto Artpolis architecture and visits to it. Astro
-SSG (every page prerendered) on Cloudflare Workers static assets. The home page
-pairs a Preact table island with a vanilla maplibre island, linked by hover
-state.
+## Rules you won't think to look up
 
-## Docs
+- Use **bun**, never npm/npx/bunx. Tools come from the Nix flake devShell via direnv.
+- `src/content/README.md` is generated — don't hand-edit; `bun run content`.
+- Write code comments in English (chat/commits may be Japanese).
+- Don't format/lint before committing; `oxfmt`/`oxlint` run as pre-commit hooks.
+- **The filename is the entry id** — it's the URL and how `status` references
+  entries; keep filenames stable. → `docs/adr/0002`
+- **`status` is the source of truth for visit dates** — entries never store
+  their own. → `docs/adr/0003`
 
-- **`CONTEXT.md`** — domain glossary; the source for terms (Entry, Project, KAP'92 building, Id, Visit record, …).
+## Docs index
+
+Everything else lives one pointer away (→ `docs/adr/0006` for the placement
+rules):
+
+- [`docs/agents/glossary.md`](docs/agents/glossary.md) — domain glossary; the source for terms (Entry, Project, KAP'92 building, Id, Visit record, …).
+- [`docs/agents/commands.md`](docs/agents/commands.md) — commands, toolchain, and the unit/e2e test conventions.
+- [`docs/agents/content-model.md`](docs/agents/content-model.md) — the three content collections, their schema, and the two id/visit-date facts in full.
+- [`docs/agents/routing.md`](docs/agents/routing.md) — the page inventory.
+- [`docs/agents/islands.md`](docs/agents/islands.md) — the two home-page islands and their operational gotchas (map persistence, hover state, marker highlight).
 - **`docs/adr/`** — short ADRs recording _why_ the code is shaped this way.
 - **`docs/issues/`** — deep perf/UX write-ups (rationale, methodology, benchmarks).
-
-## Commands
-
-Use **bun**, never npm/npx/bunx. Tools (`bun`, `oxfmt`, `oxlint`, `wrangler`,
-`typescript-go`) come from the Nix flake devShell via direnv.
-
-- `bun run dev` — dev server
-- `bun run build` — production build to `dist/`
-- `bun run check` — `astro check` (TypeScript + content schema; the only type check)
-- `bun run test` — `vitest run` (Astro's `getViteConfig`); invariant tests, the why in the test name. In-source (`import.meta.vitest`) inside the module where possible; tests needing `vi.mock("astro:content")` fixtures are colocated `*.test.ts`; cross-file / route-constrained ones in `tests/`
-- `bun run e2e` — Playwright (`e2e/`, excluded from Vitest) against the production build via `astro preview`; system Chrome (`channel: "chrome"`, no downloaded browsers), carto style URL mocked, expected rows/markers derived from content filenames
-- `bun run content` — regenerate `src/content/README.md` (also a pre-commit hook on `src/content/*.md`)
-- `bun run deploy` — build + `wrangler deploy`
-- `bun run clean` — remove Astro caches and `dist/`
-
-Under `getViteConfig` the `astro:content` virtual module resolves for real;
-tests needing counterfactual fixtures `vi.mock` it per file. In-source test
-blocks are stripped from production bundles by
-`define: { "import.meta.vitest": "undefined" }` in astro.config.ts. `oxfmt`
-(formatting incl. Markdown; sorts imports + Tailwind classes) and `oxlint`
-run via pre-commit hooks.
-
-## Content model (`src/content.config.ts`)
-
-Three glob-loaded Markdown collections under `src/content/`:
-
-- **`projects/`** — Artpolis commissioned new builds.
-- **`kap92/`** — KAP'92 selected existing buildings.
-- Both share one schema (`catalogSchema`): `number`/`name`/`architects`/`lat`/`lng`/`municipality`/`use` (free text) required, `completedYear` optional and only `.positive()` (kap92 can be historical). The id is not a field — it's the filename.
-- **`status/`** — one file per visit (`<date>-<HHMM>.md`); frontmatter references exactly one entry via `project` XOR `kap92` (schema-enforced), so a record maps to one catalog collection.
-
-Two facts to code against (see the ADRs for why):
-
-- **The filename is the entry id.** The glob loader derives `entry.id` from the filename (`<id>.md`), so the id is the URL (`/projects/<id>`) and how `status` references entries; code reads `entry.id`, and the dynamic routes are all `[id].astro`. Catalog ids are human-readable names — keep filenames stable. `number` is a frontmatter field, display/sort only. → `docs/adr/0002`
-- **`status` is the source of truth for visit dates.** Entries don't store their own; `getVisitsByEntry()` (`src/lib/visits.ts`) derives them for both collections, keyed by entry href (`/projects/<id>`, `/kap92/<id>`) so ids can't collide across collections. → `docs/adr/0003`
-
-## Routing
-
-- `/` — home (table + map)
-- `/projects/<id>`, `/kap92/<id>` — prerendered detail pages (`getStaticPaths`)
-- `/status`, `/status/<id>` — visit timeline / one visit's record (id is a datetime)
-- `/about`; `/404` — Workers assets serve it for unknown paths (`not_found_handling`)
-- `/map-markers.json` — prerendered endpoint of the map marker data
-
-## Islands (home page)
-
-`src/pages/index.astro` merges both collections into `EntryRow[]`
-(`src/lib/entries.ts`) and renders two independent islands (→ `docs/adr/0005`):
-
-- **`EntriesTable.tsx`** — Preact + `@tanstack/react-table`, `client:load`; react-table runs on Preact via `@preact/compat`. → `docs/adr/0004`
-- **`EntriesMap.astro`** — plain client-side script (no framework); maplibre + `/map-markers.json` load lazily when the map first shows. → `docs/issues/0001-maplibre-chunk-loading.md`
-
-Operational gotchas:
-
-- The map layer lives in `Base.astro` under `transition:persist` (survives navigation) and is hidden server-side off the home page. → `docs/issues/0002-map-persist-across-navigation.md`
-- Detail pages don't move the camera: the script `clip-path`-crops the fullscreen layer to a square around the marker, shows only that entry's marker, and clicking it returns home. (`mapFocus` → `Base.astro` → `<body>` data attributes.)
-- Islands share hover state via the nanostores atom `$hovered` (`src/lib/stores.ts`), keyed by `href`. `.marker-active` (`src/styles/global.css`) does the highlight — maplibre owns the marker root's `transform`, so the scale applies to the inner `svg`.
-
-## Notes
-
-- Write code comments in English (chat/commits may be Japanese).
-- TypeScript `astro/tsconfigs/strictest`. Photos are public R2 URLs in Markdown bodies (bucket TODO).
-- `src/content/README.md` is generated by `scripts/content-readme.ts` — don't hand-edit; run `bun run content` (pre-commit regenerates it on content changes).
-- Where knowledge goes (→ `docs/adr/0006`): executable invariant → a test (the why in the test name); foundational decision → `docs/adr/` (short ADRs); deep perf/UX experiment → `docs/issues/`; comments carry only constraints not derivable from the code.

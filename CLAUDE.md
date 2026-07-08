@@ -11,7 +11,8 @@ by hover state.
 
 - Use **bun**, never npm/npx/bunx. Tools come from the Nix flake devShell via direnv.
 - `src/content/README.md` is generated — don't hand-edit; `bun run content`.
-- Write code comments in English (chat/commits may be Japanese).
+- English for code comments, repo docs, commits, and PRs; Japanese for site
+  content (`src/content/` bodies) and data values (entry names, `use`).
 - Don't format/lint before committing; `oxfmt`/`oxlint` run as pre-commit hooks.
 - **The filename is the entry id** — it's the URL and how `status` references
   entries; keep filenames stable. → `docs/adr/0002`

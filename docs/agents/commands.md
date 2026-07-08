@@ -25,6 +25,9 @@ Toolchain gotchas:
   `realpath "$(command -v oxfmt)" | sed 's#/bin/oxfmt#/lib/oxfmt/configuration_schema.json#'`.
 - `wrangler` is a bun devDependency, deliberately not in the flake devShell —
   nixpkgs lags behind upstream wrangler releases.
+- In `scripts/`, prefer Bun-native APIs (`Bun.file`/`Bun.write`, `Bun.Glob`,
+  `Bun.$`, `Bun.YAML`) over node builtins, even when that forces async +
+  top-level await (and thus an `export {}`).
 
 ## Unit tests (`bun run test`)
 

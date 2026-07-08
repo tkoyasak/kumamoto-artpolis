@@ -16,6 +16,16 @@ Use **bun**, never npm/npx/bunx. Tools (`bun`, `oxfmt`, `oxlint`, `wrangler`,
 `oxlint` run via pre-commit hooks — don't format/lint manually before a
 commit.
 
+Toolchain gotchas:
+
+- oxfmt/oxlint can't parse `.astro` files; they cover `.ts`/`.mjs` only.
+- The `$schema` in `.oxfmtrc.json`/`.oxlintrc.json` points at the schema
+  inside the tool's nix output — machine-specific, editor-only. Update by
+  hand when `flake.lock` bumps the tools:
+  `realpath "$(command -v oxfmt)" | sed 's#/bin/oxfmt#/lib/oxfmt/configuration_schema.json#'`.
+- `wrangler` is a bun devDependency, deliberately not in the flake devShell —
+  nixpkgs lags behind upstream wrangler releases.
+
 ## Unit tests (`bun run test`)
 
 Vitest through Astro's `getViteConfig()`. Tests pin invariants, with the

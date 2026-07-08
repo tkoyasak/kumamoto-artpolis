@@ -4,12 +4,6 @@ import Base from "../layouts/Base.astro";
 // Served by Workers assets for unknown paths (wrangler.json `not_found_handling`).
 ---
 
-<Base title="ページが見つかりません | Kumamoto Artpolis">
-  <main slot="entry" class="max-w-2xl px-4 py-4 sm:px-8">
-    <h1 class="text-base font-bold">ページが見つかりません</h1>
-
-    <p class="mt-6">
-      お探しのページは存在しないか、移動した可能性があります。
-    </p>
-  </main>
+<Base title="404 Not Found">
+  <p slot="top" class="relative z-20 block w-fit px-4 pt-8 pb-4 text-base font-medium sm:px-8">404 Not Found</p>
 </Base>

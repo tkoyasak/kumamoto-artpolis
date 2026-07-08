@@ -56,6 +56,8 @@ const navLink = "relative z-20 block w-fit font-medium text-base";
       <EntriesMap />
     </div>
 
+    <slot name="top" />
+
     {/* Stable transition names so the nav links morph to their new vertical
         position as each page injects content between them. */}
     <a

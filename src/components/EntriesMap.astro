@@ -6,8 +6,8 @@ import "maplibre-gl/dist/maplibre-gl.css";
 <div id="entries-map" class="h-full w-full"></div>
 
 <script>
-  // The map is lazy: maplibre (~1 MB, code-split — see
-  // docs/issues/0001-maplibre-chunk-loading.md) and /map-markers.json are
+  // The map is lazy: maplibre (~1 MB, code-split — see docs/issues/0001)
+  // and /map-markers.json are
   // fetched only when a page that shows the map is first shown. The type-only
   // maplibre imports below are erased at build time and don't pull the chunk.
   import { navigate, type TransitionBeforePreparationEvent } from "astro:transitions/client";
@@ -123,7 +123,7 @@ import "maplibre-gl/dist/maplibre-gl.css";
 
   // The layer persists across navigation (transition:persist), so this script
   // runs once; the layout hides it server-side off the fullscreen pages (see
-  // Base.astro and docs/issues/0002-map-persist-across-navigation.md). The
+  // Base.astro and docs/issues/0002). The
   // camera never moves on navigation: a detail page (<body> carries
   // data-map-lat/lng/href) keeps the fullscreen layer put and clip-path crops
   // it to a square around the focused marker.

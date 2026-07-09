@@ -5,11 +5,12 @@ Use **bun**, never npm/npx/bunx. Tools (`bun`, `oxfmt`, `oxlint`, `wrangler`,
 
 - `bun run dev` — dev server
 - `bun run build` — production build to `dist/`
+- `bun run preview` — serve `dist/` (what the e2e suite runs against)
 - `bun run check` — `astro check` (TypeScript + content schema; the only type check)
 - `bun run test` — `vitest run` (invariant tests; see below)
 - `bun run e2e` — Playwright (see below)
 - `bun run content` — regenerate `src/content/README.md` (also a pre-commit hook on `src/content/*.md`)
-- `bun run deploy` — build + `wrangler deploy`
+- `bun run deploy` — build + `wrangler deploy --strict`
 - `bun run clean` — remove Astro caches and `dist/`
 
 `oxfmt` (formatting incl. Markdown; sorts imports + Tailwind classes) and
@@ -20,7 +21,7 @@ Toolchain gotchas:
 
 - oxfmt/oxlint can't parse `.astro` files; they cover `.ts`/`.mjs` only.
 - The `$schema` in `.oxfmtrc.json`/`.oxlintrc.json` points at the schema
-  inside the tool's nix output — machine-specific, editor-only. Update by
+  inside the tool's Nix output — machine-specific, editor-only. Update by
   hand when `flake.lock` bumps the tools:
   `realpath "$(command -v oxfmt)" | sed 's#/bin/oxfmt#/lib/oxfmt/configuration_schema.json#'`.
 - `wrangler` is a bun devDependency, deliberately not in the flake devShell —
@@ -32,7 +33,7 @@ Toolchain gotchas:
 ## Unit tests (`bun run test`)
 
 Vitest through Astro's `getViteConfig()`. Tests pin invariants, with the
-_why_ in the test name (→ `docs/adr/0006`).
+_why_ in the test name.
 
 Placement, in order of preference:
 

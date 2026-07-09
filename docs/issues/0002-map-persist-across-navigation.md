@@ -40,7 +40,7 @@ Two ways to survive the `/` → detail → `/` round trip were considered:
 The tradeoff of (2): the map layer now lives in the shared layout, so maplibre
 (~1 MB) loads on _every_ page, not just `/` — in tension with the code-split,
 load-on-the-home-page-only decision in
-[0001-maplibre-chunk-loading.md](0001-maplibre-chunk-loading.md). Accepted deliberately:
+[docs/issues/0001](0001-maplibre-chunk-loading.md). Accepted deliberately:
 the download is once-per-session and cached; on detail pages the instance just
 sits idle; the map is hidden off `/` via `display:none` (toggled on
 `astro:after-swap`) and `map.resize()` is called on return since a hidden
@@ -128,7 +128,7 @@ together:
    first navigation that shows the map, so non-home visits never pay for the
    map JS, style, or tiles. Persist behavior on return is unchanged. This stays
    consistent with the chunk-loading benchmark
-   ([0001-maplibre-chunk-loading.md](0001-maplibre-chunk-loading.md)): still the split
+   ([docs/issues/0001](0001-maplibre-chunk-loading.md)): still the split
    chunk, still discovered after the glue script, still no preload.
 3. **Marker clicks used `window.location.href`**, a full reload that destroyed
    the persisted instance this whole design exists to keep. They now use the

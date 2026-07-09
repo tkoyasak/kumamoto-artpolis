@@ -23,10 +23,9 @@ keyed by each row's `href`.
 
 - The maplibre bundle is code-split and lazy-loaded on its own schedule, and
   the map instance persists across navigation. See
-  [docs/issues/0001-maplibre-chunk-loading.md](../issues/0001-maplibre-chunk-loading.md)
-  and
-  [docs/issues/0002-map-persist-across-navigation.md](../issues/0002-map-persist-across-navigation.md)
-  for the benchmarked specifics.
+  [docs/issues/0001](../issues/0001-maplibre-chunk-loading.md) and
+  [docs/issues/0002](../issues/0002-map-persist-across-navigation.md) for
+  the benchmarked specifics.
 - The single-component shape is rejected, and with it shared component
   state: the islands cannot pass props or context, so every cross-island
   interaction — hover today, anything later — must be wired through the

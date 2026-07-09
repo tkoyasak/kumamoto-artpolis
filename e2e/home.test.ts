@@ -24,6 +24,19 @@ test("every catalog markdown file surfaces as a home table row linking its detai
   }
 });
 
+test("every column is a sort button and the table loads sorted by its first column (No.) descending", async ({
+  page,
+}) => {
+  const headers = page.locator("thead th");
+  await expect(headers.locator("button")).toHaveCount(await headers.count());
+  await expect(headers.first()).toHaveAttribute("aria-sort", "descending");
+
+  const numbers = await page
+    .locator('tbody tr[data-row-href^="/projects/"] td:first-child')
+    .allTextContents();
+  expect(numbers).toEqual([...numbers].sort((a, b) => Number(b) - Number(a)));
+});
+
 test("sorting by Year reorders rows only within each collection group, year-less entries last", async ({
   page,
 }) => {

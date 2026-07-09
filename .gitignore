@@ -1,15 +1,21 @@
-/.astro
-/.wrangler
-/coverage
-/dist
+# node
 /node_modules
 
-/.pre-commit-config.yaml
-/.direnv
+# astro
+/.astro
+/dist
 
+# tests
+/coverage
+/test-results
+/playwright-report
+
+# cloudflare
+/.wrangler
 .env
 .env.production
 .dev.vars
 
-/test-results
-/playwright-report
+# nix
+/.direnv
+/.pre-commit-config.yaml

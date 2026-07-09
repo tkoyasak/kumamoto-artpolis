@@ -12,6 +12,7 @@
     "!eslint",
     "!deno",
     "!typescript-language-server",
+    "!rumdl",
     "!nixd",
     "..."
   ],

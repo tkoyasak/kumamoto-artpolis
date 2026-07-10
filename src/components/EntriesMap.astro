@@ -88,7 +88,7 @@ import "maplibre-gl/dist/maplibre-gl.css";
       const hovered = $hovered.get();
       const focused = currentFocusHref();
       const path = currentPath();
-      // pendingPath bridges the ring only while nothing is hovered (docs/agents/islands.md).
+      // pendingPath bridges the ring only while nothing is hovered (docs/issues/0002).
       const pending = hovered === null ? pendingPath : null;
       for (const [key, marker] of markers) {
         const active = isMarkerOutlined(key, hovered, focused, pending, path);
@@ -120,7 +120,7 @@ import "maplibre-gl/dist/maplibre-gl.css";
   let initStarted = false;
   let refreshMarkerHighlight: (() => void) | null = null;
   let refreshMarkerVisibility: (() => void) | null = null;
-  // In-flight nav target; keeps the destination ringed across the swap (docs/agents/islands.md).
+  // In-flight nav target; keeps the destination ringed across the swap (docs/issues/0002).
   let pendingPath: string | null = null;
   document.addEventListener("astro:before-preparation", (event) => {
     pendingPath = normalizePath((event as TransitionBeforePreparationEvent).to.pathname);
@@ -157,7 +157,7 @@ import "maplibre-gl/dist/maplibre-gl.css";
     if (!layer || !container) return;
     pendingPath = null; // the new page's focus attributes are authoritative now
     // Re-seed $hovered from the persisted markers: a swap fires no mouseleave
-    // for removed elements (docs/agents/islands.md).
+    // for removed elements (docs/issues/0002).
     const marker =
       container.querySelector<HTMLElement>(".map-marker:hover") ??
       container.querySelector<HTMLElement>(".map-marker:focus");

@@ -2,18 +2,13 @@ import type { Category } from "./routes.ts";
 
 export const MAP_MARKERS_URL = "/map-markers.json";
 
-// The persisted map layer's DOM id and `transition:persist` name. Pinned
-// explicitly: Astro's auto-generated persist ids are position-dependent and
-// were colliding.
+// Explicit id/persist name — Astro's auto persist ids collided (docs/issues/0003).
 export const MAP_LAYER_ID = "map-layer";
 
-// Shared by the layout's server-side visibility (Base.astro) and the map
-// script's per-navigation visibility (EntriesMap.astro), so the two can't
-// drift apart.
+// Shared by the layout's server-side hide and the map script, so they can't drift.
 export const FULLSCREEN_MAP_PATHS: readonly string[] = ["/", "/status"];
 
-// Marker colors per collection. global.css's --color-project / --color-kap92
-// must hold the same values (pinned by tests/css-contract.test.ts).
+// global.css's --color-project/--color-kap92 must match (pinned by tests/css-contract.test.ts).
 export const MARKER_COLORS: Record<Category, string> = {
   project: "#ff5031",
   kap92: "#0009f3",

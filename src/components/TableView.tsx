@@ -4,15 +4,11 @@ import type { Category } from "../lib/routes.ts";
 import { type DetailRow, outlineClass, tableWidth } from "../lib/table.ts";
 import { rowTransitionName } from "../lib/transitions.ts";
 
-// The single source of the table markup. Both sides of a row morph — the
-// sortable island (SortableTable.tsx) and the static tables
-// (DetailTable.astro, rendered without a client directive, so zero JS) —
-// render through this component, so their structure and classes cannot
-// drift apart; identical rendering is what lets the View Transition pair
-// rows across pages (docs/issues/0003).
+// The single source of the table markup: both the sortable island
+// (SortableTable) and the static tables (DetailTable, no client directive)
+// render through this, so a row's two morph snapshots can't drift (docs/issues/0003).
 
-// `outlined` keeps the outline on (a detail page's subject row, a hovered
-// row); off, it appears on CSS hover only.
+// `outlined` forces the outline on (subject row, hovered row); else CSS hover only.
 const rowClass = (category: Category, outlined: boolean): string =>
   `cursor-pointer -outline-offset-1 ${outlineClass(category)} ${
     outlined ? "outline" : "hover:outline"
@@ -24,18 +20,17 @@ export type TableHeader = {
 };
 
 export type TableViewRow = {
-  // data-row-href: the navigation target and the View Transition pairing key.
+  // data-row-href: navigation target + View Transition pairing key.
   href: string;
   category: Category;
   outlined: boolean;
   cells: ComponentChildren[];
   // data-row-flourish: a return morph flashes this row's outline.
   flourish?: boolean;
-  // data-row-nav & friends: the row is driven by DetailTable's script.
-  // Island rows omit this and attach their own handlers below instead.
+  // data-row-nav & friends: driven by DetailTable's script. Island rows omit
+  // these and attach their own handlers instead.
   nav?: { subject?: boolean; backHref?: string; markerHref?: string | undefined };
-  // The subject row carries its transition name up front; list rows get
-  // theirs from JS on click.
+  // Subject row carries its transition name up front; list rows get theirs on click.
   transitionName?: string | undefined;
   onMouseEnter?: () => void;
   onMouseLeave?: () => void;
@@ -43,8 +38,7 @@ export type TableViewRow = {
 };
 
 type Props = {
-  // Per-page wrapper classes: max-width, and pointer-events / stacking
-  // against the fullscreen map layer underneath.
+  // Per-page wrapper classes: max-width, pointer-events/stacking vs the map layer.
   wrapClass: string;
   colWidths: readonly string[];
   headVt: string;
@@ -110,8 +104,7 @@ export default function TableView({ wrapClass, colWidths, headVt, headers, rows 
   );
 }
 
-// DetailRow adapter for the static tables: plain data in (an .astro
-// frontmatter can't build vnodes), the shared markup out.
+// DetailRow adapter for the static tables: plain data in, shared markup out.
 export function DetailTableView({
   headers,
   rows,
@@ -136,9 +129,8 @@ export function DetailTableView({
       headVt={headVt}
       headers={headers.map((header) => ({ node: header }))}
       rows={rows.map((row) => {
-        // The name cell's <a> carries the same target as the row so it works
-        // without the script (keyboard, screen readers, open-in-new-tab);
-        // the script upgrades plain clicks to a ClientRouter navigation.
+        // The name <a> carries the row target so it works without the script
+        // (keyboard, screen readers, new tab); the script upgrades plain clicks.
         const target = subject ? backHref : row.href;
         return {
           href: row.href,

@@ -16,21 +16,16 @@ import { $hovered, isRowHighlighted } from "../lib/stores.ts";
 import TableView from "./TableView.tsx";
 
 // The sortable table island shared by the home catalog (EntriesTable.tsx) and
-// the /status visit timeline (StatusTable.tsx): tanstack sorting plus the row
-// behaviors the static tables get from DetailTable's script — hover state
-// shared with the map island, ClientRouter navigation, row-morph hooks.
-// The markup itself comes from the shared TableView.
+// the /status timeline (StatusTable.tsx): tanstack sorting plus the shared row
+// behaviors (docs/agents/islands.md). Markup comes from TableView.
 
-// What every row must carry: `href` keys navigation and morphs, `category`
-// the outline color.
+// What every row carries: `href` keys navigation and morphs, `category` the outline color.
 export type TableRow = {
   href: string;
   category: Category;
 };
 
-// Name-cell anchor: works without JS (keyboard, screen readers,
-// open-in-new-tab); plain clicks upgrade to a ClientRouter navigation so the
-// persisted map survives.
+// Name-cell anchor: works without JS; a plain click upgrades to a ClientRouter nav.
 export function rowLink(href: string, text: string): JSX.Element {
   return (
     <a
@@ -51,24 +46,19 @@ export function rowLink(href: string, text: string): JSX.Element {
 
 type Props<Row extends TableRow, GroupKey extends string> = {
   rows: Row[];
-  // Column defs are heterogeneous in their value type, so per tanstack
-  // convention the array is typed over `any`.
+  // Heterogeneous value types, so `any` per tanstack convention.
   columns: ColumnDef<Row, any>[];
-  // The load-time sort; the server renders rows in this order, so the table
-  // looks identical before and after hydration.
+  // Load-time sort; the server renders this order, so no shift on hydration.
   initialSorting: SortingState;
   colWidths: readonly string[];
   headVt: string;
-  // Wrapper classes that differ per page: max-width, and pointer-events /
-  // stacking against the fullscreen map layer underneath.
+  // Per-page wrapper classes: max-width, pointer-events/stacking vs the map layer.
   sectionClass: string;
-  // Ordered row groups; sorting reorders rows only within each group. A
-  // total function over the listed keys can neither drop nor duplicate a
-  // row, unlike per-group predicates — NoInfer makes `keys` authoritative,
-  // so `of` returning an unlisted key is a type error.
+  // Ordered row groups; sorting reorders only within a group. NoInfer makes
+  // `keys` authoritative — a total function that can't drop or duplicate a row.
   groups?: { keys: readonly GroupKey[]; of: (row: Row) => NoInfer<GroupKey> };
-  // Map marker key ($hovered) when it differs from `href`: a status row
-  // highlights its *visited entry's* marker, not /status/<id>.
+  // Marker key when it differs from `href`: a status row highlights its
+  // *visited entry's* marker, not /status/<id>.
   markerHref?: (row: Row) => string;
 };
 
@@ -90,17 +80,15 @@ export default function SortableTable<Row extends TableRow, GroupKey extends str
     columns,
     state: { sorting },
     onSortingChange: setSorting,
-    // Toggle desc ↔ asc only. The removed-sorting state would fall back to
-    // the input order with no indicator, and `initialSorting` is the sole
-    // owner of row order — the lib row getters don't sort.
+    // Toggle desc↔asc only: the removed state would fall back to input order
+    // with no indicator, and initialSorting is the sole owner of row order.
     enableSortingRemoval: false,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
   });
 
   const visibleRows = table.getRowModel().rows;
-  // Grouping is ordering: rows concatenate in `keys` order, sorted within
-  // each group.
+  // Grouping is ordering: rows concatenate in `keys` order, sorted within each.
   const orderedRows = groups
     ? groups.keys.flatMap((key) => visibleRows.filter((row) => groups.of(row.original) === key))
     : visibleRows;
@@ -136,8 +124,7 @@ export default function SortableTable<Row extends TableRow, GroupKey extends str
           category: row.original.category,
           outlined: isRowHighlighted(hovered, row.original.href, marker),
           flourish: true,
-          // Forward clicks stay on the island (no `nav`/data-row-nav); only
-          // the row-morph hooks are shared with DetailTable's script.
+          // Clicks stay on the island; only the row-morph hooks are shared with DetailTable's script.
           onMouseEnter: () => $hovered.set({ marker, row: row.original.href }),
           onMouseLeave: () => $hovered.set(null),
           onClick: () => navigateWithRowMorph(row.original.href),

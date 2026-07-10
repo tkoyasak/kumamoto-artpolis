@@ -4,13 +4,11 @@ import { type DetailRow, ENTRY_COL_WIDTHS } from "../lib/table.ts";
 import { ENTRY_HEAD_VT } from "../lib/transitions.ts";
 import DetailTable from "./DetailTable.astro";
 
-// Static counterpart to the home table (EntriesTable.tsx), shown on detail
-// pages as a header + one row.
+// Static counterpart to the home table (EntriesTable.tsx): header + one row.
 interface Props {
   rows: EntryRow[];
-  // False on /status/<id>, where the row is the *visited* entry rather than
-  // the page's own subject: it renders list-style and clicking it navigates
-  // to the entry's page instead of back home.
+  // False on /status/<id>, where the row is the *visited* entry, not the page's
+  // subject: it renders list-style and clicks through to the entry's page.
   subject?: boolean;
 }
 

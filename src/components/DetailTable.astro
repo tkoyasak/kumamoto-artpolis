@@ -2,25 +2,19 @@
 import type { DetailRow } from "../lib/table.ts";
 import { DetailTableView } from "./TableView.tsx";
 
-// The static tables' host: the detail pages and the entry pages' visit
-// lists. The markup is the shared TableView, rendered with no client
-// directive — static HTML, zero JS. Rows carry `data-row-*` hooks bound by
-// the script below: the clicked row tags itself with its
-// view-transition-name and navigates; the return is paired in
-// `astro:before-swap` from the incoming document. The islands
-// (SortableTable.tsx) tag their rows with the same hooks, so this one script
-// drives every table's morphs.
+// The static tables' host (detail pages, entry visit lists): TableView
+// rendered with no client directive — plain HTML, zero JS. The row script
+// below drives every table's clicks, morphs, and hover (docs/issues/0003).
 interface Props {
   headers: string[];
   rows: DetailRow[];
   colWidths: readonly string[];
   headVt: string;
-  // Tailwind max-width class for the wrapper.
+  // Tailwind max-width class.
   maxWidth: string;
-  // The row is the page's own subject (the single row on a detail page): it
-  // always shows its outline, carries its transition name up front, and
-  // clicking it navigates back to `backHref`. Off, rows render list-style and
-  // click through to their own pages.
+  // The row is the page's own subject (a detail page's single row): always
+  // outlined, carries its transition name up front, clicks back to backHref.
+  // Off, rows render list-style and click through to their own pages.
   subject?: boolean;
   backHref: string;
 }
@@ -39,8 +33,6 @@ const { headers, rows, colWidths, headVt, maxWidth, subject = false, backHref } 
 />
 
 <script>
-  // Rebind on each swap since rows are fresh DOM; a dataset flag guards
-  // against double-binding.
   import { navigate } from "astro:transitions/client";
 
   import { normalizePath } from "../lib/routes.ts";
@@ -48,19 +40,15 @@ const { headers, rows, colWidths, headVt, maxWidth, subject = false, backHref } 
   import { $hovered, isRowHighlighted } from "../lib/stores.ts";
   import { rowTransitionName } from "../lib/transitions.ts";
 
-  // Non-subject rows share the map island's hover highlight, exactly like the
-  // island tables' rows: a row hover lights its own row and rings its marker,
-  // and hovering the marker lights every row keyed to it (isRowHighlighted).
-  // The marker key defaults to the row's own href, so a plain entry row (the
-  // visited entry on /status/<id>) links to its own marker with no extra
-  // wiring. Subject rows are the page itself — always outlined, never linked.
+  // Non-subject rows share the map hover highlight (docs/adr/0007); a row's
+  // marker key defaults to its own href. Subject rows are the page — always
+  // outlined, never linked.
   function markerLinkedRows() {
     return document.querySelectorAll<HTMLElement>("[data-row-nav]:not([data-row-subject])");
   }
   const markerOf = (row: HTMLElement) => row.dataset.markerHref ?? row.dataset.rowHref!;
 
-  // Static rows can't re-render, so mirror the island's reactive outline by
-  // toggling the class from $hovered.
+  // Static rows can't re-render; mirror the island's outline from $hovered.
   function applyRowHighlight() {
     const hovered = $hovered.get();
     for (const row of markerLinkedRows()) {
@@ -68,6 +56,7 @@ const { headers, rows, colWidths, headVt, maxWidth, subject = false, backHref } 
     }
   }
 
+  // Rebind each swap (rows are fresh DOM); a dataset flag guards double-binding.
   function bindRows() {
     for (const row of document.querySelectorAll<HTMLElement>("[data-row-nav]")) {
       if (row.dataset.bound) continue;
@@ -81,8 +70,7 @@ const { headers, rows, colWidths, headVt, maxWidth, subject = false, backHref } 
       row.addEventListener("click", (event) => {
         // Let the browser handle modified clicks on the name link (new tab, etc.).
         if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-        // Cancel the name link's full-page navigation; the ClientRouter keeps
-        // the persisted map alive.
+        // Cancel the name link's full navigation; keep the persisted map alive.
         event.preventDefault();
         if (row.hasAttribute("data-row-subject")) {
           navigate(row.dataset.rowBack!);
@@ -95,9 +83,7 @@ const { headers, rows, colWidths, headVt, maxWidth, subject = false, backHref } 
 
   function refresh() {
     bindRows();
-    // Rows are fresh DOM after a swap; re-seed their highlight from the
-    // current hover ($hovered may not have changed, so its subscription alone
-    // wouldn't fire).
+    // Fresh DOM after a swap; re-seed the highlight ($hovered may not have changed).
     applyRowHighlight();
   }
 
@@ -106,9 +92,8 @@ const { headers, rows, colWidths, headVt, maxWidth, subject = false, backHref } 
   // Runs once (the module is deduped across navigations, like the map script).
   $hovered.subscribe(applyRowHighlight);
 
-  // Returning to a list/home page: pair the incoming row matching the page
-  // we're leaving (same transition name) so the subject row morphs back into
-  // its slot; clean up the injected name once the animation finishes.
+  // Returning to a list/home: name the incoming row matching the page we leave
+  // so the subject morphs back into its slot, then clean up (docs/issues/0003).
   document.addEventListener("astro:before-swap", (event) => {
     const from = normalizePath(event.from.pathname);
     const row = event.newDocument.querySelector<HTMLElement>(`[data-row-href="${from}"]`);

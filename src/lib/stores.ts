@@ -1,5 +1,3 @@
-/// <reference types="vitest/importMeta" />
-
 import { atom } from "nanostores";
 
 // Hover state shared across the islands (bundled once, so all read one atom).

@@ -1,5 +1,3 @@
-/// <reference types="vitest/importMeta" />
-
 import type { Category } from "./routes.ts";
 
 // Presentation types/helpers for the fixed-layout tables (client-safe).

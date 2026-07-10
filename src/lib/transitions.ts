@@ -1,5 +1,3 @@
-/// <reference types="vitest/importMeta" />
-
 // View Transition names shared between list pages and detail pages. No
 // astro:content imports, so safe to import from the Preact client island.
 

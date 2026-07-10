@@ -32,17 +32,6 @@ beforeEach(() => {
   fixtures.entries = new Map();
 });
 
-test("timeline rows come newest first: the datetime id orders across days and within one day by one descending sort", async () => {
-  const ref = catalog("projects", "foo");
-  fixtures.status = [
-    visitOf("2026-01-10-0900", ref),
-    visitOf("2026-02-20-1400", ref),
-    visitOf("2026-02-20-0800", ref),
-  ];
-  const rows = await getStatusRows();
-  expect(rows.map((r) => r.id)).toEqual(["2026-02-20-1400", "2026-02-20-0800", "2026-01-10-0900"]);
-});
-
 test("a timeline row derives date and href from its id, and name, outline category, and marker key from the visited entry", async () => {
   const ref = catalog("kap92", "old-hall");
   fixtures.status = [visitOf("2026-01-10-0900", ref)];

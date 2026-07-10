@@ -33,10 +33,11 @@ export function toStatusRow(
   };
 }
 
+// Unordered: display order is owned by the table island (SortableTable's
+// `initialSorting`), which sorts the same way on the server render.
 export async function getStatusRows(): Promise<StatusRow[]> {
   const status = await getCollection("status");
-  const rows = await Promise.all(
+  return Promise.all(
     status.map(async (visit) => toStatusRow(visit.id, await getVisitedEntry(visit))),
   );
-  return rows.sort((a, b) => b.id.localeCompare(a.id));
 }

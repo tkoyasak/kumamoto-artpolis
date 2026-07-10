@@ -14,7 +14,14 @@ import { useState } from "preact/hooks";
 import type { Category } from "../lib/routes.ts";
 import { navigateWithRowMorph } from "../lib/row-morph.ts";
 import { $hovered } from "../lib/stores.ts";
-import { outlineClass, tableWidth } from "../lib/table.ts";
+import {
+  CELL_CLASS,
+  HEAD_CELL_CLASS,
+  TABLE_CLASS,
+  TABLE_WRAP_CLASS,
+  rowClass,
+  tableWidth,
+} from "../lib/table.ts";
 
 // The sortable table island shared by the home catalog (EntriesTable.tsx) and
 // the /status visit timeline (StatusTable.tsx): tanstack sorting plus the row
@@ -88,6 +95,10 @@ export default function SortableTable<Row extends TableRow>({
     columns,
     state: { sorting },
     onSortingChange: setSorting,
+    // Toggle desc ↔ asc only. The removed-sorting state would fall back to
+    // the input order with no indicator, and `initialSorting` is the sole
+    // owner of row order — the lib row getters don't sort.
+    enableSortingRemoval: false,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
   });
@@ -99,11 +110,8 @@ export default function SortableTable<Row extends TableRow>({
   }));
 
   return (
-    <section className={`${sectionClass} overflow-x-auto px-4 py-4 sm:px-8`}>
-      <table
-        className="table-fixed border-collapse text-base"
-        style={{ width: tableWidth(colWidths) }}
-      >
+    <section className={`${sectionClass} ${TABLE_WRAP_CLASS}`}>
+      <table className={TABLE_CLASS} style={{ width: tableWidth(colWidths) }}>
         <colgroup>
           {colWidths.map((w, i) => (
             <col key={i} style={{ width: w }} />
@@ -121,7 +129,7 @@ export default function SortableTable<Row extends TableRow>({
                     aria-sort={
                       sorted === "asc" ? "ascending" : sorted === "desc" ? "descending" : undefined
                     }
-                    className="truncate py-1 pr-4 text-sm font-normal first:pl-4"
+                    className={HEAD_CELL_CLASS}
                   >
                     <button
                       type="button"
@@ -155,12 +163,10 @@ export default function SortableTable<Row extends TableRow>({
                     onMouseEnter={() => $hovered.set(marker)}
                     onMouseLeave={() => $hovered.set(null)}
                     onClick={() => navigateWithRowMorph(row.original.href)}
-                    className={`cursor-pointer -outline-offset-1 ${outlineClass(row.original.category)} ${
-                      hovered === marker ? "outline" : "hover:outline"
-                    }`}
+                    className={rowClass(row.original.category, hovered === marker)}
                   >
                     {row.getVisibleCells().map((cell) => (
-                      <td key={cell.id} className="truncate py-1 pr-4 text-sm first:pl-4">
+                      <td key={cell.id} className={CELL_CLASS}>
                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </td>
                     ))}

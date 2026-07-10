@@ -26,6 +26,22 @@ export type DetailRow = {
 export const outlineClass = (category: Category): string =>
   category === "kap92" ? "outline-kap92" : "outline-project";
 
+// The island (SortableTable.tsx) and the static table (DetailTable.astro)
+// must render identically for the row morph to pair cleanly
+// (docs/issues/0003). These shared strings are that contract — change them
+// here, never in one table alone.
+export const TABLE_WRAP_CLASS = "overflow-x-auto px-4 py-4 sm:px-8";
+export const TABLE_CLASS = "table-fixed border-collapse text-base";
+export const HEAD_CELL_CLASS = "truncate py-1 pr-4 text-sm font-normal first:pl-4";
+export const CELL_CLASS = "truncate py-1 pr-4 text-sm first:pl-4";
+
+// `outlined` keeps the outline on (the detail page's subject row, a hovered
+// row); off, it appears on CSS hover only.
+export const rowClass = (category: Category, outlined: boolean): string =>
+  `cursor-pointer -outline-offset-1 ${outlineClass(category)} ${
+    outlined ? "outline" : "hover:outline"
+  }`;
+
 // Sum of the fixed columns as a definite width. It must stay definite: with
 // `width: max-content`, `table-layout: fixed` stops enforcing the colgroup
 // widths and columns grow instead of truncating.

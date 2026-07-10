@@ -25,9 +25,9 @@ const { Content } = await render(entry);
   title={`Status > ${entry.id}`}
   mapFocus={entryMapFocus(visitedEntry)}
 >
-  <EntryDetailTable slot="entry" rows={[toEntryRow(visitedEntry)]} detail={false} />
+  <EntryDetailTable slot="entry" rows={[toEntryRow(visitedEntry)]} subject={false} />
   <Fragment slot="status">
-    <StatusDetailTable rows={[row]} detail />
+    <StatusDetailTable rows={[row]} subject />
     <DetailBody>
       <Content />
     </DetailBody>

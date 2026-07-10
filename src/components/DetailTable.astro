@@ -15,16 +15,15 @@ interface Props {
   headVt: string;
   // Tailwind max-width class for the wrapper.
   maxWidth: string;
-  // Single-row detail page: the row always shows its outline, carries its
-  // transition name up front, and clicking it navigates back to `backHref`.
-  detail?: boolean;
-  backHref?: string;
-  // Flash the outline of a row targeted by a return morph during the swap.
-  flourish?: boolean;
+  // The row is the page's own subject (the single row on a detail page): it
+  // always shows its outline, carries its transition name up front, and
+  // clicking it navigates back to `backHref`. Off, rows render list-style and
+  // click through to their own pages.
+  subject?: boolean;
+  backHref: string;
 }
 
-const { headers, rows, colWidths, headVt, maxWidth, detail = false, backHref, flourish = false } =
-  Astro.props;
+const { headers, rows, colWidths, headVt, maxWidth, subject = false, backHref } = Astro.props;
 ---
 
 {/* relative: paint above the persisted fixed map layer, like the page text. */}
@@ -43,9 +42,9 @@ const { headers, rows, colWidths, headVt, maxWidth, detail = false, backHref, fl
           // The name cell's <a> carries the same target as the row so it works
           // without the script (keyboard, screen readers, open-in-new-tab);
           // the script upgrades plain clicks to a ClientRouter navigation.
-          const target = detail && backHref ? backHref : row.href;
+          const target = subject ? backHref : row.href;
           const cls = `cursor-pointer -outline-offset-1 ${outlineClass(row.category)} ${
-            detail ? "outline" : "hover:outline"
+            subject ? "outline" : "hover:outline"
           }`;
           const cells = row.cells.map((cell) => (
             <td class="truncate py-1 pr-4 text-sm first:pl-4">
@@ -60,12 +59,12 @@ const { headers, rows, colWidths, headVt, maxWidth, detail = false, backHref, fl
               }
             </td>
           ));
-          // The detail row carries its transition name up front; list rows get
-          // theirs from JS on click.
-          return detail ? (
+          // The subject row carries its transition name up front; list rows
+          // get theirs from JS on click.
+          return subject ? (
             <tr
               data-row-nav
-              data-row-detail
+              data-row-subject
               data-row-href={row.href}
               data-row-back={backHref}
               data-marker-href={row.markerHref}
@@ -75,13 +74,7 @@ const { headers, rows, colWidths, headVt, maxWidth, detail = false, backHref, fl
               {cells}
             </tr>
           ) : (
-            <tr
-              data-row-nav
-              data-row-href={row.href}
-              data-row-flourish={flourish ? "" : undefined}
-              data-marker-href={row.markerHref}
-              class={cls}
-            >
+            <tr data-row-nav data-row-href={row.href} data-marker-href={row.markerHref} class={cls}>
               {cells}
             </tr>
           );
@@ -118,7 +111,7 @@ const { headers, rows, colWidths, headVt, maxWidth, detail = false, backHref, fl
         // Cancel the name link's full-page navigation; the ClientRouter keeps
         // the persisted map alive.
         event.preventDefault();
-        if (row.hasAttribute("data-row-detail")) {
+        if (row.hasAttribute("data-row-subject")) {
           navigate(row.dataset.rowBack!);
         } else {
           navigateWithRowMorph(row.dataset.rowHref!);
@@ -131,7 +124,7 @@ const { headers, rows, colWidths, headVt, maxWidth, detail = false, backHref, fl
   document.addEventListener("astro:page-load", bindRows);
 
   // Returning to a list/home page: pair the incoming row matching the page
-  // we're leaving (same transition name) so the detail row morphs back into
+  // we're leaving (same transition name) so the subject row morphs back into
   // its slot; clean up the injected name once the animation finishes.
   document.addEventListener("astro:before-swap", (event) => {
     const from = normalizePath(event.from.pathname);
@@ -142,6 +135,7 @@ const { headers, rows, colWidths, headVt, maxWidth, detail = false, backHref, fl
     const vt = event.viewTransition;
     if (!vt) return;
     const liveRow = () => document.querySelector<HTMLElement>(`[data-row-href="${from}"]`);
+    // data-row-flourish is set only by the islands' rows (SortableTable.tsx).
     if (row.hasAttribute("data-row-flourish")) {
       row.classList.add("outline");
       vt.ready.finally(() => liveRow()?.classList.remove("outline"));

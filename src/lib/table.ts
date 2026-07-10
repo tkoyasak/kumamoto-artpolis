@@ -7,8 +7,9 @@ import type { Category } from "./routes.ts";
 
 export type DetailCell = {
   text: string;
-  // Render as the row's name link.
-  strong?: boolean;
+  // Render as the row's name link — an <a> carrying the row's target, so the
+  // row works without the script (keyboard, screen readers, new tab).
+  link?: boolean;
 };
 
 export type DetailRow = {

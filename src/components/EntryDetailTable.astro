@@ -23,7 +23,7 @@ const detailRows: DetailRow[] = rows.map((row) => ({
   category: row.category,
   cells: [
     { text: String(row.number) },
-    { text: row.name, strong: true },
+    { text: row.name, link: true },
     { text: row.architects.join(", ") },
     { text: row.use },
     { text: row.municipality },

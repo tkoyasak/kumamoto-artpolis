@@ -1,6 +1,7 @@
 @import "tailwindcss";
 
-/* Collection colors. Keep in sync with the marker color constants in EntriesMap.astro. */
+/* Collection colors. Keep in sync with MARKER_COLORS in src/lib/map.ts
+   (pinned by tests/css-contract.test.ts). */
 @theme {
   --color-project: #ff5031;
   --color-kap92: #0009f3;

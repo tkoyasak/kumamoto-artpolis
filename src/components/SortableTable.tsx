@@ -13,7 +13,7 @@ import { useState } from "preact/hooks";
 
 import type { Category } from "../lib/routes.ts";
 import { navigateWithRowMorph } from "../lib/row-morph.ts";
-import { $hovered } from "../lib/stores.ts";
+import { $hovered, isRowHighlighted } from "../lib/stores.ts";
 import {
   CELL_CLASS,
   HEAD_CELL_CLASS,
@@ -35,11 +35,10 @@ export type TableRow = {
   category: Category;
 };
 
-type Props<Row extends TableRow> = {
+type Props<Row extends TableRow, GroupKey extends string> = {
   rows: Row[];
   // Column defs are heterogeneous in their value type, so per tanstack
   // convention the array is typed over `any`.
-  // oxlint-disable-next-line no-explicit-any
   columns: ColumnDef<Row, any>[];
   // The load-time sort; the server renders rows in this order, so the table
   // looks identical before and after hydration.
@@ -49,8 +48,11 @@ type Props<Row extends TableRow> = {
   // Wrapper classes that differ per page: max-width, and pointer-events /
   // stacking against the fullscreen map layer underneath.
   sectionClass: string;
-  // Ordered row groups; sorting reorders rows only within each group.
-  sections?: { key: string; has: (row: Row) => boolean }[];
+  // Ordered row groups; sorting reorders rows only within each group. A
+  // total function over the listed keys can neither drop nor duplicate a
+  // row, unlike per-group predicates — NoInfer makes `keys` authoritative,
+  // so `of` returning an unlisted key is a type error.
+  groups?: { keys: readonly GroupKey[]; of: (row: Row) => NoInfer<GroupKey> };
   // Map marker key ($hovered) when it differs from `href`: a status row
   // highlights its *visited entry's* marker, not /status/<id>.
   markerHref?: (row: Row) => string;
@@ -77,16 +79,16 @@ export function rowLink(href: string, text: string): JSX.Element {
   );
 }
 
-export default function SortableTable<Row extends TableRow>({
+export default function SortableTable<Row extends TableRow, GroupKey extends string = string>({
   rows,
   columns,
   initialSorting,
   colWidths,
   headVt,
   sectionClass,
-  sections,
+  groups,
   markerHref,
-}: Props<Row>) {
+}: Props<Row, GroupKey>) {
   const hovered = useStore($hovered);
   const [sorting, setSorting] = useState<SortingState>(initialSorting);
 
@@ -104,10 +106,12 @@ export default function SortableTable<Row extends TableRow>({
   });
 
   const visibleRows = table.getRowModel().rows;
-  const groups = (sections ?? [{ key: "all", has: () => true }]).map(({ key, has }) => ({
-    key,
-    rows: visibleRows.filter((row) => has(row.original)),
-  }));
+  const sections = groups
+    ? groups.keys.map((key) => ({
+        key: key as string,
+        rows: visibleRows.filter((row) => groups.of(row.original) === key),
+      }))
+    : [{ key: "all", rows: visibleRows }];
 
   return (
     <section className={`${sectionClass} ${TABLE_WRAP_CLASS}`}>
@@ -149,9 +153,9 @@ export default function SortableTable<Row extends TableRow>({
           ))}
         </thead>
         <tbody>
-          {groups.map(({ key, rows: groupRows }) => (
+          {sections.map(({ key, rows: sectionRows }) => (
             <Fragment key={key}>
-              {groupRows.map((row) => {
+              {sectionRows.map((row) => {
                 const marker = markerHref?.(row.original) ?? row.original.href;
                 return (
                   <tr
@@ -160,10 +164,13 @@ export default function SortableTable<Row extends TableRow>({
                     // Forward clicks stay on the island, so no data-row-nav.
                     data-row-href={row.original.href}
                     data-row-flourish=""
-                    onMouseEnter={() => $hovered.set(marker)}
+                    onMouseEnter={() => $hovered.set({ marker, row: row.original.href })}
                     onMouseLeave={() => $hovered.set(null)}
                     onClick={() => navigateWithRowMorph(row.original.href)}
-                    className={rowClass(row.original.category, hovered === marker)}
+                    className={rowClass(
+                      row.original.category,
+                      isRowHighlighted(hovered, row.original.href, marker),
+                    )}
                   >
                     {row.getVisibleCells().map((cell) => (
                       <td key={cell.id} className={CELL_CLASS}>

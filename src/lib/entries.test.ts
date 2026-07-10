@@ -41,16 +41,11 @@ beforeEach(() => {
   fixtures.status = [];
 });
 
-test("home rows sort projects before kap92, then by official number within each", async () => {
-  fixtures.projects = [entry("projects", "p2", 20), entry("projects", "p1", 3)];
-  fixtures.kap92 = [entry("kap92", "k2", 10), entry("kap92", "k1", 2)];
+test("getEntryRows merges both collections into one row list — order is the island's job, presence is this module's", async () => {
+  fixtures.projects = [entry("projects", "p1", 3)];
+  fixtures.kap92 = [entry("kap92", "k1", 2)];
   const rows = await getEntryRows();
-  expect(rows.map((r) => r.href)).toEqual([
-    "/projects/p1",
-    "/projects/p2",
-    "/kap92/k1",
-    "/kap92/k2",
-  ]);
+  expect(rows.map((r) => r.href).sort()).toEqual(["/kap92/k1", "/projects/p1"]);
 });
 
 test("a missing completedYear becomes null, so the row shape has no optional holes", async () => {

@@ -1,5 +1,13 @@
 ---
-import { type DetailRow, outlineClass, tableWidth } from "../lib/table.ts";
+import {
+  CELL_CLASS,
+  type DetailRow,
+  HEAD_CELL_CLASS,
+  TABLE_CLASS,
+  TABLE_WRAP_CLASS,
+  rowClass,
+  tableWidth,
+} from "../lib/table.ts";
 import { rowTransitionName } from "../lib/transitions.ts";
 
 // The static table shared by the detail pages and the entry pages' visit
@@ -27,12 +35,12 @@ const { headers, rows, colWidths, headVt, maxWidth, subject = false, backHref } 
 ---
 
 {/* relative: paint above the persisted fixed map layer, like the page text. */}
-<section class={`relative ${maxWidth} overflow-x-auto px-4 py-4 sm:px-8`}>
-  <table class="table-fixed border-collapse text-base" style={`width:${tableWidth(colWidths)}`}>
+<section class={`relative ${maxWidth} ${TABLE_WRAP_CLASS}`}>
+  <table class={TABLE_CLASS} style={`width:${tableWidth(colWidths)}`}>
     <colgroup>{colWidths.map((w) => <col style={`width:${w}`} />)}</colgroup>
     <thead>
       <tr class="text-left" transition:name={headVt}>
-        {headers.map((header) => <th class="truncate py-1 pr-4 text-sm font-normal first:pl-4">{header}</th>)}
+        {headers.map((header) => <th class={HEAD_CELL_CLASS}>{header}</th>)}
       </tr>
     </thead>
     <tbody>
@@ -43,11 +51,9 @@ const { headers, rows, colWidths, headVt, maxWidth, subject = false, backHref } 
           // without the script (keyboard, screen readers, open-in-new-tab);
           // the script upgrades plain clicks to a ClientRouter navigation.
           const target = subject ? backHref : row.href;
-          const cls = `cursor-pointer -outline-offset-1 ${outlineClass(row.category)} ${
-            subject ? "outline" : "hover:outline"
-          }`;
+          const cls = rowClass(row.category, subject);
           const cells = row.cells.map((cell) => (
-            <td class="truncate py-1 pr-4 text-sm first:pl-4">
+            <td class={CELL_CLASS}>
               {
                 cell.strong ? (
                   <a href={target} class="font-medium">

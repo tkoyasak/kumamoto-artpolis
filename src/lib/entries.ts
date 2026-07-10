@@ -17,15 +17,13 @@ export type EntryRow = {
   completedYear: number | null;
 };
 
+// Unordered: display order and collection grouping are owned by the table
+// island (SortableTable's `initialSorting`/`sections`), which sorts the same
+// way on the server render.
 export async function getEntryRows(): Promise<EntryRow[]> {
   const projects = await getCollection("projects");
   const kap92 = await getCollection("kap92");
-
-  const rows = [...projects, ...kap92].map((entry) => toEntryRow(entry));
-  return rows.sort((a, b) => {
-    if (a.category !== b.category) return a.category === "project" ? -1 : 1;
-    return a.number - b.number;
-  });
+  return [...projects, ...kap92].map((entry) => toEntryRow(entry));
 }
 
 export async function entryStaticPaths(collection: CatalogCollection) {

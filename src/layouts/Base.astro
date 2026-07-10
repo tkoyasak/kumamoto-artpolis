@@ -26,9 +26,8 @@ const section =
   path.startsWith("/about") ? "about" : path.startsWith("/status") ? "status" : "home";
 
 // The map layer lives in the layout so its maplibre instance survives
-// navigation via transition:persist (docs/issues/0002). It must be hidden
-// server-side off the fullscreen pages — hiding it client-side only blocked
-// all clicks until the map script ran; that script owns visibility from there.
+// navigation (docs/issues/0002); hidden server-side off the fullscreen pages
+// (client-side-only hiding blocked clicks until the script ran).
 const fullscreenMap = FULLSCREEN_MAP_PATHS.includes(normalizePath(path));
 
 // `w-fit` leaves the rest of each line click-through to the map layer below;

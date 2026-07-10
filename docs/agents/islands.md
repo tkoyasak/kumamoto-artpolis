@@ -15,8 +15,10 @@ timeline). Both table islands are thin column definitions over
 (hover state, ClientRouter navigation, row-morph hooks). Every column sorts;
 each table loads sorted by its first column descending — the same order the
 server renders, so nothing shifts on hydration. The single-row tables on
-detail pages and the entry pages' visit lists stay static
-(`DetailTable.astro`).
+detail pages and the entry pages' visit lists stay static:
+`EntryDetailTable.astro` and `StatusDetailTable.astro` (the per-collection
+column defs) both render through `DetailTable.astro`, the shared static host
+that carries the row script.
 
 All tables — island and static — render their markup through
 **`TableView.tsx`**, the single source of the shared structure and classes;
@@ -56,3 +58,13 @@ Operational gotchas:
   contexts where the marker is mere context: a visit-row hover, or a
   `/status/<id>` page at rest (a direct hover of that marker still rings it).
   The detail-page clip is unaffected. → `docs/adr/0007`
+- Hover state has to survive a client swap, and two swap behaviors fight it.
+  (1) A swap fires no `mouseleave` for the elements it removes (boundary
+  events wait for the next pointer move), so `$hovered` can still name a row
+  from the page just left; `EntriesMap`'s `syncVisibility` re-seeds it from
+  whichever persisted marker is actually under the pointer/focus — markers are
+  the only elements whose hover genuinely carries across a swap. (2) Between a
+  row click and the swap the view-transition overlay steals the hit test and
+  fires `mouseleave` on the hovered marker/row, so a `pendingPath` keeps the
+  destination ringed until the new page's `<body>` focus attributes take over;
+  without it the ring drops out of the outgoing snapshot and flickers.

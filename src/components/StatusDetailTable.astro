@@ -4,10 +4,8 @@ import { type DetailRow, STATUS_COL_WIDTHS } from "../lib/table.ts";
 import { STATUS_HEAD_VT } from "../lib/transitions.ts";
 import DetailTable from "./DetailTable.astro";
 
-// Static visit-timeline table: the single row on /status/<id> and the visit
-// lists on entry pages (the sortable /status timeline is StatusTable.tsx). A
-// row's outline is its visited entry's collection color — the same signal the
-// entry tables use, so a date row needs no third color.
+// Static visit-timeline table: /status/<id>'s single row and the entry pages'
+// visit lists (the sortable /status timeline is StatusTable.tsx).
 interface Props {
   rows: StatusRow[];
   subject?: boolean;
@@ -17,12 +15,8 @@ const { rows, subject = false } = Astro.props;
 
 const headers = ["Date", "Name"];
 
-// No markerHref: unlike the /status timeline island, this table's only
-// non-subject host is an entry page, where every visit row's marker *is* the
-// page's subject. Linking them would let a hover of that one subject marker
-// outline the whole visit list (its own history) — noise, not signal. Left
-// unset, each row's marker key defaults to its own href (never a marker key),
-// so the subject marker's hover stays off the list. → docs/adr/0007
+// No markerHref here: each row keys to its own href, so the entry page's one
+// subject marker doesn't outline its whole visit list. → docs/adr/0007
 const detailRows: DetailRow[] = rows.map((row) => ({
   href: row.href,
   category: row.category,

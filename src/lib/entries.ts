@@ -4,8 +4,7 @@ import type { CollectionEntry } from "astro:content";
 import { type CatalogCollection, type Category, categoryOf, entryHref } from "./routes.ts";
 import { getVisitsByEntry } from "./visits.ts";
 
-// One row per catalog entry, exactly the displayed columns; `href` is the key
-// linking a table row to its map marker.
+// One row per catalog entry; `href` links the table row to its map marker.
 export type EntryRow = {
   href: string;
   category: Category;
@@ -17,9 +16,8 @@ export type EntryRow = {
   completedYear: number | null;
 };
 
-// Unordered: display order and collection grouping are owned by the table
-// island (SortableTable's `initialSorting`/`sections`), which sorts the same
-// way on the server render.
+// Unordered: row order and grouping are owned by the table island
+// (SortableTable's `initialSorting`/`groups`), which sorts the same on the server.
 export async function getEntryRows(): Promise<EntryRow[]> {
   const projects = await getCollection("projects");
   const kap92 = await getCollection("kap92");

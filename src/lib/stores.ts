@@ -2,11 +2,10 @@
 
 import { atom } from "nanostores";
 
-// The hover state shared across islands (Astro bundles this module once, so
-// all read the same atom). `marker` is the map marker key — an entry href;
-// `row` is the hovering table row's own href, absent when the marker itself
-// is hovered/focused. Re-seeded on every swap by the map script — see
-// EntriesMap's syncVisibility.
+// Hover state shared across the islands (bundled once, so all read one atom).
+// `marker` is the hovered entry's marker key (an href); `row` the hovering
+// row's own href, absent when the marker itself is hovered. The row↔marker
+// linkage and the ring's subjecthood rule are in docs/adr/0007, pinned below.
 export type Hovered = {
   marker: string;
   row?: string;
@@ -14,22 +13,12 @@ export type Hovered = {
 
 export const $hovered = atom<Hovered>(null);
 
-// A row lights up for its own hover, or when its entry's marker is hovered
-// directly. Keying on the marker alone would also light up sibling rows —
-// on /status, other visits to the same entry.
 export const isRowHighlighted = (hovered: Hovered, rowHref: string, markerHref: string): boolean =>
   hovered !== null &&
   (hovered.row !== undefined ? hovered.row === rowHref : hovered.marker === markerHref);
 
-// Whether a marker (keyed by its entry href) draws its outline ring. The ring
-// means "this entry is the subject": a direct marker hover (anywhere), a
-// home-catalog hover of the entry's own row, the entry's own detail page at
-// rest, or an in-flight navigation to it. It is suppressed where the marker is
-// mere context: a /status visit-row hover (its `row` href differs from the
-// marker key) and a /status/<id> page *at rest* (focus is the visited entry, so
-// the page path differs from the focus) — but hovering that marker directly
-// still rings it. The detail-page map clip is unaffected: it keys off the focus
-// coordinates, not this.
+// Whether a marker draws its subjecthood ring — the (hover source × page
+// context) matrix of docs/adr/0007, pinned branch by branch below.
 export const isMarkerOutlined = (
   key: string,
   hovered: Hovered,
@@ -37,18 +26,10 @@ export const isMarkerOutlined = (
   pending: string | null,
   path: string,
 ): boolean => {
-  // A hover on this marker decides directly: a direct marker hover (no `row`)
-  // always rings; a row hover rings only its own entry's row — a /status visit
-  // row (`row` ≠ marker key) does not.
   if (hovered !== null && key === hovered.marker) {
     return hovered.row === undefined || hovered.row === hovered.marker;
   }
-  // No hover on this marker: the focused entry rings only on its own page
-  // (path === focus). On /status/<id> the focus is the visited entry
-  // (path ≠ focus), so at rest it stays dark.
   if (focused !== null && key === focused) return path === focused;
-  // Nothing hovered: bridge the ring to the in-flight target — always an entry
-  // page, since a /status/<id> target never matches a marker key.
   return hovered === null && key === pending;
 };
 

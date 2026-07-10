@@ -37,7 +37,10 @@ Operational gotchas:
   marker, and clicking it returns home. (`mapFocus` → `Base.astro` →
   `<body>` data attributes.)
 - Islands share hover state via the nanostores atom `$hovered`
-  (`src/lib/stores.ts`), keyed by `href` — for a status row, its _visited
-  entry's_ href, so the timeline highlights that entry's marker. `.marker-active`
+  (`src/lib/stores.ts`): `marker` carries the map marker key (an entry href —
+  for a status row, its _visited entry's_), `row` the hovering row's own href.
+  Rows highlight via `isRowHighlighted`, so hovering one visit of an entry
+  doesn't light up its sibling visits, while hovering the marker lights them
+  all. `.marker-active`
   (`src/styles/global.css`) does the highlight — maplibre owns the marker
   root's `transform`, so the scale applies to the inner `svg`.

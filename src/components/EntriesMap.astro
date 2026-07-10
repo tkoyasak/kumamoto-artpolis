@@ -62,10 +62,10 @@ import "maplibre-gl/dist/maplibre-gl.css";
       element.appendChild(dot);
 
       const marker = new maplibregl.Marker({ element }).setLngLat(lngLat).addTo(map);
-      element.addEventListener("mouseenter", () => $hovered.set(entry.href));
+      element.addEventListener("mouseenter", () => $hovered.set({ marker: entry.href }));
       element.addEventListener("mouseleave", () => $hovered.set(null));
       // Keyboard focus shares the hover highlight, on the marker and its table row.
-      element.addEventListener("focus", () => $hovered.set(entry.href));
+      element.addEventListener("focus", () => $hovered.set({ marker: entry.href }));
       element.addEventListener("blur", () => $hovered.set(null));
       // A marker acts like its entry's table row on the current page: on the
       // entry's own detail page it navigates back home, everywhere else to the
@@ -93,7 +93,7 @@ import "maplibre-gl/dist/maplibre-gl.css";
     // A marker is highlighted while its table row (or itself) is hovered, and
     // always when it is the current detail page's focused entry.
     const updateHighlight = () => {
-      const hovered = $hovered.get();
+      const hovered = $hovered.get()?.marker ?? null;
       const focused = currentFocusHref();
       // pendingPath only bridges the gap while nothing is hovered; once the
       // user actively hovers something it is obsolete (and a stale one must
@@ -182,7 +182,8 @@ import "maplibre-gl/dist/maplibre-gl.css";
     const marker =
       container.querySelector<HTMLElement>(".map-marker:hover") ??
       container.querySelector<HTMLElement>(".map-marker:focus");
-    $hovered.set(marker?.dataset.href ?? null);
+    const markerHref = marker?.dataset.href;
+    $hovered.set(markerHref !== undefined ? { marker: markerHref } : null);
     const focus = currentFocus();
     if (!FULLSCREEN_MAP_PATHS.includes(currentPath()) && !focus) {
       layer.style.display = "none";

@@ -20,7 +20,7 @@ const headers = ["Date", "Name"];
 const detailRows: DetailRow[] = rows.map((row) => ({
   href: row.href,
   category: row.category,
-  cells: [{ text: row.date }, { text: row.name, strong: true }],
+  cells: [{ text: row.date }, { text: row.name, link: true }],
   markerHref: row.entryHref,
 }));
 ---

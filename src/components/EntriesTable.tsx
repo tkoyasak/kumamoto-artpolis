@@ -39,10 +39,7 @@ export default function EntriesTable({ rows }: { rows: EntryRow[] }) {
       colWidths={ENTRY_COL_WIDTHS}
       headVt={ENTRY_HEAD_VT}
       sectionClass="pointer-events-auto max-w-5xl"
-      sections={[
-        { key: "project", has: (row) => row.category === "project" },
-        { key: "kap92", has: (row) => row.category === "kap92" },
-      ]}
+      groups={{ keys: ["project", "kap92"], of: (row) => row.category }}
     />
   );
 }

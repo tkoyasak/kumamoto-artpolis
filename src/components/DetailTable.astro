@@ -55,7 +55,7 @@ const { headers, rows, colWidths, headVt, maxWidth, subject = false, backHref } 
           const cells = row.cells.map((cell) => (
             <td class={CELL_CLASS}>
               {
-                cell.strong ? (
+                cell.link ? (
                   <a href={target} class="font-medium">
                     {cell.text}
                   </a>
@@ -108,7 +108,8 @@ const { headers, rows, colWidths, headVt, maxWidth, subject = false, backHref } 
       // like the home table's rows.
       const markerHref = row.dataset.markerHref;
       if (markerHref) {
-        row.addEventListener("mouseenter", () => $hovered.set(markerHref));
+        const rowHref = row.dataset.rowHref!;
+        row.addEventListener("mouseenter", () => $hovered.set({ marker: markerHref, row: rowHref }));
         row.addEventListener("mouseleave", () => $hovered.set(null));
       }
       row.addEventListener("click", (event) => {

@@ -40,9 +40,12 @@ test("every column is a sort button and the table loads sorted by its first colu
 test("sorting by Year reorders rows only within each collection group, year-less entries last", async ({
   page,
 }) => {
-  // A numeric column, so TanStack's first toggle sorts descending.
+  // A numeric column, so TanStack's first toggle sorts descending. Check the
+  // Year th itself: the No. column is already descending on load, so a bare
+  // [aria-sort="descending"] would match without the click taking effect.
   await page.getByRole("button", { name: /Year/ }).click();
-  await expect(page.locator('thead th[aria-sort="descending"]')).toBeVisible();
+  await expect(page.locator("thead th").last()).toHaveAttribute("aria-sort", "descending");
+  await expect(page.locator("thead th").first()).not.toHaveAttribute("aria-sort", "descending");
 
   const hrefs = await page
     .locator("tbody tr")

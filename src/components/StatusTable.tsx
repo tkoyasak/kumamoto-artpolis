@@ -24,8 +24,8 @@ const columns = [
 
 // The sortable visit timeline on /status. The single-row table on
 // /status/<id> and the entry pages' visit lists stay static
-// (StatusTable.astro).
-export default function VisitsTable({ rows }: { rows: StatusRow[] }) {
+// (StatusDetailTable.astro).
+export default function StatusTable({ rows }: { rows: StatusRow[] }) {
   return (
     <SortableTable
       rows={rows}

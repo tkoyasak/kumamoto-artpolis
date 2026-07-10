@@ -2,7 +2,7 @@
 import { getCollection, render } from "astro:content";
 import DetailBody from "../../components/DetailBody.astro";
 import EntryDetailTable from "../../components/EntryDetailTable.astro";
-import StatusTable from "../../components/StatusTable.astro";
+import StatusDetailTable from "../../components/StatusDetailTable.astro";
 import Base from "../../layouts/Base.astro";
 import { entryMapFocus, toEntryRow } from "../../lib/entries.ts";
 import { toStatusRow } from "../../lib/status.ts";
@@ -27,7 +27,7 @@ const { Content } = await render(entry);
 >
   <EntryDetailTable slot="entry" rows={[toEntryRow(visitedEntry)]} detail={false} />
   <Fragment slot="status">
-    <StatusTable rows={[row]} detail />
+    <StatusDetailTable rows={[row]} detail />
     <DetailBody>
       <Content />
     </DetailBody>

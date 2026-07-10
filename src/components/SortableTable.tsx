@@ -17,7 +17,7 @@ import { $hovered } from "../lib/stores.ts";
 import { outlineClass, tableWidth } from "../lib/table.ts";
 
 // The sortable table island shared by the home catalog (EntriesTable.tsx) and
-// the /status visit timeline (VisitsTable.tsx): tanstack sorting plus the row
+// the /status visit timeline (StatusTable.tsx): tanstack sorting plus the row
 // behaviors the static tables get from DetailTable's script — hover state
 // shared with the map island, ClientRouter navigation, row-morph hooks.
 

@@ -9,7 +9,7 @@
   maplibre + `/map-markers.json` load lazily when the map first shows.
   → `docs/issues/0001`
 
-`/status` renders a third island, **`VisitsTable.tsx`** (the sortable visit
+`/status` renders a third island, **`StatusTable.tsx`** (the sortable visit
 timeline). Both table islands are thin column definitions over
 **`SortableTable.tsx`**, which owns the sorting UI and the row behaviors
 (hover state, ClientRouter navigation, row-morph hooks). Every column sorts;

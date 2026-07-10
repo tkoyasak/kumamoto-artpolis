@@ -11,7 +11,10 @@ Use **bun**, never npm/npx/bunx. Tools (`bun`, `oxfmt`, `oxlint`, `wrangler`,
 - `bun run e2e` — Playwright (see below)
 - `bun run content` — regenerate `src/content/README.md` (also a pre-commit hook on `src/content/*.md`)
 - `bun run deploy` — build + `wrangler deploy --strict`
-- `bun run clean` — remove Astro caches and `dist/`
+- `bun run clean` — remove Astro caches, the Vite dep-optimizer cache
+  (`node_modules/.vite`), and `dist/`. Clearing `.vite` is the fix for a dev
+  server serving `504 Outdated Optimize Dep` (stale pre-bundle → islands stop
+  hydrating); pair it with `astro dev stop` and a browser hard-reload.
 
 `oxfmt` (formatting incl. Markdown; sorts imports + Tailwind classes) and
 `oxlint` run via pre-commit hooks — don't format/lint manually before a

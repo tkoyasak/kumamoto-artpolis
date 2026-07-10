@@ -18,6 +18,11 @@ server renders, so nothing shifts on hydration. The single-row tables on
 detail pages and the entry pages' visit lists stay static
 (`DetailTable.astro`).
 
+All tables — island and static — render their markup through
+**`TableView.tsx`**, the single source of the shared structure and classes;
+the static side renders it with no client directive (plain HTML, zero JS),
+which is what keeps both sides of a row morph identical by construction.
+
 Constants shared between the layout, the map script, and CSS (layer id,
 fullscreen paths, marker colors) live in `src/lib/map.ts`; the marker colors
 are pinned against `global.css` by `tests/css-contract.test.ts`.

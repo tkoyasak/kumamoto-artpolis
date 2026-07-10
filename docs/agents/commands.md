@@ -1,7 +1,8 @@
 # Commands & toolchain
 
-Use **bun**, never npm/npx/bunx. Tools (`bun`, `oxfmt`, `oxlint`, `wrangler`,
-`typescript-go`) come from the Nix flake devShell via direnv.
+Use **bun**, never npm/npx/bunx. Tools (`bun`, `oxfmt`, `oxlint`,
+`typescript-go`) come from the Nix flake devShell via direnv; `wrangler` is a
+bun devDependency.
 
 - `bun run dev` — dev server
 - `bun run build` — production build to `dist/`
@@ -22,16 +23,10 @@ commit.
 
 Toolchain gotchas:
 
-- oxfmt/oxlint can't parse `.astro` files; they cover `.ts`/`.mjs` only.
-- The `$schema` in `.oxfmtrc.json`/`.oxlintrc.json` points at the schema
-  inside the tool's Nix output — machine-specific, editor-only. Update by
-  hand when `flake.lock` bumps the tools:
-  `realpath "$(command -v oxfmt)" | sed 's#/bin/oxfmt#/lib/oxfmt/configuration_schema.json#'`.
-- `wrangler` is a bun devDependency, deliberately not in the flake devShell —
-  nixpkgs lags behind upstream wrangler releases.
-- In `scripts/`, prefer Bun-native APIs (`Bun.file`/`Bun.write`, `Bun.Glob`,
-  `Bun.$`, `Bun.YAML`) over node builtins, even when that forces async +
-  top-level await (and thus an `export {}`).
+- Neither oxfmt nor oxlint parses `.astro`; oxfmt covers everything else here
+  ([language support](https://oxc.rs/docs/guide/usage/formatter/language-support.html)),
+  oxlint only `.ts`/`.tsx`.
+- In `scripts/`, prefer Bun-native APIs over node builtins.
 
 ## Unit tests (`bun run test`)
 

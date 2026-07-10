@@ -15,8 +15,12 @@ Astro's ClientRouter (already enabled for the map — see
 - `/projects/<id>` and `/kap92/<id>` render `EntryDetailTable.astro` — a static,
   same-styled table showing just that one entry as header + one row.
 
-These are two different components, but visually identical rows. The goal is for
-the navigation between them to look like the clicked row simply moving, not two
+These are two different components, but visually identical rows — identical by
+construction, since both render their markup through the shared `TableView.tsx`
+(the island with a client directive, the static table without). A morph needs
+the two snapshots to line up pixel-for-pixel; a single markup source is what
+guarantees that instead of leaving it to coincidence. The goal is for the
+navigation between them to look like the clicked row simply moving, not two
 separate pages swapping.
 
 The mechanism: when an element with the same `view-transition-name` exists in both

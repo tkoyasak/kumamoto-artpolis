@@ -138,3 +138,28 @@ The marker data also moved out of the per-page inline JSON `<script>` into a
 prerendered `/map-markers.json` endpoint (`src/pages/map-markers.json.ts`), fetched
 alongside the maplibre import — one cacheable asset instead of duplicating the
 full dataset into every page's HTML.
+
+## Addendum (2026-07-11): keeping hover state alive across the swap
+
+Persisting the map turned navigation into a client swap, and the shared hover
+state (the `$hovered` atom that links markers to table rows —
+[ADR 0005](../adr/0005-the-home-page-is-two-islands-linked-by-a-nanostore.md))
+now has to survive that swap. Two browser behaviors fight it, both handled in
+`EntriesMap.astro`:
+
+1. **A swap fires no `mouseleave` for the elements it removes.** Boundary events
+   (`mouseenter`/`mouseleave`) only fire on the next pointer move, so after a
+   swap `$hovered` can still name a row from the page just left. The persisted
+   markers are the only elements whose hover genuinely carries across a swap —
+   everything else is fresh DOM. So `syncVisibility` (the `astro:after-swap`
+   handler) re-seeds `$hovered` from whichever marker is actually under
+   `:hover`/`:focus`, or clears it.
+2. **The View Transitions overlay steals the hit test mid-swap.** Between a row
+   click and the swap the overlay fires `mouseleave` on the hovered marker/row,
+   which would drop the destination's ring out of the outgoing snapshot and make
+   it flicker. A `pendingPath` (set on `astro:before-preparation`, cleared in
+   `syncVisibility`) keeps the destination marker ringed until the new page's
+   `<body>` focus attributes take over. This is the marker-ring analogue of the
+   row-outline-during-morph handled in
+   [issue 0003](0003-entry-row-view-transition.md); what the ring _means_ is
+   [ADR 0007](../adr/0007-the-marker-ring-signals-subjecthood.md).

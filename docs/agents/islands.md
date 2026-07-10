@@ -55,4 +55,4 @@ Operational gotchas:
   "this entry is the subject", so `isMarkerOutlined` suppresses it in /status
   contexts where the marker is mere context: a visit-row hover, or a
   `/status/<id>` page at rest (a direct hover of that marker still rings it).
-  The detail-page clip is unaffected.
+  The detail-page clip is unaffected. → `docs/adr/0007`

@@ -2,11 +2,12 @@
 import { type DetailRow, outlineClass, tableWidth } from "../lib/table.ts";
 import { rowTransitionName } from "../lib/transitions.ts";
 
-// The static table shared by the entry detail pages and the visit timeline.
-// Rows carry `data-row-*` hooks: the clicked row tags itself with its
+// The static table shared by the detail pages and the entry pages' visit
+// lists. Rows carry `data-row-*` hooks: the clicked row tags itself with its
 // view-transition-name and navigates; the return is paired in
-// `astro:before-swap` from the incoming document. The home island tags its
-// rows with the same hooks, so this one script drives all three tables' morphs.
+// `astro:before-swap` from the incoming document. The islands
+// (SortableTable.tsx) tag their rows with the same hooks, so this one script
+// drives every table's morphs.
 interface Props {
   headers: string[];
   rows: DetailRow[];

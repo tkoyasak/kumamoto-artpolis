@@ -7,26 +7,19 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { Fragment } from "preact";
 import type { JSX } from "preact";
 import { useState } from "preact/hooks";
 
 import type { Category } from "../lib/routes.ts";
 import { navigateWithRowMorph } from "../lib/row-morph.ts";
 import { $hovered, isRowHighlighted } from "../lib/stores.ts";
-import {
-  CELL_CLASS,
-  HEAD_CELL_CLASS,
-  TABLE_CLASS,
-  TABLE_WRAP_CLASS,
-  rowClass,
-  tableWidth,
-} from "../lib/table.ts";
+import TableView from "./TableView.tsx";
 
 // The sortable table island shared by the home catalog (EntriesTable.tsx) and
 // the /status visit timeline (StatusTable.tsx): tanstack sorting plus the row
 // behaviors the static tables get from DetailTable's script — hover state
 // shared with the map island, ClientRouter navigation, row-morph hooks.
+// The markup itself comes from the shared TableView.
 
 // What every row must carry: `href` keys navigation and morphs, `category`
 // the outline color.
@@ -34,6 +27,27 @@ export type TableRow = {
   href: string;
   category: Category;
 };
+
+// Name-cell anchor: works without JS (keyboard, screen readers,
+// open-in-new-tab); plain clicks upgrade to a ClientRouter navigation so the
+// persisted map survives.
+export function rowLink(href: string, text: string): JSX.Element {
+  return (
+    <a
+      href={href}
+      className="font-medium"
+      onClick={(event) => {
+        event.stopPropagation();
+        // Let the browser handle modified clicks (open in new tab, etc.).
+        if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+        event.preventDefault();
+        navigateWithRowMorph(href);
+      }}
+    >
+      {text}
+    </a>
+  );
+}
 
 type Props<Row extends TableRow, GroupKey extends string> = {
   rows: Row[];
@@ -57,27 +71,6 @@ type Props<Row extends TableRow, GroupKey extends string> = {
   // highlights its *visited entry's* marker, not /status/<id>.
   markerHref?: (row: Row) => string;
 };
-
-// Name-cell anchor: works without JS (keyboard, screen readers,
-// open-in-new-tab); plain clicks upgrade to a ClientRouter navigation so the
-// persisted map survives.
-export function rowLink(href: string, text: string): JSX.Element {
-  return (
-    <a
-      href={href}
-      className="font-medium"
-      onClick={(event) => {
-        event.stopPropagation();
-        // Let the browser handle modified clicks (open in new tab, etc.).
-        if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-        event.preventDefault();
-        navigateWithRowMorph(href);
-      }}
-    >
-      {text}
-    </a>
-  );
-}
 
 export default function SortableTable<Row extends TableRow, GroupKey extends string = string>({
   rows,
@@ -106,84 +99,53 @@ export default function SortableTable<Row extends TableRow, GroupKey extends str
   });
 
   const visibleRows = table.getRowModel().rows;
-  const sections = groups
-    ? groups.keys.map((key) => ({
-        key: key as string,
-        rows: visibleRows.filter((row) => groups.of(row.original) === key),
-      }))
-    : [{ key: "all", rows: visibleRows }];
+  // Grouping is ordering: rows concatenate in `keys` order, sorted within
+  // each group.
+  const orderedRows = groups
+    ? groups.keys.flatMap((key) => visibleRows.filter((row) => groups.of(row.original) === key))
+    : visibleRows;
 
   return (
-    <section className={`${sectionClass} ${TABLE_WRAP_CLASS}`}>
-      <table className={TABLE_CLASS} style={{ width: tableWidth(colWidths) }}>
-        <colgroup>
-          {colWidths.map((w, i) => (
-            <col key={i} style={{ width: w }} />
-          ))}
-        </colgroup>
-        <thead>
-          {table.getHeaderGroups().map((headerGroup) => (
-            <tr key={headerGroup.id} className="text-left" style={{ viewTransitionName: headVt }}>
-              {headerGroup.headers.map((header) => {
-                const sorted = header.column.getIsSorted();
-                const label = flexRender(header.column.columnDef.header, header.getContext());
-                return (
-                  <th
-                    key={header.id}
-                    aria-sort={
-                      sorted === "asc" ? "ascending" : sorted === "desc" ? "descending" : undefined
-                    }
-                    className={HEAD_CELL_CLASS}
-                  >
-                    <button
-                      type="button"
-                      className="cursor-pointer select-none"
-                      onClick={header.column.getToggleSortingHandler()}
-                    >
-                      {label}
-                      {/* Reserve a fixed-width slot so toggling the arrow doesn't shift column widths. */}
-                      <span className="ml-1 inline-block w-3 text-center">
-                        {sorted === "asc" ? "↑" : sorted === "desc" ? "↓" : ""}
-                      </span>
-                    </button>
-                  </th>
-                );
-              })}
-            </tr>
-          ))}
-        </thead>
-        <tbody>
-          {sections.map(({ key, rows: sectionRows }) => (
-            <Fragment key={key}>
-              {sectionRows.map((row) => {
-                const marker = markerHref?.(row.original) ?? row.original.href;
-                return (
-                  <tr
-                    key={row.original.href}
-                    // Row-morph hooks read by DetailTable's `before-swap` handler.
-                    // Forward clicks stay on the island, so no data-row-nav.
-                    data-row-href={row.original.href}
-                    data-row-flourish=""
-                    onMouseEnter={() => $hovered.set({ marker, row: row.original.href })}
-                    onMouseLeave={() => $hovered.set(null)}
-                    onClick={() => navigateWithRowMorph(row.original.href)}
-                    className={rowClass(
-                      row.original.category,
-                      isRowHighlighted(hovered, row.original.href, marker),
-                    )}
-                  >
-                    {row.getVisibleCells().map((cell) => (
-                      <td key={cell.id} className={CELL_CLASS}>
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                      </td>
-                    ))}
-                  </tr>
-                );
-              })}
-            </Fragment>
-          ))}
-        </tbody>
-      </table>
-    </section>
+    <TableView
+      wrapClass={sectionClass}
+      colWidths={colWidths}
+      headVt={headVt}
+      headers={table.getFlatHeaders().map((header) => {
+        const sorted = header.column.getIsSorted();
+        return {
+          ariaSort: sorted === "asc" ? "ascending" : sorted === "desc" ? "descending" : undefined,
+          node: (
+            <button
+              type="button"
+              className="cursor-pointer select-none"
+              onClick={header.column.getToggleSortingHandler()}
+            >
+              {flexRender(header.column.columnDef.header, header.getContext())}
+              {/* Reserve a fixed-width slot so toggling the arrow doesn't shift column widths. */}
+              <span className="ml-1 inline-block w-3 text-center">
+                {sorted === "asc" ? "↑" : sorted === "desc" ? "↓" : ""}
+              </span>
+            </button>
+          ),
+        };
+      })}
+      rows={orderedRows.map((row) => {
+        const marker = markerHref?.(row.original) ?? row.original.href;
+        return {
+          href: row.original.href,
+          category: row.original.category,
+          outlined: isRowHighlighted(hovered, row.original.href, marker),
+          flourish: true,
+          // Forward clicks stay on the island (no `nav`/data-row-nav); only
+          // the row-morph hooks are shared with DetailTable's script.
+          onMouseEnter: () => $hovered.set({ marker, row: row.original.href }),
+          onMouseLeave: () => $hovered.set(null),
+          onClick: () => navigateWithRowMorph(row.original.href),
+          cells: row
+            .getVisibleCells()
+            .map((cell) => flexRender(cell.column.columnDef.cell, cell.getContext())),
+        };
+      })}
+    />
   );
 }

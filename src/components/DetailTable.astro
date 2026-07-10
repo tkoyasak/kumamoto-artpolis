@@ -1,17 +1,11 @@
 ---
-import {
-  CELL_CLASS,
-  type DetailRow,
-  HEAD_CELL_CLASS,
-  TABLE_CLASS,
-  TABLE_WRAP_CLASS,
-  rowClass,
-  tableWidth,
-} from "../lib/table.ts";
-import { rowTransitionName } from "../lib/transitions.ts";
+import type { DetailRow } from "../lib/table.ts";
+import { DetailTableView } from "./TableView.tsx";
 
-// The static table shared by the detail pages and the entry pages' visit
-// lists. Rows carry `data-row-*` hooks: the clicked row tags itself with its
+// The static tables' host: the detail pages and the entry pages' visit
+// lists. The markup is the shared TableView, rendered with no client
+// directive — static HTML, zero JS. Rows carry `data-row-*` hooks bound by
+// the script below: the clicked row tags itself with its
 // view-transition-name and navigates; the return is paired in
 // `astro:before-swap` from the incoming document. The islands
 // (SortableTable.tsx) tag their rows with the same hooks, so this one script
@@ -34,61 +28,15 @@ interface Props {
 const { headers, rows, colWidths, headVt, maxWidth, subject = false, backHref } = Astro.props;
 ---
 
-{/* relative: paint above the persisted fixed map layer, like the page text. */}
-<section class={`relative ${maxWidth} ${TABLE_WRAP_CLASS}`}>
-  <table class={TABLE_CLASS} style={`width:${tableWidth(colWidths)}`}>
-    <colgroup>{colWidths.map((w) => <col style={`width:${w}`} />)}</colgroup>
-    <thead>
-      <tr class="text-left" transition:name={headVt}>
-        {headers.map((header) => <th class={HEAD_CELL_CLASS}>{header}</th>)}
-      </tr>
-    </thead>
-    <tbody>
-      {
-        rows.map((row) => {
-          const vt = rowTransitionName(row.href);
-          // The name cell's <a> carries the same target as the row so it works
-          // without the script (keyboard, screen readers, open-in-new-tab);
-          // the script upgrades plain clicks to a ClientRouter navigation.
-          const target = subject ? backHref : row.href;
-          const cls = rowClass(row.category, subject);
-          const cells = row.cells.map((cell) => (
-            <td class={CELL_CLASS}>
-              {
-                cell.link ? (
-                  <a href={target} class="font-medium">
-                    {cell.text}
-                  </a>
-                ) : (
-                  cell.text
-                )
-              }
-            </td>
-          ));
-          // The subject row carries its transition name up front; list rows
-          // get theirs from JS on click.
-          return subject ? (
-            <tr
-              data-row-nav
-              data-row-subject
-              data-row-href={row.href}
-              data-row-back={backHref}
-              data-marker-href={row.markerHref}
-              transition:name={vt}
-              class={cls}
-            >
-              {cells}
-            </tr>
-          ) : (
-            <tr data-row-nav data-row-href={row.href} data-marker-href={row.markerHref} class={cls}>
-              {cells}
-            </tr>
-          );
-        })
-      }
-    </tbody>
-  </table>
-</section>
+<DetailTableView
+  headers={headers}
+  rows={rows}
+  colWidths={colWidths}
+  headVt={headVt}
+  maxWidth={maxWidth}
+  subject={subject}
+  backHref={backHref}
+/>
 
 <script>
   // Rebind on each swap since rows are fresh DOM; a dataset flag guards

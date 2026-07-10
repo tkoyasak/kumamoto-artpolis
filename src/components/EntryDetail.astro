@@ -31,6 +31,9 @@ const visitRows = visits.map((id) => toStatusRow(id, entry));
     </DetailBody>
   </Fragment>
   <Fragment slot="status">
+    {/* Deliberately rendered even with zero visits: the header keeps the
+        status slot's layout and its STATUS_HEAD_VT morph pair present on
+        every entry page. */}
     <StatusDetailTable rows={visitRows} />
   </Fragment>
 </Base>

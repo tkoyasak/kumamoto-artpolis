@@ -9,7 +9,7 @@
     "check": "astro check",
     "test": "vitest run",
     "e2e": "playwright test",
-    "clean": "rm -rf node_modules/.astro .astro dist",
+    "clean": "rm -rf node_modules/.astro node_modules/.vite .astro dist",
     "deploy": "astro build && wrangler deploy --strict",
     "content": "bun run scripts/content-readme.ts"
   },

@@ -5,7 +5,8 @@
 /.astro
 /dist
 
-# tests
+# tests & debug
+/.playwright-mcp
 /coverage
 /test-results
 /playwright-report

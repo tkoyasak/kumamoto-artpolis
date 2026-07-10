@@ -38,8 +38,6 @@ export const tableWidth = (widths: readonly string[]): string =>
 // text plus the sort-arrow slot; narrower and `truncate` ellipsizes "No.".
 export const ENTRY_COL_WIDTHS = ["5rem", "20rem", "8rem", "8rem", "8rem", "6rem"] as const;
 
-export const ENTRY_TABLE_WIDTH = tableWidth(ENTRY_COL_WIDTHS);
-
 // Order: Date, Name.
 export const STATUS_COL_WIDTHS = ["8rem", "20rem"] as const;
 
@@ -48,7 +46,6 @@ if (import.meta.vitest) {
 
   test("tableWidth sums the fixed columns into a definite rem width: table-layout fixed only truncates under a definite width", () => {
     expect(tableWidth(["4rem", "20rem"])).toBe("24rem");
-    expect(ENTRY_TABLE_WIDTH).toBe(tableWidth(ENTRY_COL_WIDTHS));
   });
 
   test("the row outline follows the collection, mirroring the map marker colors", () => {

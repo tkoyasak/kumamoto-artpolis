@@ -1,4 +1,4 @@
-# Islands (table & map)
+# Islands (tables & map)
 
 `src/pages/index.astro` merges both collections into `EntryRow[]`
 (`src/lib/entries.ts`) and renders two independent islands:
@@ -8,6 +8,15 @@
 - **`EntriesMap.astro`** — plain client-side script (no framework);
   maplibre + `/map-markers.json` load lazily when the map first shows.
   → `docs/issues/0001`
+
+`/status` renders a third island, **`VisitsTable.tsx`** (the sortable visit
+timeline). Both table islands are thin column definitions over
+**`SortableTable.tsx`**, which owns the sorting UI and the row behaviors
+(hover state, ClientRouter navigation, row-morph hooks). Every column sorts;
+each table loads sorted by its first column descending — the same order the
+server renders, so nothing shifts on hydration. The single-row tables on
+detail pages and the entry pages' visit lists stay static
+(`DetailTable.astro`).
 
 Constants shared between the layout, the map script, and CSS (layer id,
 fullscreen paths, marker colors) live in `src/lib/map.ts`; the marker colors
@@ -28,6 +37,7 @@ Operational gotchas:
   marker, and clicking it returns home. (`mapFocus` → `Base.astro` →
   `<body>` data attributes.)
 - Islands share hover state via the nanostores atom `$hovered`
-  (`src/lib/stores.ts`), keyed by `href`. `.marker-active`
+  (`src/lib/stores.ts`), keyed by `href` — for a status row, its _visited
+  entry's_ href, so the timeline highlights that entry's marker. `.marker-active`
   (`src/styles/global.css`) does the highlight — maplibre owns the marker
   root's `transform`, so the scale applies to the inner `svg`.

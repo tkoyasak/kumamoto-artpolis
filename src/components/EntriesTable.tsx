@@ -20,14 +20,13 @@ const columnHelper = createColumnHelper<EntryRow>();
 
 export default function EntriesTable({ rows }: { rows: EntryRow[] }) {
   const hovered = useStore($hovered);
-  const [sorting, setSorting] = useState<SortingState>([]);
+  const [sorting, setSorting] = useState<SortingState>([{ id: "number", desc: true }]);
 
   const columns = useMemo(
     () => [
-      columnHelper.accessor("number", { header: "No.", enableSorting: false }),
+      columnHelper.accessor("number", { header: "No." }),
       columnHelper.accessor("name", {
         header: "Name",
-        enableSorting: false,
         cell: (info) => (
           <a
             href={info.row.original.href}
@@ -44,12 +43,12 @@ export default function EntriesTable({ rows }: { rows: EntryRow[] }) {
           </a>
         ),
       }),
-      columnHelper.accessor("architects", {
+      // Joined string as the accessor so the column sorts as displayed.
+      columnHelper.accessor((row) => row.architects.join(", "), {
+        id: "architects",
         header: "Architects",
-        enableSorting: false,
-        cell: (info) => info.getValue().join(", "),
       }),
-      columnHelper.accessor("use", { header: "Use", enableSorting: false }),
+      columnHelper.accessor("use", { header: "Use" }),
       columnHelper.accessor("municipality", { header: "Location" }),
       columnHelper.accessor((row) => row.completedYear ?? undefined, {
         id: "completedYear",

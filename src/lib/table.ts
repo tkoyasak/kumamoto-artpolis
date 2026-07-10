@@ -34,8 +34,9 @@ export const tableWidth = (widths: readonly string[]): string =>
 
 // Identical pinned widths on both entry tables (many-row home, one-row detail)
 // stop the header/row jittering as they morph across the swap.
-// Order: No., Name, Architects, Use, Location, Year.
-export const ENTRY_COL_WIDTHS = ["4rem", "20rem", "8rem", "8rem", "8rem", "6rem"] as const;
+// Order: No., Name, Architects, Use, Location, Year. No. fits its header
+// text plus the sort-arrow slot; narrower and `truncate` ellipsizes "No.".
+export const ENTRY_COL_WIDTHS = ["5rem", "20rem", "8rem", "8rem", "8rem", "6rem"] as const;
 
 export const ENTRY_TABLE_WIDTH = tableWidth(ENTRY_COL_WIDTHS);
 

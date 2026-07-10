@@ -46,6 +46,13 @@ Operational gotchas:
   for a status row, its _visited entry's_), `row` the hovering row's own href.
   Rows highlight via `isRowHighlighted`, so hovering one visit of an entry
   doesn't light up its sibling visits, while hovering the marker lights them
-  all. `.marker-active`
+  all. The static detail rows join the same linkage: `DetailTable.astro`
+  subscribes to `$hovered` and toggles the outline through `isRowHighlighted`
+  (marker key defaulting to the row's own href), so the `/status/<id>` entry
+  row and its marker light each other exactly like the home table. `.marker-active`
   (`src/styles/global.css`) does the highlight — maplibre owns the marker
-  root's `transform`, so the scale applies to the inner `svg`.
+  root's `transform`, so the scale applies to the inner `svg`. The ring means
+  "this entry is the subject", so `isMarkerOutlined` suppresses it in /status
+  contexts where the marker is mere context: a visit-row hover, or a
+  `/status/<id>` page at rest (a direct hover of that marker still rings it).
+  The detail-page clip is unaffected.

@@ -45,18 +45,36 @@ const { headers, rows, colWidths, headVt, maxWidth, subject = false, backHref } 
 
   import { normalizePath } from "../lib/routes.ts";
   import { navigateWithRowMorph } from "../lib/row-morph.ts";
-  import { $hovered } from "../lib/stores.ts";
+  import { $hovered, isRowHighlighted } from "../lib/stores.ts";
   import { rowTransitionName } from "../lib/transitions.ts";
+
+  // Non-subject rows share the map island's hover highlight, exactly like the
+  // island tables' rows: a row hover lights its own row and rings its marker,
+  // and hovering the marker lights every row keyed to it (isRowHighlighted).
+  // The marker key defaults to the row's own href, so a plain entry row (the
+  // visited entry on /status/<id>) links to its own marker with no extra
+  // wiring. Subject rows are the page itself — always outlined, never linked.
+  function markerLinkedRows() {
+    return document.querySelectorAll<HTMLElement>("[data-row-nav]:not([data-row-subject])");
+  }
+  const markerOf = (row: HTMLElement) => row.dataset.markerHref ?? row.dataset.rowHref!;
+
+  // Static rows can't re-render, so mirror the island's reactive outline by
+  // toggling the class from $hovered.
+  function applyRowHighlight() {
+    const hovered = $hovered.get();
+    for (const row of markerLinkedRows()) {
+      row.classList.toggle("outline", isRowHighlighted(hovered, row.dataset.rowHref!, markerOf(row)));
+    }
+  }
 
   function bindRows() {
     for (const row of document.querySelectorAll<HTMLElement>("[data-row-nav]")) {
       if (row.dataset.bound) continue;
       row.dataset.bound = "1";
-      // Rows carrying a marker key share hover state with the map island,
-      // like the home table's rows.
-      const markerHref = row.dataset.markerHref;
-      if (markerHref) {
+      if (!row.hasAttribute("data-row-subject")) {
         const rowHref = row.dataset.rowHref!;
+        const markerHref = markerOf(row);
         row.addEventListener("mouseenter", () => $hovered.set({ marker: markerHref, row: rowHref }));
         row.addEventListener("mouseleave", () => $hovered.set(null));
       }
@@ -75,8 +93,18 @@ const { headers, rows, colWidths, headVt, maxWidth, subject = false, backHref } 
     }
   }
 
-  bindRows();
-  document.addEventListener("astro:page-load", bindRows);
+  function refresh() {
+    bindRows();
+    // Rows are fresh DOM after a swap; re-seed their highlight from the
+    // current hover ($hovered may not have changed, so its subscription alone
+    // wouldn't fire).
+    applyRowHighlight();
+  }
+
+  refresh();
+  document.addEventListener("astro:page-load", refresh);
+  // Runs once (the module is deduped across navigations, like the map script).
+  $hovered.subscribe(applyRowHighlight);
 
   // Returning to a list/home page: pair the incoming row matching the page
   // we're leaving (same transition name) so the subject row morphs back into

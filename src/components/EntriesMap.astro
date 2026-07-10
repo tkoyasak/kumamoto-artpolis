@@ -15,7 +15,7 @@ import "maplibre-gl/dist/maplibre-gl.css";
   import { FULLSCREEN_MAP_PATHS, MAP_LAYER_ID, MAP_MARKERS_URL, MARKER_COLORS, type MapEntry } from "../lib/map.ts";
   import { normalizePath } from "../lib/routes.ts";
   import { navigateWithRowMorph } from "../lib/row-morph.ts";
-  import { $hovered } from "../lib/stores.ts";
+  import { $hovered, isMarkerOutlined } from "../lib/stores.ts";
 
   const STYLE_URL = "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json";
   const FALLBACK_CENTER: [number, number] = [130.7417, 32.7898]; // Kumamoto City
@@ -90,17 +90,19 @@ import "maplibre-gl/dist/maplibre-gl.css";
     // clip) as soon as this resolves, which needs the final camera transform.
     if (!bounds.isEmpty()) map.fitBounds(bounds, { padding: 64, maxZoom: 12, animate: false });
 
-    // A marker is highlighted while its table row (or itself) is hovered, and
-    // always when it is the current detail page's focused entry.
+    // A marker rings while its table row (or itself) is hovered, and while it
+    // is the current detail page's focused entry — except in /status contexts,
+    // where it lights up only as context (see isMarkerOutlined).
     const updateHighlight = () => {
-      const hovered = $hovered.get()?.marker ?? null;
+      const hovered = $hovered.get();
       const focused = currentFocusHref();
+      const path = currentPath();
       // pendingPath only bridges the gap while nothing is hovered; once the
       // user actively hovers something it is obsolete (and a stale one must
       // not double-highlight alongside it).
       const pending = hovered === null ? pendingPath : null;
       for (const [key, marker] of markers) {
-        const active = key === hovered || key === focused || key === pending;
+        const active = isMarkerOutlined(key, hovered, focused, pending, path);
         marker.getElement().classList.toggle("marker-active", active);
       }
     };

@@ -7,7 +7,7 @@ import { entryMapFocus, toEntryRow } from "../lib/entries.ts";
 import { toStatusRow } from "../lib/status.ts";
 import DetailBody from "./DetailBody.astro";
 import EntryDetailTable from "./EntryDetailTable.astro";
-import StatusTable from "./StatusTable.astro";
+import StatusDetailTable from "./StatusDetailTable.astro";
 
 // Shared shell for an Entry's detail page (/projects/<id>, /kap92/<id>).
 interface Props {
@@ -31,6 +31,6 @@ const visitRows = visits.map((id) => toStatusRow(id, entry));
     </DetailBody>
   </Fragment>
   <Fragment slot="status">
-    <StatusTable rows={visitRows} />
+    <StatusDetailTable rows={visitRows} />
   </Fragment>
 </Base>

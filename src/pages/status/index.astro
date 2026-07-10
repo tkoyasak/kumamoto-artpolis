@@ -1,5 +1,5 @@
 ---
-import VisitsTable from "../../components/VisitsTable.tsx";
+import StatusTable from "../../components/StatusTable.tsx";
 import Base from "../../layouts/Base.astro";
 import { getStatusRows } from "../../lib/status.ts";
 
@@ -8,6 +8,6 @@ const rows = await getStatusRows();
 
 <Base title="Status">
   <Fragment slot="status">
-    <VisitsTable rows={rows} client:load />
+    <StatusTable rows={rows} client:load />
   </Fragment>
 </Base>

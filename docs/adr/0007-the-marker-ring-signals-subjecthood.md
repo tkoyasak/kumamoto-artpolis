@@ -50,5 +50,10 @@ differs, not the linkage.
   page context) rather than a single "is this marker highlighted" flag,
   carried by `isMarkerOutlined` and its test rather than read off the store
   inline.
-- Static rows joining the linkage means marker→row highlighting also fires on
-  the entry pages' visit lists, a minor consistency gain that came for free.
+- Marker→row highlighting is deliberately kept off the entry pages' visit
+  lists. There the one marker is the page's own subject and every visit row
+  points back at it, so a marker hover would outline the entire list — the
+  entry's own history — as noise rather than signal. `StatusDetailTable`
+  therefore sets no `markerHref`, letting each row key to its own href
+  (never a marker key). The `/status` timeline island still links its rows,
+  because there each points at a _different_ visited entry.

@@ -68,6 +68,25 @@ test("hovering a timeline row does not ring its visited entry's marker — on /s
   await expect(marker).not.toHaveClass(/marker-active/);
 });
 
+test("on an entry page, hovering its subject marker does not outline the visit list — the marker is the page's subject, the visits are its own history", async ({
+  page,
+}) => {
+  const id = firstOf(statusIds);
+  const entryHref = visitedEntryHref(id);
+  await page.goto(entryHref);
+
+  const marker = page.locator(`.map-marker[data-href="${entryHref}"]`);
+  const visitRow = page.locator(`tbody tr[data-row-href="/status/${id}"]`);
+  await expect(marker).toBeVisible();
+  await expect(visitRow).toBeVisible();
+
+  // The subject marker rings at rest and on hover; the visit list is this
+  // entry's own history, so a marker hover must not spill an outline onto it.
+  await marker.hover();
+  await expect(marker).toHaveClass(/marker-active/);
+  await expect(visitRow).not.toHaveClass(/(?:^|\s)outline(?:\s|$)/);
+});
+
 test("on /status/<id> the visited entry's row and marker light each other, like the home table, while the marker stays dark at rest", async ({
   page,
 }) => {

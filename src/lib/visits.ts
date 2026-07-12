@@ -22,7 +22,7 @@ export async function getVisitedEntry(
   return entry;
 }
 
-// Visit ids per entry, newest first, keyed by entry href (ADR 0003). Entries
+// Visit ids per entry, newest first, keyed by entry href (ADR 0009). Entries
 // with no visits are absent.
 export async function getVisitsByEntry(): Promise<Map<string, string[]>> {
   const status = await getCollection("status");

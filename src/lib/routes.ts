@@ -1,5 +1,5 @@
 // The id/URL-derived facts of the site, in one place (client-safe: no
-// astro:content imports). ADR 0002: the filename is the entry id; ADR 0003:
+// astro:content imports). ADR 0008: the filename is the entry id; ADR 0009:
 // a status id is an ISO datetime.
 
 export type CatalogCollection = "projects" | "kap92";

@@ -26,7 +26,7 @@ const section =
   path.startsWith("/about") ? "about" : path.startsWith("/status") ? "status" : "home";
 
 // The map layer lives in the layout so its maplibre instance survives
-// navigation (docs/issues/0002); hidden server-side off the fullscreen pages
+// navigation (docs/adr/0005); hidden server-side off the fullscreen pages
 // (client-side-only hiding blocked clicks until the script ran).
 const fullscreenMap = FULLSCREEN_MAP_PATHS.includes(normalizePath(path));
 

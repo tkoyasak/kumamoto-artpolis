@@ -16,7 +16,7 @@ const { rows, subject = false } = Astro.props;
 const headers = ["Date", "Name"];
 
 // No markerHref here: each row keys to its own href, so the entry page's one
-// subject marker doesn't outline its whole visit list. → docs/adr/0007
+// subject marker doesn't outline its whole visit list. → docs/adr/0010
 const detailRows: DetailRow[] = rows.map((row) => ({
   href: row.href,
   category: row.category,

@@ -6,7 +6,7 @@ import "maplibre-gl/dist/maplibre-gl.css";
 <div id="entries-map" class="h-full w-full"></div>
 
 <script>
-  // Lazy: maplibre and the markers load on first show (docs/issues/0001). The
+  // Lazy: maplibre and the markers load on first show (docs/adr/0004). The
   // type-only imports below are erased at build, so they don't pull the chunk.
   import { navigate, type TransitionBeforePreparationEvent } from "astro:transitions/client";
   import type { Map as MapLibreMap, Marker } from "maplibre-gl";
@@ -88,7 +88,7 @@ import "maplibre-gl/dist/maplibre-gl.css";
       const hovered = $hovered.get();
       const focused = currentFocusHref();
       const path = currentPath();
-      // pendingPath bridges the ring only while nothing is hovered (docs/issues/0002).
+      // pendingPath bridges the ring only while nothing is hovered (docs/findings/0004).
       const pending = hovered === null ? pendingPath : null;
       for (const [key, marker] of markers) {
         const active = isMarkerOutlined(key, hovered, focused, pending, path);
@@ -111,7 +111,7 @@ import "maplibre-gl/dist/maplibre-gl.css";
     return map;
   }
 
-  // Runs once — the layer persists across navigation (docs/issues/0002). The
+  // Runs once — the layer persists across navigation (docs/adr/0005). The
   // camera never moves: a detail page keeps the layer put and clips it to a
   // square around the focused marker (coords on <body> data attrs).
   const container = document.getElementById("entries-map");
@@ -120,7 +120,7 @@ import "maplibre-gl/dist/maplibre-gl.css";
   let initStarted = false;
   let refreshMarkerHighlight: (() => void) | null = null;
   let refreshMarkerVisibility: (() => void) | null = null;
-  // In-flight nav target; keeps the destination ringed across the swap (docs/issues/0002).
+  // In-flight nav target; keeps the destination ringed across the swap (docs/findings/0004).
   let pendingPath: string | null = null;
   document.addEventListener("astro:before-preparation", (event) => {
     pendingPath = normalizePath((event as TransitionBeforePreparationEvent).to.pathname);
@@ -157,7 +157,7 @@ import "maplibre-gl/dist/maplibre-gl.css";
     if (!layer || !container) return;
     pendingPath = null; // the new page's focus attributes are authoritative now
     // Re-seed $hovered from the persisted markers: a swap fires no mouseleave
-    // for removed elements (docs/issues/0002).
+    // for removed elements (docs/findings/0004).
     const marker =
       container.querySelector<HTMLElement>(".map-marker:hover") ??
       container.querySelector<HTMLElement>(".map-marker:focus");

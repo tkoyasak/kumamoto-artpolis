@@ -10,7 +10,7 @@ test.beforeEach(async ({ page }) => {
   await hydrated(page);
 });
 
-test("every visit file appears on the status timeline, and its record page links back to the visited entry (ADR 0003)", async ({
+test("every visit file appears on the status timeline, and its record page links back to the visited entry (ADR 0009)", async ({
   page,
 }) => {
   for (const id of statusIds) {

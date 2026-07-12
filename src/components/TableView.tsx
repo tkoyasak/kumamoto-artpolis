@@ -8,7 +8,7 @@ import { type DetailRow, outlineClass, tableWidth } from "../lib/table.ts";
 import { rowTransitionName } from "../lib/transitions.ts";
 
 // The single source of the table markup, so a row's two morph snapshots can't
-// drift (docs/issues/0003).
+// drift (docs/adr/0006).
 
 // `outlined` forces the outline on (subject row, hovered row); else CSS hover only.
 const rowClass = (category: Category, outlined: boolean): string =>
@@ -100,7 +100,7 @@ export default function TableView({ wrapClass, colWidths, headVt, headers, rows 
 }
 
 // The detail pages' / visit lists' table island: SortableTable's row behaviors
-// minus sorting (docs/adr/0009).
+// minus sorting (docs/adr/0011).
 export function DetailTableView({
   headers,
   rows,

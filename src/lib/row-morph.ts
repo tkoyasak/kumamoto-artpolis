@@ -3,7 +3,7 @@ import { navigate } from "astro:transitions/client";
 import { rowTransitionName } from "./transitions.ts";
 
 // Re-exported so TableView needn't import astro:transitions/client itself
-// (docs/adr/0009).
+// (docs/adr/0011).
 export { navigate };
 
 // Navigate via the ClientRouter — window.location would full-reload and

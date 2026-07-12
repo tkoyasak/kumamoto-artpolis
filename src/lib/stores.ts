@@ -3,7 +3,7 @@ import { atom } from "nanostores";
 // Hover state shared across the islands (bundled once, so all read one atom).
 // `marker` is the hovered entry's marker key (an href); `row` the hovering
 // row's own href, absent when the marker itself is hovered. The row↔marker
-// linkage and the ring's subjecthood rule are in docs/adr/0007, pinned below.
+// linkage and the ring's subjecthood rule are in docs/adr/0010, pinned below.
 export type Hovered = {
   marker: string;
   row?: string;
@@ -16,7 +16,7 @@ export const isRowHighlighted = (hovered: Hovered, rowHref: string, markerHref: 
   (hovered.row !== undefined ? hovered.row === rowHref : hovered.marker === markerHref);
 
 // Whether a marker draws its subjecthood ring — the (hover source × page
-// context) matrix of docs/adr/0007, pinned branch by branch below.
+// context) matrix of docs/adr/0010, pinned branch by branch below.
 export const isMarkerOutlined = (
   key: string,
   hovered: Hovered,

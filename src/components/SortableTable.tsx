@@ -11,7 +11,7 @@ import type { JSX } from "preact";
 import { useState } from "preact/hooks";
 
 import type { Category } from "../lib/routes.ts";
-import { navigateWithRowMorph } from "../lib/row-morph.ts";
+import { isModifiedClick, navigateWithRowMorph } from "../lib/row-morph.ts";
 import { $hovered, isRowHighlighted } from "../lib/stores.ts";
 import TableView from "./TableView.tsx";
 
@@ -34,7 +34,7 @@ export function rowLink(href: string, text: string): JSX.Element {
       onClick={(event) => {
         event.stopPropagation();
         // Let the browser handle modified clicks (open in new tab, etc.).
-        if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+        if (isModifiedClick(event)) return;
         event.preventDefault();
         navigateWithRowMorph(href);
       }}
@@ -127,7 +127,11 @@ export default function SortableTable<Row extends TableRow, GroupKey extends str
           // Clicks stay on the island; only the row-morph hooks are shared with DetailTable's script.
           onMouseEnter: () => $hovered.set({ marker, row: row.original.href }),
           onMouseLeave: () => $hovered.set(null),
-          onClick: () => navigateWithRowMorph(row.original.href),
+          onClick: (event) => {
+            // Modified clicks fall through to the browser, same as the name link.
+            if (isModifiedClick(event)) return;
+            navigateWithRowMorph(row.original.href);
+          },
           cells: row
             .getVisibleCells()
             .map((cell) => flexRender(cell.column.columnDef.cell, cell.getContext())),

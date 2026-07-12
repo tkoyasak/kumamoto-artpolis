@@ -15,3 +15,11 @@ export function navigateWithRowMorph(href: string): void {
     ?.style.setProperty("view-transition-name", rowTransitionName(href));
   navigate(href);
 }
+
+// A modified click asks the browser for its own behavior (new tab, window,
+// download); client-side navigation must stand aside.
+export function isModifiedClick(
+  event: Pick<MouseEvent, "metaKey" | "ctrlKey" | "shiftKey" | "altKey">,
+): boolean {
+  return event.metaKey || event.ctrlKey || event.shiftKey || event.altKey;
+}

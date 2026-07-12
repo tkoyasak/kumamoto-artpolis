@@ -2,7 +2,7 @@ import { useStore } from "@nanostores/preact";
 import type { ComponentChildren } from "preact";
 
 import type { Category } from "../lib/routes.ts";
-import { navigate, navigateWithRowMorph } from "../lib/row-morph.ts";
+import { isModifiedClick, navigate, navigateWithRowMorph } from "../lib/row-morph.ts";
 import { $hovered, isRowHighlighted } from "../lib/stores.ts";
 import { type DetailRow, outlineClass, tableWidth } from "../lib/table.ts";
 import { rowTransitionName } from "../lib/transitions.ts";
@@ -139,7 +139,7 @@ export function DetailTableView({
           onClick: (event) => {
             // Modified clicks fall through to the browser; a plain click cancels
             // the <a> and stays client-side to keep the persisted map alive.
-            if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+            if (isModifiedClick(event)) return;
             event.preventDefault();
             if (subject) navigate(backHref);
             else navigateWithRowMorph(row.href);

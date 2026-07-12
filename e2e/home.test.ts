@@ -110,3 +110,15 @@ test("clicking a marker navigates to its entry's detail page, like clicking the 
   if (href === null) throw new Error("no marker clear of the table overlay to click");
   await expect(page).toHaveURL(href);
 });
+
+test("a modified click on a row falls through to the browser instead of navigating in place — the browser owns new-tab behavior", async ({
+  page,
+}) => {
+  // Click a non-link cell (No., the first td): the row handler alone sees it.
+  await page
+    .locator(`tbody tr[data-row-href="${firstProjectHref}"] td:first-child`)
+    .click({ modifiers: ["ControlOrMeta"] });
+  // Give a wrongly-triggered client navigation time to happen, then assert it didn't.
+  await page.waitForTimeout(300);
+  await expect(page).toHaveURL("/");
+});

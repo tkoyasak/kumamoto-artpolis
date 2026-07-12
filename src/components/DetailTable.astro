@@ -3,7 +3,7 @@ import type { DetailRow } from "../lib/table.ts";
 import { DetailTableView } from "./TableView.tsx";
 
 // Hosts the DetailTableView island; the script below is the one
-// ClientRouter-lifecycle concern it can't own (docs/adr/0009).
+// ClientRouter-lifecycle concern it can't own (docs/adr/0011).
 interface Props {
   headers: string[];
   rows: DetailRow[];
@@ -37,7 +37,7 @@ const { headers, rows, colWidths, headVt, maxWidth, subject = false, backHref } 
   import { rowTransitionName } from "../lib/transitions.ts";
 
   // The return-morph seam: on swap, name the incoming document's row for the
-  // page we leave so it morphs back, then clean up (docs/issues/0003). Runs
+  // page we leave so it morphs back, then clean up (docs/adr/0006). Runs
   // once (the module is deduped across navigations).
   document.addEventListener("astro:before-swap", (event) => {
     const from = normalizePath(event.from.pathname);

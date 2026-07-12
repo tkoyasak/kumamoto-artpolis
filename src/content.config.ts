@@ -3,7 +3,7 @@ import { z } from "astro/zod";
 import { defineCollection, reference } from "astro:content";
 
 // Both catalog collections share one schema. The Markdown filename is the
-// entry id (ADR 0002) — keep filenames stable; `number` is display/sort only.
+// entry id (ADR 0008) — keep filenames stable; `number` is display/sort only.
 // `completedYear` is optional and only `.positive()` (kap92 buildings can be
 // historical); `use` is free text.
 const catalogSchema = z.object({
@@ -30,7 +30,7 @@ const kap92 = defineCollection({
 // One Markdown file per visit, named `<date>-<HHMM>.md` — a colon-free ISO
 // datetime kept lowercase/digits/dashes so the filename survives the glob
 // loader's slugify unchanged (filename == entry id == URL). Each record
-// references exactly one visited entry (ADR 0003); the body holds the visit's
+// references exactly one visited entry (ADR 0009); the body holds the visit's
 // notes and photos (public R2 URLs).
 const statusSchema = z
   .object({

@@ -41,7 +41,7 @@ test("a directly loaded detail page shows only its own marker, and activating it
   await expect(page).toHaveURL("/");
 });
 
-test("the map layer is hidden server-side off the fullscreen pages, so links are clickable before any script runs (docs/issues/0002)", async ({
+test("the map layer is hidden server-side off the fullscreen pages, so links are clickable before any script runs (ADR 0005)", async ({
   page,
 }) => {
   await page.goto("/about");

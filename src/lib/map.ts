@@ -2,7 +2,7 @@ import type { Category } from "./routes.ts";
 
 export const MAP_MARKERS_URL = "/map-markers.json";
 
-// Explicit id/persist name — Astro's auto persist ids collided (docs/issues/0003).
+// Explicit id/persist name — Astro's auto persist ids collided (docs/findings/0003).
 export const MAP_LAYER_ID = "map-layer";
 
 // Shared by the layout's server-side hide and the map script, so they can't drift.

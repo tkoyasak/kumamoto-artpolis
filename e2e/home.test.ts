@@ -13,7 +13,7 @@ test.beforeEach(async ({ page }) => {
   await hydrated(page);
 });
 
-test("every catalog markdown file surfaces as a home table row linking its detail page — the filename is the entry id and the URL (ADR 0002)", async ({
+test("every catalog markdown file surfaces as a home table row linking its detail page — the filename is the entry id and the URL (ADR 0008)", async ({
   page,
 }) => {
   for (const id of projectIds) {

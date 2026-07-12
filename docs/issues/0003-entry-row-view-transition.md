@@ -12,12 +12,13 @@ Astro's ClientRouter (already enabled for the map — see
 
 - `/` renders `EntriesTable.tsx` — an interactive Preact + `@tanstack/react-table`
   island (`client:load`) listing every entry.
-- `/projects/<id>` and `/kap92/<id>` render `EntryDetailTable.astro` — a static,
-  same-styled table showing just that one entry as header + one row.
+- `/projects/<id>` and `/kap92/<id>` render `EntryDetailTable.astro` — a
+  same-styled table (its own `client:load` island) showing just that one entry
+  as header + one row.
 
 These are two different components, but visually identical rows — identical by
-construction, since both render their markup through the shared `TableView.tsx`
-(the island with a client directive, the static table without). A morph needs
+construction, since both render their markup through the shared `TableView.tsx`.
+A morph needs
 the two snapshots to line up pixel-for-pixel; a single markup source is what
 guarantees that instead of leaving it to coincidence. The goal is for the
 navigation between them to look like the clicked row simply moving, not two
@@ -47,13 +48,13 @@ safe to import from the Preact island, unlike `entries.ts`:
   ClientRouter and a View Transition fires.
 - Only the **clicked** row is tagged with its `view-transition-name`, set
   imperatively just before `navigate()` (`navigateWithRowMorph` in
-  `src/lib/row-morph.ts`, shared by the home island, the static tables, and the
+  `src/lib/row-morph.ts`, shared by the home island, the detail island, and the
   map markers).
   Naming _every_ row up front would make each one its own transition group and
   animate them all independently — janky, and slow with many rows. The header
   carries `entry-head` permanently (it is unique per page, so that is fine).
-- The detail table (`EntryDetailTable.astro`) names its header and its one row
-  statically with `transition:name`.
+- The detail table (`DetailTableView`) names its header (`headVt`) and its one
+  subject row (`rowTransitionName`) from first render, as inline styles.
 
 Result: the clicked row and header morph; the rest of the table and the map
 background cross-fade as the page root; the map itself is untouched (persisted).
@@ -107,8 +108,8 @@ Two problems on the way back:
   `astro:transitions/client`), so it lives apart from `transitions.ts`.
 - `src/components/EntriesTable.tsx`: calls `navigateWithRowMorph` on click,
   `data-row-href` for reverse matching, `entry-head` on the header.
-- `src/components/DetailTable.astro`: static `transition:name`s on detail rows;
-  the shared script upgrades row clicks to ClientRouter navigations, and its
-  `astro:before-swap` handler names the destination row and runs the
+- `src/components/DetailTable.astro`: hosts the `DetailTableView` island (which
+  names its rows and drives clicks/hover) plus the `astro:before-swap` handler,
+  which names the destination row on the incoming document and runs the
   outline-only-during-morph logic for all three tables.
 - `src/layouts/Base.astro`: `transition:persist="map-layer"` (stable persist id).

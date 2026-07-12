@@ -1,12 +1,14 @@
+import { useStore } from "@nanostores/preact";
 import type { ComponentChildren } from "preact";
 
 import type { Category } from "../lib/routes.ts";
+import { navigate, navigateWithRowMorph } from "../lib/row-morph.ts";
+import { $hovered, isRowHighlighted } from "../lib/stores.ts";
 import { type DetailRow, outlineClass, tableWidth } from "../lib/table.ts";
 import { rowTransitionName } from "../lib/transitions.ts";
 
-// The single source of the table markup: both the sortable island
-// (SortableTable) and the static tables (DetailTable, no client directive)
-// render through this, so a row's two morph snapshots can't drift (docs/issues/0003).
+// The single source of the table markup, so a row's two morph snapshots can't
+// drift (docs/issues/0003).
 
 // `outlined` forces the outline on (subject row, hovered row); else CSS hover only.
 const rowClass = (category: Category, outlined: boolean): string =>
@@ -27,14 +29,11 @@ export type TableViewRow = {
   cells: ComponentChildren[];
   // data-row-flourish: a return morph flashes this row's outline.
   flourish?: boolean;
-  // data-row-nav & friends: driven by DetailTable's script. Island rows omit
-  // these and attach their own handlers instead.
-  nav?: { subject?: boolean; backHref?: string; markerHref?: string | undefined };
   // Subject row carries its transition name up front; list rows get theirs on click.
   transitionName?: string | undefined;
-  onMouseEnter?: () => void;
-  onMouseLeave?: () => void;
-  onClick?: () => void;
+  onMouseEnter?: (() => void) | undefined;
+  onMouseLeave?: (() => void) | undefined;
+  onClick?: (event: MouseEvent) => void;
 };
 
 type Props = {
@@ -77,10 +76,6 @@ export default function TableView({ wrapClass, colWidths, headVt, headers, rows 
               key={row.href}
               data-row-href={row.href}
               data-row-flourish={row.flourish ? "" : undefined}
-              data-row-nav={row.nav ? "" : undefined}
-              data-row-subject={row.nav?.subject ? "" : undefined}
-              data-row-back={row.nav?.backHref}
-              data-marker-href={row.nav?.markerHref}
               style={
                 row.transitionName !== undefined
                   ? { viewTransitionName: row.transitionName }
@@ -104,7 +99,8 @@ export default function TableView({ wrapClass, colWidths, headVt, headers, rows 
   );
 }
 
-// DetailRow adapter for the static tables: plain data in, shared markup out.
+// The detail pages' / visit lists' table island: SortableTable's row behaviors
+// minus sorting (docs/adr/0009).
 export function DetailTableView({
   headers,
   rows,
@@ -122,6 +118,7 @@ export function DetailTableView({
   subject?: boolean;
   backHref: string;
 }) {
+  const hovered = useStore($hovered);
   return (
     <TableView
       wrapClass={`relative ${maxWidth}`}
@@ -129,15 +126,24 @@ export function DetailTableView({
       headVt={headVt}
       headers={headers.map((header) => ({ node: header }))}
       rows={rows.map((row) => {
-        // The name <a> carries the row target so it works without the script
-        // (keyboard, screen readers, new tab); the script upgrades plain clicks.
+        // The name <a> works without JS; onClick upgrades a plain click.
         const target = subject ? backHref : row.href;
+        const marker = row.markerHref ?? row.href;
         return {
           href: row.href,
           category: row.category,
-          outlined: subject,
-          nav: subject ? { subject: true, backHref } : { markerHref: row.markerHref },
+          outlined: subject || isRowHighlighted(hovered, row.href, marker),
           transitionName: subject ? rowTransitionName(row.href) : undefined,
+          onMouseEnter: subject ? undefined : () => $hovered.set({ marker, row: row.href }),
+          onMouseLeave: subject ? undefined : () => $hovered.set(null),
+          onClick: (event) => {
+            // Modified clicks fall through to the browser; a plain click cancels
+            // the <a> and stays client-side to keep the persisted map alive.
+            if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+            event.preventDefault();
+            if (subject) navigate(backHref);
+            else navigateWithRowMorph(row.href);
+          },
           cells: row.cells.map((cell) =>
             cell.link ? (
               <a href={target} className="font-medium">

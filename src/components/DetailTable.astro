@@ -2,9 +2,8 @@
 import type { DetailRow } from "../lib/table.ts";
 import { DetailTableView } from "./TableView.tsx";
 
-// The static tables' host (detail pages, entry visit lists): TableView
-// rendered with no client directive — plain HTML, zero JS. The row script
-// below drives every table's clicks, morphs, and hover (docs/issues/0003).
+// Hosts the DetailTableView island; the script below is the one
+// ClientRouter-lifecycle concern it can't own (docs/adr/0009).
 interface Props {
   headers: string[];
   rows: DetailRow[];
@@ -23,6 +22,7 @@ const { headers, rows, colWidths, headVt, maxWidth, subject = false, backHref } 
 ---
 
 <DetailTableView
+  client:load
   headers={headers}
   rows={rows}
   colWidths={colWidths}
@@ -33,67 +33,12 @@ const { headers, rows, colWidths, headVt, maxWidth, subject = false, backHref } 
 />
 
 <script>
-  import { navigate } from "astro:transitions/client";
-
   import { normalizePath } from "../lib/routes.ts";
-  import { navigateWithRowMorph } from "../lib/row-morph.ts";
-  import { $hovered, isRowHighlighted } from "../lib/stores.ts";
   import { rowTransitionName } from "../lib/transitions.ts";
 
-  // Non-subject rows share the map hover highlight (docs/adr/0007); a row's
-  // marker key defaults to its own href. Subject rows are the page — always
-  // outlined, never linked.
-  function markerLinkedRows() {
-    return document.querySelectorAll<HTMLElement>("[data-row-nav]:not([data-row-subject])");
-  }
-  const markerOf = (row: HTMLElement) => row.dataset.markerHref ?? row.dataset.rowHref!;
-
-  // Static rows can't re-render; mirror the island's outline from $hovered.
-  function applyRowHighlight() {
-    const hovered = $hovered.get();
-    for (const row of markerLinkedRows()) {
-      row.classList.toggle("outline", isRowHighlighted(hovered, row.dataset.rowHref!, markerOf(row)));
-    }
-  }
-
-  // Rebind each swap (rows are fresh DOM); a dataset flag guards double-binding.
-  function bindRows() {
-    for (const row of document.querySelectorAll<HTMLElement>("[data-row-nav]")) {
-      if (row.dataset.bound) continue;
-      row.dataset.bound = "1";
-      if (!row.hasAttribute("data-row-subject")) {
-        const rowHref = row.dataset.rowHref!;
-        const markerHref = markerOf(row);
-        row.addEventListener("mouseenter", () => $hovered.set({ marker: markerHref, row: rowHref }));
-        row.addEventListener("mouseleave", () => $hovered.set(null));
-      }
-      row.addEventListener("click", (event) => {
-        // Let the browser handle modified clicks on the name link (new tab, etc.).
-        if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-        // Cancel the name link's full navigation; keep the persisted map alive.
-        event.preventDefault();
-        if (row.hasAttribute("data-row-subject")) {
-          navigate(row.dataset.rowBack!);
-        } else {
-          navigateWithRowMorph(row.dataset.rowHref!);
-        }
-      });
-    }
-  }
-
-  function refresh() {
-    bindRows();
-    // Fresh DOM after a swap; re-seed the highlight ($hovered may not have changed).
-    applyRowHighlight();
-  }
-
-  refresh();
-  document.addEventListener("astro:page-load", refresh);
-  // Runs once (the module is deduped across navigations, like the map script).
-  $hovered.subscribe(applyRowHighlight);
-
-  // Returning to a list/home: name the incoming row matching the page we leave
-  // so the subject morphs back into its slot, then clean up (docs/issues/0003).
+  // The return-morph seam: on swap, name the incoming document's row for the
+  // page we leave so it morphs back, then clean up (docs/issues/0003). Runs
+  // once (the module is deduped across navigations).
   document.addEventListener("astro:before-swap", (event) => {
     const from = normalizePath(event.from.pathname);
     const row = event.newDocument.querySelector<HTMLElement>(`[data-row-href="${from}"]`);

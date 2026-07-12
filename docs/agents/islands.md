@@ -15,13 +15,14 @@ shared hover state. → `docs/adr/0005`
 - Every column sorts; each table loads sorted by its first column descending —
   the order the server renders, so nothing shifts on hydration (`initialSorting`).
 - The single-row detail-page tables and the entry pages' visit lists are
-  static: `EntryDetailTable.astro` / `StatusDetailTable.astro` (the
-  per-collection column defs) render through **`DetailTable.astro`**, the
-  shared static host that carries the row script.
-- All tables — island and static — render through **`TableView.tsx`**, the
-  single source of the shared markup and classes; the static side renders it
-  with no client directive (plain HTML, zero JS). That identity by construction
-  keeps both sides of a row morph pixel-matched. → `docs/issues/0003`
+  `EntryDetailTable.astro` / `StatusDetailTable.astro` (the per-collection
+  column defs), rendering through **`DetailTable.astro`** — the shared host
+  that wraps the detail island and carries the return-morph script.
+- All tables render through **`TableView.tsx`**, the single source of the
+  shared markup and classes; both the sortable island (`SortableTable`) and the
+  detail island (`DetailTableView`) hydrate `client:load` (→ `docs/adr/0009`).
+  That identity by construction keeps both sides of a row morph pixel-matched. →
+  `docs/issues/0003`
 
 ## Map
 
@@ -46,9 +47,9 @@ shared hover state. → `docs/adr/0005`
   → `docs/adr/0005`
 - Rows highlight via `isRowHighlighted`, so hovering one visit of an entry
   doesn't light its sibling visits, while hovering the marker lights them all.
-  The static detail rows join the same linkage: `DetailTable.astro` subscribes
-  to `$hovered` and toggles the outline through `isRowHighlighted` (marker key
-  defaulting to the row's own href).
+  The detail rows join the same linkage: `DetailTableView` reads `$hovered`
+  (via `useStore`) and outlines through `isRowHighlighted`, the same as the
+  sortable island (marker key defaulting to the row's own href).
 - A marker draws its outline ring only when the entry is the _subject_ of the
   interaction; `isMarkerOutlined` gates it over (hover source × page context).
   → `docs/adr/0007`

@@ -13,13 +13,13 @@ export default defineConfig({
     // Strip the in-source vitest blocks from production bundles.
     define: { "import.meta.vitest": "undefined" },
     build: {
-      rollupOptions: {
+      rolldownOptions: {
         output: {
           // Split maplibre (~1 MB) into its own cacheable chunk (deliberately not
           // head-preloaded), dynamically imported by the map island only when the
           // map first shows. See docs/issues/0001.
           manualChunks(id: string) {
-            return id.includes("maplibre-gl") ? "maplibre" : undefined;
+            return id.includes("maplibre-gl") ? "maplibre-gl" : undefined;
           },
         },
       },

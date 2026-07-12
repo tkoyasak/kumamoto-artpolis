@@ -6,15 +6,12 @@
     "allowed": false
   },
   "language_servers": [
+    "tsgo",
+    "astro-language-server",
     "oxlint",
     "oxfmt",
-    "nil",
-    "!eslint",
-    "!deno",
-    "!typescript-language-server",
-    "!rumdl",
-    "!nixd",
-    "..."
+    "package-version-server",
+    "nil"
   ],
   "lsp": {
     "nil": {
@@ -51,6 +48,13 @@
           "fixKind": "safe_fix",
           "unusedDisableDirectives": "deny"
         }
+      }
+    },
+    "tsgo": {
+      "binary": {
+        "ignore_system_version": false,
+        "path": "tsgo",
+        "arguments": ["--lsp", "--stdio"]
       }
     }
   },

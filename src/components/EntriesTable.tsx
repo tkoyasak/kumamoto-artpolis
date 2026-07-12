@@ -8,7 +8,9 @@ import SortableTable, { rowLink } from "./SortableTable.tsx";
 const columnHelper = createColumnHelper<EntryRow>();
 
 const columns = [
-  columnHelper.accessor("number", { header: ENTRY_HEADERS.number }),
+  columnHelper.accessor("number", {
+    header: ENTRY_HEADERS.number,
+  }),
   columnHelper.accessor("name", {
     header: ENTRY_HEADERS.name,
     cell: (info) => rowLink(info.row.original.href, info.getValue()),
@@ -18,8 +20,12 @@ const columns = [
     id: "architects",
     header: ENTRY_HEADERS.architects,
   }),
-  columnHelper.accessor("use", { header: ENTRY_HEADERS.use }),
-  columnHelper.accessor("municipality", { header: ENTRY_HEADERS.municipality }),
+  columnHelper.accessor("use", {
+    header: ENTRY_HEADERS.use,
+  }),
+  columnHelper.accessor("municipality", {
+    header: ENTRY_HEADERS.municipality,
+  }),
   columnHelper.accessor((row) => row.completedYear ?? undefined, {
     id: "completedYear",
     header: ENTRY_HEADERS.completedYear,

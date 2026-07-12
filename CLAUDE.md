@@ -15,19 +15,18 @@ by hover state.
   content (`src/content/` bodies) and data values (entry names, `use`).
 - Don't format/lint before committing; `oxfmt`/`oxlint` run as pre-commit hooks.
 - **The filename is the entry id** — it's the URL and how `status` references
-  entries; keep filenames stable. → `docs/adr/0002`
+  entries; keep filenames stable.
 - **`status` is the source of truth for visit dates** — entries never store
-  their own. → `docs/adr/0003`
+  their own.
 
 ## Docs index
 
-Everything else lives one pointer away (→ `docs/adr/0006` for the placement
-rules):
+Everything else lives one pointer away:
 
 - [`docs/agents/glossary.md`](docs/agents/glossary.md) — domain glossary; the source for terms (Entry, Project, KAP'92 building, Id, Visit record, …).
 - [`docs/agents/commands.md`](docs/agents/commands.md) — commands, toolchain, and the unit/e2e test conventions.
 - [`docs/agents/content-model.md`](docs/agents/content-model.md) — the three content collections, their schema, and the two id/visit-date facts in full.
 - [`docs/agents/routing.md`](docs/agents/routing.md) — the page inventory.
 - [`docs/agents/islands.md`](docs/agents/islands.md) — the table and map islands and the hover-state seam linking them (sorting + row-morph, map persistence + detail clip-crop, the subjecthood ring).
-- **`docs/adr/`** — short ADRs recording _why_ the code is shaped this way.
-- **`docs/issues/`** — deep perf/UX write-ups (rationale, methodology, benchmarks).
+- **`docs/adr/`** — the immutable decision log: _why_ the code is shaped this way.
+- **`docs/findings/`** — immutable empirical findings: benchmarks, browser behavior.

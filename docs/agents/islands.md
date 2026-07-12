@@ -20,15 +20,37 @@ shared hover state.
   that wraps the detail island and carries the return-morph script.
 - All tables render through **`TableView.tsx`**, the single source of the
   shared markup and classes; both the sortable island (`SortableTable`) and the
-  detail island (`DetailTableView`) hydrate `client:load`. → `docs/issues/0003`
+  detail island (`DetailTableView`) hydrate `client:load`.
+
+## Row morph
+
+Clicking a row morphs it into the detail page's subject row and back, over the
+ClientRouter's View Transition.
+
+- `src/lib/transitions.ts` holds the shared names — `ENTRY_HEAD_VT` for the
+  header row (carried by every table) and `rowTransitionName(href)` for a row.
+  It imports no `astro:content`, so the Preact islands can import it.
+- `src/lib/row-morph.ts` is the client-only half: `navigateWithRowMorph(href)`
+  names the row whose `data-row-href` matches, then `navigate()`s. Only the
+  clicked row is ever named. It also re-exports the plain `navigate` the subject
+  row uses to go back, keeping `astro:transitions/client` out of `TableView`.
+- `DetailTableView` names its header and subject row from first render, as
+  inline styles.
+- The return trip is a document-level `astro:before-swap` listener in
+  `DetailTable.astro` (an island can't reach the not-yet-swapped document): it
+  names the incoming row for the page being left, adds the `outline` class so
+  the snapshot carries it, drops that class off the live row on
+  `viewTransition.ready`, and clears the temporary name on `finished`.
+- Rows expose `data-row-href` (the morph and the e2e suite match on it) and
+  `data-row-flourish`.
 
 ## Map
 
 - **`EntriesMap.astro`** is a plain client script (no framework); maplibre and
-  `/map-markers.json` load lazily when the map first shows. → `docs/issues/0001`
+  `/map-markers.json` load lazily when the map first shows.
 - The layer lives in `Base.astro` under `transition:persist` (survives
   navigation). It is fullscreen only on `FULLSCREEN_MAP_PATHS` (`/` and
-  `/status`) and hidden server-side elsewhere. → `docs/issues/0002`
+  `/status`) and hidden server-side elsewhere.
 - The camera never moves: a detail page keeps the layer put and `clip-path`-
   crops it to a `FOCUS_CLIP_SIZE`px square around the focused marker, shows only
   that marker, and clicking it returns home. Focus coords + marker href ride on
@@ -54,4 +76,4 @@ shared hover state.
   applies it and raises the marker's `z-index`.
 - Hover state has to survive a client swap, and two swap behaviors fight it —
   `syncVisibility` re-seeds from the persisted markers, `pendingPath` bridges
-  the in-flight ring. → `docs/issues/0002`
+  the in-flight ring.

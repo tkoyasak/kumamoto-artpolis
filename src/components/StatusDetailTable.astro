@@ -1,6 +1,11 @@
 ---
 import type { StatusRow } from "../lib/status.ts";
-import { type DetailRow, STATUS_COL_WIDTHS } from "../lib/table.ts";
+import {
+  type DetailRow,
+  STATUS_COL_WIDTHS,
+  STATUS_HEADERS,
+  statusDetailCells,
+} from "../lib/table.ts";
 import { STATUS_HEAD_VT } from "../lib/transitions.ts";
 import DetailTable from "./DetailTable.astro";
 
@@ -13,14 +18,14 @@ interface Props {
 
 const { rows, subject = false } = Astro.props;
 
-const headers = ["Date", "Name"];
+const headers = Object.values(STATUS_HEADERS);
 
 // No markerHref here: each row keys to its own href, so the entry page's one
 // subject marker doesn't outline its whole visit list. → docs/adr/0010
 const detailRows: DetailRow[] = rows.map((row) => ({
   href: row.href,
   category: row.category,
-  cells: [{ text: row.date }, { text: row.name, link: true }],
+  cells: statusDetailCells(row),
 }));
 ---
 

@@ -1,7 +1,7 @@
 import { createColumnHelper } from "@tanstack/react-table";
 
 import type { StatusRow } from "../lib/status.ts";
-import { STATUS_COL_WIDTHS } from "../lib/table.ts";
+import { STATUS_COL_WIDTHS, STATUS_HEADERS } from "../lib/table.ts";
 import { STATUS_HEAD_VT } from "../lib/transitions.ts";
 import SortableTable, { rowLink } from "./SortableTable.tsx";
 
@@ -12,12 +12,12 @@ const columns = [
   // order even though only the date is displayed. Newest-first on the first
   // toggle, like a timeline.
   columnHelper.accessor("id", {
-    header: "Date",
+    header: STATUS_HEADERS.date,
     sortDescFirst: true,
     cell: (info) => info.row.original.date,
   }),
   columnHelper.accessor("name", {
-    header: "Name",
+    header: STATUS_HEADERS.name,
     cell: (info) => rowLink(info.row.original.href, info.getValue()),
   }),
 ];

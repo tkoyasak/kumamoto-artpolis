@@ -1,6 +1,11 @@
 ---
 import type { EntryRow } from "../lib/entries.ts";
-import { type DetailRow, ENTRY_COL_WIDTHS } from "../lib/table.ts";
+import {
+  type DetailRow,
+  ENTRY_COL_WIDTHS,
+  ENTRY_HEADERS,
+  entryDetailCells,
+} from "../lib/table.ts";
 import { ENTRY_HEAD_VT } from "../lib/transitions.ts";
 import DetailTable from "./DetailTable.astro";
 
@@ -14,19 +19,12 @@ interface Props {
 
 const { rows, subject = true } = Astro.props;
 
-const headers = ["No.", "Name", "Architects", "Use", "Location", "Year"];
+const headers = Object.values(ENTRY_HEADERS);
 
 const detailRows: DetailRow[] = rows.map((row) => ({
   href: row.href,
   category: row.category,
-  cells: [
-    { text: String(row.number) },
-    { text: row.name, link: true },
-    { text: row.architects.join(", ") },
-    { text: row.use },
-    { text: row.municipality },
-    { text: row.completedYear != null ? String(row.completedYear) : "" },
-  ],
+  cells: entryDetailCells(row),
 }));
 ---
 

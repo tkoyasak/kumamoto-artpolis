@@ -19,16 +19,17 @@ const {
   mapFocus,
 } = Astro.props;
 
-// startsWith (not ===) so aria-current holds under the trailing-slash URLs
-// Astro's directory build emits (/about/, /status/).
-const path = Astro.url.pathname;
-const section =
-  path.startsWith("/about") ? "about" : path.startsWith("/status") ? "status" : "home";
+// Exact match through normalizePath, so aria-current holds under the
+// trailing-slash URLs Astro's directory build emits (/about/, /status/) but
+// never claims a section's subpages.
+const path = normalizePath(Astro.url.pathname);
+const ariaCurrent = (href: string): "page" | undefined =>
+  path === href ? "page" : undefined;
 
 // The map layer lives in the layout so its maplibre instance survives
 // navigation (docs/adr/0005); hidden server-side off the fullscreen pages
 // (client-side-only hiding blocked clicks until the script ran).
-const fullscreenMap = FULLSCREEN_MAP_PATHS.includes(normalizePath(path));
+const fullscreenMap = FULLSCREEN_MAP_PATHS.includes(path);
 
 // `w-fit` leaves the rest of each line click-through to the map layer below;
 // `z-20` paints the text above it.
@@ -62,7 +63,7 @@ const navLink = "relative z-20 block w-fit font-medium text-base";
     <a
       href="/"
       transition:name="nav-home"
-      aria-current={section === "home" ? "page" : undefined}
+      aria-current={ariaCurrent("/")}
       class:list={[navLink, "px-4 py-4 sm:px-8"]}>Kumamoto Artpolis</a
     >
     <slot name="entry" />
@@ -70,7 +71,7 @@ const navLink = "relative z-20 block w-fit font-medium text-base";
     <a
       href="/status"
       transition:name="nav-status"
-      aria-current={section === "status" ? "page" : undefined}
+      aria-current={ariaCurrent("/status")}
       class:list={[navLink, "px-4 py-4 sm:px-8"]}>Status</a
     >
     <slot name="status" />
@@ -78,7 +79,7 @@ const navLink = "relative z-20 block w-fit font-medium text-base";
     <a
       href="/about"
       transition:name="nav-about"
-      aria-current={section === "about" ? "page" : undefined}
+      aria-current={ariaCurrent("/about")}
       class:list={[navLink, "px-4 py-4 sm:px-8"]}>About</a
     >
     <slot name="about" />

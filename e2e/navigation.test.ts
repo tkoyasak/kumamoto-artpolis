@@ -47,3 +47,16 @@ test("the map layer is hidden server-side off the fullscreen pages, so links are
   await page.goto("/about");
   await expect(page.locator(`#${MAP_LAYER_ID}`)).toBeHidden();
 });
+
+test("aria-current='page' marks only the link to the page you are on — detail pages claim no nav link at all", async ({
+  page,
+}) => {
+  await page.goto("/about");
+  await expect(page.locator('a[aria-current="page"]')).toHaveAttribute("href", "/about");
+
+  await page.goto("/status");
+  await expect(page.locator('a[aria-current="page"]')).toHaveAttribute("href", "/status");
+
+  await page.goto(firstProjectHref);
+  await expect(page.locator("[aria-current]")).toHaveCount(0);
+});

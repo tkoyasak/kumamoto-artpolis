@@ -95,7 +95,7 @@ test("clicking a marker navigates to its entry's detail page, like clicking the 
 
   // The table island overlays the top-left of the fullscreen map; pick a
   // marker clear of it so the click genuinely lands on the marker.
-  const tableBox = await page.locator("main section").boundingBox();
+  const tableBox = await page.locator("section").boundingBox();
   if (!tableBox) throw new Error("home table not rendered");
   let href: string | null = null;
   for (const marker of await page.locator(".map-marker").all()) {

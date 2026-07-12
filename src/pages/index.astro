@@ -9,6 +9,6 @@ const rows = await getEntryRows();
 <Base>
   {/* The table scrolls over the layout's fixed fullscreen map; overlapping is intentional. */}
   <main slot="entry" class="pointer-events-none relative">
-    <EntriesTable rows={rows} client:load />
+    <EntriesTable client:load rows={rows} />
   </main>
 </Base>

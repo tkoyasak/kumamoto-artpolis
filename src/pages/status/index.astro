@@ -7,5 +7,5 @@ const rows = await getStatusRows();
 ---
 
 <Base title="Status">
-  <StatusTable slot="status" rows={rows} client:load />
+  <StatusTable client:load slot="status" rows={rows} />
 </Base>

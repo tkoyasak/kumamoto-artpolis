@@ -2,7 +2,7 @@
   description = "kumamoto-artpolis";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-26.05-darwin";
     flake-parts.url = "github:hercules-ci/flake-parts";
 
     git-hooks = {

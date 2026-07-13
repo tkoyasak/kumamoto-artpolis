@@ -4,6 +4,10 @@ import { contentIds, firstOf, hydrated, routeMapStyle, visitedEntryHref } from "
 
 const statusIds = contentIds("status");
 
+// These tests exercise the timeline against real visit records; they resume
+// automatically once the first record lands.
+test.skip(statusIds.length === 0, "no visit records in src/content/status yet");
+
 test.beforeEach(async ({ page }) => {
   await routeMapStyle(page);
   await page.goto("/status");

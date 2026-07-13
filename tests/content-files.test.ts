@@ -11,18 +11,15 @@ const mdFiles = (dir: string) =>
 const ids = (dir: string) => mdFiles(dir).map((name) => name.replace(/\.md$/, ""));
 
 test("a status filename is YYYY-MM-DD-HHMM.md — statusDate and the descending sort silently break otherwise", () => {
-  const files = mdFiles("status");
-  expect(files.length).toBeGreaterThan(0);
-  for (const name of files) {
+  for (const name of mdFiles("status")) {
     expect(name).toMatch(/^\d{4}-\d{2}-\d{2}-\d{4}\.md$/);
   }
 });
 
 test("a catalog filename is the entry id and URL: lowercase/digits/dashes, so it survives the glob loader's slugify unchanged", () => {
+  expect(mdFiles("projects").length).toBeGreaterThan(0);
   for (const dir of ["projects", "kap92"]) {
-    const files = mdFiles(dir);
-    expect(files.length).toBeGreaterThan(0);
-    for (const name of files) {
+    for (const name of mdFiles(dir)) {
       expect(name).toMatch(/^[a-z0-9][a-z0-9-]*\.md$/);
     }
   }

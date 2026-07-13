@@ -12,31 +12,23 @@ export function isActive<E extends CatalogEntry>(entry: E): entry is ActiveEntry
   return !("excluded" in entry.data);
 }
 
-// The detail pages' official-links list, derived from the frontmatter the
-// sync tool maintains; labels are presentation, not data.
-export function entryLinks(entry: ActiveEntry): { label: string; url: string }[] {
-  const { url, pdfJa = [], pdfEn = [] } = entry.data;
-  const links: { label: string; url: string }[] = [];
-  if (url) {
-    links.push({
-      label: entry.collection === "projects" ? "紹介ページ（熊本県）" : "公式サイト",
-      url,
-    });
-  }
-  const numbered = (urls: string[], lang: string) =>
-    urls.map((u, i) => ({
-      label: urls.length > 1 ? `PDF（${lang}・${i + 1}）` : `PDF（${lang}）`,
-      url: u,
-    }));
-  links.push(...numbered(pdfJa, "日本語"), ...numbered(pdfEn, "英語"));
-  return links;
+// The one link the frontmatter owns: the entry's page on the prefecture site
+// (kap92 has none). Every other link — the PDFs — is written by hand in the
+// body (ADR 0016).
+export function sourceLink(entry: ActiveEntry): { label: string; url: string } | null {
+  const { url } = entry.data;
+  if (!url) return null;
+  return {
+    label: entry.collection === "projects" ? "紹介ページ（熊本県）" : "公式サイト",
+    url,
+  };
 }
 
 if (import.meta.vitest) {
   const { expect, test } = import.meta.vitest;
 
-  const active = (data: Record<string, unknown>) =>
-    ({ collection: "projects", id: "0001-x", data }) as unknown as ActiveEntry;
+  const entry = (collection: "projects" | "kap92", data: Record<string, unknown>) =>
+    ({ collection, id: "0001-x", data }) as unknown as ActiveEntry;
 
   test("isActive keys on the excluded flag, so a marker row can never reach the table, map, or a page", () => {
     expect(isActive({ collection: "projects", id: "a", data: { url: "x" } } as CatalogEntry)).toBe(
@@ -47,24 +39,12 @@ if (import.meta.vitest) {
     ).toBe(false);
   });
 
-  test("PDF labels are numbered per language only when that language has several, matching how the imported bodies used to read", () => {
-    const one = entryLinks(active({ url: "u", pdfJa: ["p1"], pdfEn: ["e1"] }));
-    expect(one.map((l) => l.label)).toEqual([
-      "紹介ページ（熊本県）",
-      "PDF（日本語）",
-      "PDF（英語）",
-    ]);
-    const two = entryLinks(active({ url: "u", pdfJa: ["p1", "p2"], pdfEn: ["e1"] }));
-    expect(two.map((l) => l.label)).toEqual([
-      "紹介ページ（熊本県）",
-      "PDF（日本語・1）",
-      "PDF（日本語・2）",
-      "PDF（英語）",
-    ]);
-  });
-
-  test("an entry without pdfs still links its source page, and one without a url (kap92) gets no links at all", () => {
-    expect(entryLinks(active({ url: "u" }))).toEqual([{ label: "紹介ページ（熊本県）", url: "u" }]);
-    expect(entryLinks(active({}))).toEqual([]);
+  test("the source link is labelled by collection, and an entry without a url (kap92) has none", () => {
+    expect(sourceLink(entry("projects", { url: "u" }))).toEqual({
+      label: "紹介ページ（熊本県）",
+      url: "u",
+    });
+    expect(sourceLink(entry("kap92", { url: "u" }))?.label).toBe("公式サイト");
+    expect(sourceLink(entry("kap92", {}))).toBeNull();
   });
 }

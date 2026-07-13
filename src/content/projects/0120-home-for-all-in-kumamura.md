@@ -2,7 +2,6 @@
 number: 120
 name: 球磨村のみんなの家
 location: 球磨村渡
-municipality: 球磨村
 lat: 32.2702
 lng: 130.6807
 architects:

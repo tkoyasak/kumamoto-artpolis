@@ -2,7 +2,6 @@
 number: 108
 name: 室第二のみんなの家
 location: 菊池郡大津町大字室1902番地1
-municipality: 大津町
 lat: 32.8827
 lng: 130.8603
 architects:

@@ -2,7 +2,6 @@
 number: 90
 name: 大腸肛門病センター高野病院
 location: 熊本市中央区大江3丁目2-55
-municipality: 熊本市中央区
 lat: 32.8031
 lng: 130.7242
 architects:
@@ -10,6 +9,6 @@ architects:
 completedYear: 2017
 use: 病院
 url: https://www.pref.kumamoto.jp/soshiki/115/4386.html
-pdfJa:
-  - https://www.pref.kumamoto.jp/uploaded/attachment/186482.pdf
 ---
+
+- [PDF（日本語）](https://www.pref.kumamoto.jp/uploaded/attachment/186482.pdf)

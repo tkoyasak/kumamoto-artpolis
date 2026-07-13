@@ -2,7 +2,6 @@
 number: 67
 name: 合志市保健福祉センター「ふれあい館」
 location: 合志市須屋2251-1
-municipality: 合志市
 lat: 32.8689
 lng: 130.7429
 architects:
@@ -10,8 +9,7 @@ architects:
 completedYear: 2002
 use: 保健福祉センター
 url: https://www.pref.kumamoto.jp/soshiki/115/4596.html
-pdfJa:
-  - https://www.pref.kumamoto.jp/uploaded/attachment/186243.pdf
-pdfEn:
-  - https://www.pref.kumamoto.jp/uploaded/attachment/42893.pdf
 ---
+
+- [PDF（日本語）](https://www.pref.kumamoto.jp/uploaded/attachment/186243.pdf)
+- [PDF（英語）](https://www.pref.kumamoto.jp/uploaded/attachment/42893.pdf)

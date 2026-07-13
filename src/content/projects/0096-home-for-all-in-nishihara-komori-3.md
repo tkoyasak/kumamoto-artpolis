@@ -2,7 +2,6 @@
 number: 96
 name: 西原村小森第3のみんなの家（集会所）
 location: 阿蘇郡西原村小森3157-1
-municipality: 西原村
 lat: 32.8446
 lng: 130.9514
 architects:

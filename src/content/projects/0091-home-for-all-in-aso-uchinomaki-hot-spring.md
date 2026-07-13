@@ -2,7 +2,6 @@
 number: 91
 name: 阿蘇内牧温泉みんなの家
 location: 阿蘇市内牧1105-1
-municipality: 阿蘇市
 lat: 32.9673
 lng: 131.0511
 architects:
@@ -10,6 +9,6 @@ architects:
 completedYear: 2016
 use: 介護老人保健施設・みんなの家
 url: https://www.pref.kumamoto.jp/soshiki/115/83935.html
-pdfJa:
-  - https://www.pref.kumamoto.jp/uploaded/attachment/186483.pdf
 ---
+
+- [PDF（日本語）](https://www.pref.kumamoto.jp/uploaded/attachment/186483.pdf)

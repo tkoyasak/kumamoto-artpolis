@@ -2,7 +2,6 @@
 number: 107
 name: 甲佐町住まいの復興拠点施設
 location: 熊本県上益城郡甲佐町大字豊内地内
-municipality: 甲佐町
 lat: 32.6496
 lng: 130.8198
 architects:
@@ -10,6 +9,6 @@ architects:
 completedYear: 2020
 use: 長屋、集会所
 url: https://www.pref.kumamoto.jp/soshiki/115/4622.html
-pdfJa:
-  - https://www.pref.kumamoto.jp/uploaded/attachment/186493.pdf
 ---
+
+- [PDF（日本語）](https://www.pref.kumamoto.jp/uploaded/attachment/186493.pdf)

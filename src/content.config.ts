@@ -2,34 +2,47 @@ import { glob } from "astro/loaders";
 import { z } from "astro/zod";
 import { defineCollection, reference } from "astro:content";
 
+import { municipalityOf } from "./lib/address.ts";
+
 // Both catalog collections share one schema. The Markdown filename is the
 // entry id, `NNNN-<slug>` (ADR 0008/0014) — keep filenames stable; `number`
 // is display/sort only (a test pins prefix == number). The frontmatter is the
 // source of truth the sync tool fills and diffs against (ADR 0013); the body
 // is human-owned prose. `completedYear` is optional and only `.positive()`
 // (kap92 buildings can be historical); `use` is free text.
-const activeSchema = z.object({
-  number: z.number().int().positive(),
-  name: z.string().min(1),
-  // The official 所在地, verbatim — the datum lat/lng are geocoded from, and
-  // the only field that can catch the prefecture rewriting an address.
-  // Optional: a few pages carry no 所在地, and kap92 has no page at all.
-  // `municipality` is NOT derived from it: pre-2012 熊本市 addresses name no
-  // ward, so the ward comes from geocoding (ADR 0015).
-  location: z.string().min(1).optional(),
-  municipality: z.string().min(1),
-  lat: z.number().min(-90).max(90),
-  lng: z.number().min(-180).max(180),
-  architects: z.array(z.string().min(1)),
-  completedYear: z.number().int().positive().optional(),
-  use: z.string().min(1),
-  // The source page the sync tool re-fetches from. Optional only because
-  // kap92 buildings have no prefecture detail page; the tool fills it for
-  // every project.
-  url: z.url().optional(),
-  pdfJa: z.array(z.url()).min(1).optional(),
-  pdfEn: z.array(z.url()).min(1).optional(),
-});
+// `municipality` is not a field: it is derived from `location` (ADR 0016), so
+// the address is the only place a place is written down. The derivation
+// rejects a ward-less 熊本市 address, which fails the build rather than
+// quietly showing a coarser municipality than the entry deserves.
+const activeSchema = z
+  .object({
+    number: z.number().int().positive(),
+    name: z.string().min(1),
+    // The address, hand-curated: the prefecture's 所在地 with the 政令市 ward
+    // filled in where its pre-2012 wording omits one. Coordinates are geocoded
+    // from it.
+    location: z.string().min(1),
+    lat: z.number().min(-90).max(90),
+    lng: z.number().min(-180).max(180),
+    architects: z.array(z.string().min(1)),
+    completedYear: z.number().int().positive().optional(),
+    use: z.string().min(1),
+    // The entry's page on the prefecture site — what `bun run check-projects`
+    // re-fetches to compare against. kap92 buildings have none.
+    url: z.url().optional(),
+  })
+  .transform((data, ctx) => {
+    const municipality = municipalityOf(data.location);
+    if (!municipality) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["location"],
+        message: `no municipality in 「${data.location}」 (a 熊本市 address must name its ward)`,
+      });
+      return z.NEVER;
+    }
+    return { ...data, municipality };
+  });
 
 // Official-list rows that are not visitable buildings (plans, programmes)
 // stay in the collection as excluded markers so the sync tool knows the
@@ -81,7 +94,6 @@ if (import.meta.vitest) {
     number: 1,
     name: "some hall",
     location: "熊本市中央区某町1-1",
-    municipality: "熊本市中央区",
     lat: 32.8,
     lng: 130.7,
     architects: ["someone"],
@@ -118,11 +130,16 @@ if (import.meta.vitest) {
     expect(catalogSchema.safeParse(withoutUrl).success).toBe(true);
   });
 
-  test("municipality is required while location is optional: the ward is geocoded, not parsed out of the address (ADR 0015)", () => {
+  test("municipality is derived from location, not stored — the address is the only place a place is written down (ADR 0016)", () => {
+    const parsed = catalogSchema.parse(catalogFrontmatter);
+    expect(parsed).toMatchObject({ municipality: "熊本市中央区" });
+  });
+
+  test("an address the municipality can't be read out of fails the build instead of rendering a ward-less row", () => {
+    const wardless = { ...catalogFrontmatter, location: "熊本市某町1-1" };
+    expect(catalogSchema.safeParse(wardless).success).toBe(false);
     const { location: _location, ...withoutLocation } = catalogFrontmatter;
-    expect(catalogSchema.safeParse(withoutLocation).success).toBe(true);
-    const { municipality: _municipality, ...withoutMunicipality } = catalogFrontmatter;
-    expect(catalogSchema.safeParse(withoutMunicipality).success).toBe(false);
+    expect(catalogSchema.safeParse(withoutLocation).success).toBe(false);
   });
 
   test("an excluded marker needs only number/name/reason: official-list rows without a building must not be forced to invent coordinates", () => {

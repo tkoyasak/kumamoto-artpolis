@@ -2,7 +2,6 @@
 number: 94
 name: 南阿蘇村陽ノ丘のみんなの家（集会所）
 location: 阿蘇郡南阿蘇村河陽4545
-municipality: 南阿蘇村
 lat: 32.8698
 lng: 131.0005
 architects:

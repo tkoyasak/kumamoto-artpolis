@@ -2,7 +2,6 @@
 number: 105
 name: 宇土市境目第2のみんなの家
 location: 宇土市境目町字帆立町483-1の一部
-municipality: 宇土市
 lat: 32.6773
 lng: 130.6724
 architects:

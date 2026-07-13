@@ -2,7 +2,6 @@
 number: 119
 name: 八代市のみんなの家
 location: 八代市坂本町
-municipality: 八代市
 lat: 32.3937
 lng: 130.6053
 architects:

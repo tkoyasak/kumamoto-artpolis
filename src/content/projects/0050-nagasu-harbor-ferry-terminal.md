@@ -1,8 +1,7 @@
 ---
 number: 50
 name: 有明フェリー長洲港ターミナル
-location: "玉名郡長洲町長洲字下原2168&minus;22 （有明フェリーHP）https://www.ariake-ferry.com/terminal/nagasu/＜外部リンク＞"
-municipality: 長洲町
+location: 玉名郡長洲町長洲字下原2168-22
 lat: 32.9322
 lng: 130.4467
 architects:
@@ -10,8 +9,7 @@ architects:
 completedYear: 1996
 use: 待合所
 url: https://www.pref.kumamoto.jp/soshiki/115/4328.html
-pdfJa:
-  - https://www.pref.kumamoto.jp/uploaded/attachment/186226.pdf
-pdfEn:
-  - https://www.pref.kumamoto.jp/uploaded/attachment/42876.pdf
 ---
+
+- [PDF（日本語）](https://www.pref.kumamoto.jp/uploaded/attachment/186226.pdf)
+- [PDF（英語）](https://www.pref.kumamoto.jp/uploaded/attachment/42876.pdf)

@@ -2,7 +2,6 @@
 number: 89
 name: 天草市本庁舎
 location: 天草市東浜町8-1
-municipality: 天草市
 lat: 32.4583
 lng: 130.1926
 architects:

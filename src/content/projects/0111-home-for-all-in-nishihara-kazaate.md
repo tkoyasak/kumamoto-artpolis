@@ -2,7 +2,6 @@
 number: 111
 name: 西原村風当のみんなの家
 location: 西原村大字小森字風当1252番地2
-municipality: 西原村
 lat: 32.8446
 lng: 130.9514
 architects:

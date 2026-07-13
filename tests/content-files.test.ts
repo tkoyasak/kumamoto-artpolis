@@ -38,17 +38,6 @@ test("a catalog filename's number prefix matches the frontmatter number — a mi
   }
 });
 
-test("where an address does name a ward, municipality agrees with it — municipality is geocoded, not parsed out of location (ADR 0015), and this is the only place the two can be cross-checked", () => {
-  for (const dir of ["projects", "kap92"]) {
-    for (const name of mdFiles(dir)) {
-      const raw = readFileSync(new URL(`../src/content/${dir}/${name}`, import.meta.url), "utf8");
-      const ward = raw.match(/^location: .*?(熊本市(?:中央|東|西|南|北)区)/m)?.[1];
-      if (!ward) continue;
-      expect(raw.match(/^municipality: (.+)$/m)?.[1], `${dir}/${name}`).toBe(ward);
-    }
-  }
-});
-
 test("every real href gets a distinct transition name — the sanitizer collapses punctuation runs, so distinct ids could collide", () => {
   const hrefs = [
     ...ids("projects").map((id) => `/projects/${id}`),

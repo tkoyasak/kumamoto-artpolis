@@ -2,7 +2,6 @@
 number: 88
 name: 天草アーバ（リップルランド公園東屋及び周辺整備）
 location: 天草市有明町上津浦美ノ越1951-2
-municipality: 天草市
 lat: 32.4854
 lng: 130.3083
 architects:
@@ -10,8 +9,7 @@ architects:
 completedYear: 2013
 use: 東屋及び公園
 url: https://www.pref.kumamoto.jp/soshiki/115/4378.html
-pdfJa:
-  - https://www.pref.kumamoto.jp/uploaded/attachment/186480.pdf
-pdfEn:
-  - https://www.pref.kumamoto.jp/uploaded/attachment/42913.pdf
 ---
+
+- [PDF（日本語）](https://www.pref.kumamoto.jp/uploaded/attachment/186480.pdf)
+- [PDF（英語）](https://www.pref.kumamoto.jp/uploaded/attachment/42913.pdf)

@@ -2,7 +2,6 @@
 number: 93
 name: 甲佐町白旗のみんなの家（集会所）
 location: 上益城郡甲佐町大字早川2100番2
-municipality: 甲佐町
 lat: 32.6893
 lng: 130.8087
 architects:
@@ -10,6 +9,6 @@ architects:
 completedYear: 2016
 use: 集会所
 url: https://www.pref.kumamoto.jp/soshiki/115/4572.html
-pdfJa:
-  - https://www.pref.kumamoto.jp/uploaded/attachment/186485.pdf
 ---
+
+- [PDF（日本語）](https://www.pref.kumamoto.jp/uploaded/attachment/186485.pdf)

@@ -18,9 +18,10 @@ by hover state.
   the URL and how `status` references entries; keep filenames stable.
 - **`status` is the source of truth for visit dates** — entries never store
   their own.
-- **Entry frontmatter is data, the body is human prose** — the sync tool
-  (`bun run sync-projects`) fills missing frontmatter and reports drift, but
-  never overwrites values or touches bodies.
+- **The entries are hand-curated; no tool writes them** — the checker
+  (`bun run check-projects`) only reports what the prefecture page says.
+- **`municipality` is derived from `location`**, not stored — an address must
+  name its 熊本市 ward or the build fails.
 
 ## Docs index
 

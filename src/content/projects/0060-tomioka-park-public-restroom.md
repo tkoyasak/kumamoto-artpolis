@@ -2,7 +2,6 @@
 number: 60
 name: 富岡園地公衆トイレ
 location: 天草郡苓北町四季咲岬
-municipality: 苓北町
 lat: 32.5223
 lng: 130.0294
 architects:
@@ -10,8 +9,7 @@ architects:
 completedYear: 1999
 use: 公衆トイレ
 url: https://www.pref.kumamoto.jp/soshiki/115/4599.html
-pdfJa:
-  - https://www.pref.kumamoto.jp/uploaded/attachment/186236.pdf
-pdfEn:
-  - https://www.pref.kumamoto.jp/uploaded/attachment/42886.pdf
 ---
+
+- [PDF（日本語）](https://www.pref.kumamoto.jp/uploaded/attachment/186236.pdf)
+- [PDF（英語）](https://www.pref.kumamoto.jp/uploaded/attachment/42886.pdf)

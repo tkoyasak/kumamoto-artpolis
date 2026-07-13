@@ -2,7 +2,6 @@
 number: 98
 name: 益城町木山のみんなの家（集会所A）
 location: 上益城郡益城町木山866-1益城町木山仮設団地
-municipality: 益城町
 lat: 32.797
 lng: 130.8179
 architects:

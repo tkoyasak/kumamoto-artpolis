@@ -39,11 +39,16 @@ school, park, bridge, station, and so on).
 _Avoid_: type, purpose
 
 **Location**:
-An Entry's official 所在地, stored verbatim — the datum its coordinates are
-geocoded from. Distinct from **Municipality**, which is not parsed out of it:
-pre-2012 熊本市 addresses name no ward, so the ward comes from geocoding
-(ADR 0015).
+An Entry's address: the official 所在地 with the 政令市 ward filled in where
+the prefecture's older wording omits one. The datum the coordinates are
+geocoded from, and the one **Municipality** is derived from (ADR 0016).
 _Avoid_: address (fine in prose, but the field is `location`), municipality
+
+**Municipality**:
+The 市町村 an Entry stands in — a 政令市 ward where there is one (熊本市中央区).
+Not a stored field: derived from **Location** by the schema (ADR 0016). The
+table shows it and, one day, filters on it.
+_Avoid_: city, town, prefecture
 
 **Excluded marker**:
 An official-list row that is not a visitable building (a plan, programme, or

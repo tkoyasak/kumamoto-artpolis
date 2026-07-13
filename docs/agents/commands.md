@@ -11,7 +11,7 @@ bun devDependency.
 - `bun run test` — `vitest run` (invariant tests; see below)
 - `bun run e2e` — Playwright (see below)
 - `bun run content` — regenerate `src/content/README.md` (also a pre-commit hook on `src/content/*.md`)
-- `bun run sync-projects` — check `src/content/projects/` against the prefecture list: fill missing frontmatter, report drift and new numbers (see content-model.md)
+- `bun run check-projects [file...]` — report how entries differ from their prefecture page; never writes (see content-model.md)
 - `bun run deploy` — build + `wrangler deploy --strict`
 - `bun run clean` — remove Astro caches, the Vite dep-optimizer cache
   (`node_modules/.vite`), and `dist/`. Clearing `.vite` is the fix for a dev

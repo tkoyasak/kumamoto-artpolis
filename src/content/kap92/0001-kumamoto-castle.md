@@ -1,7 +1,7 @@
 ---
 number: 1
 name: 熊本城
-municipality: 熊本市
+location: 熊本市中央区本丸1-1
 lat: 32.806
 lng: 130.706
 architects:

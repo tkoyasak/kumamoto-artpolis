@@ -2,7 +2,6 @@
 number: 102
 name: 宇城市御領のみんなの家
 location: 宇城市御領35
-municipality: 宇城市
 lat: 32.6572
 lng: 130.6725
 architects:

@@ -2,7 +2,6 @@
 number: 103
 name: 阿蘇市内牧のみんなの家
 location: 阿蘇市内牧267-3
-municipality: 阿蘇市
 lat: 32.9673
 lng: 131.0511
 architects:

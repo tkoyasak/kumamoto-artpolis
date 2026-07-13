@@ -2,7 +2,6 @@
 number: 108
 name: 宇土市新松原のみんなの家
 location: 宇土市新松原町
-municipality: 宇土市
 lat: 32.6884
 lng: 130.6705
 architects:

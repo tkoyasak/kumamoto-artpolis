@@ -2,7 +2,7 @@
 import { render } from "astro:content";
 
 import Base from "../layouts/Base.astro";
-import { type ActiveEntry, entryLinks } from "../lib/catalog.ts";
+import { type ActiveEntry, sourceLink } from "../lib/catalog.ts";
 import { entryMapFocus, toEntryRow } from "../lib/entries.ts";
 import { toStatusRow } from "../lib/status.ts";
 import DetailBody from "./DetailBody.astro";
@@ -20,7 +20,7 @@ const { entry, visits = [] } = Astro.props;
 const { Content } = await render(entry);
 
 const row = toEntryRow(entry);
-const links = entryLinks(entry);
+const source = sourceLink(entry);
 const visitRows = visits.map((id) => toStatusRow(id, entry));
 ---
 
@@ -28,16 +28,14 @@ const visitRows = visits.map((id) => toStatusRow(id, entry));
   <Fragment slot="entry">
     <EntryDetailTable rows={[row]} />
     <DetailBody>
-      {/* Official links come from the frontmatter the sync tool maintains;
-          the Markdown body below is human-owned prose. */}
+      {/* The source page is frontmatter (the tool fetches from it); the PDF
+          links and everything else are hand-written in the body. */}
       {
-        links.length > 0 && (
+        source && (
           <ul>
-            {links.map((link) => (
-              <li>
-                <a href={link.url}>{link.label}</a>
-              </li>
-            ))}
+            <li>
+              <a href={source.url}>{source.label}</a>
+            </li>
           </ul>
         )
       }

@@ -2,7 +2,6 @@
 number: 100
 name: 益城町テクノのみんなの家（集会所B2）
 location: 上益城郡益城町小谷2083-7 益城町テクノ仮設団地（B工区）
-municipality: 益城町
 lat: 32.8206
 lng: 130.8562
 architects:

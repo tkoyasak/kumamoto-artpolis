@@ -2,7 +2,6 @@
 number: 102
 name: 宇城市曲野長谷川のみんなの家
 location: 宇城市松橋町曲野3502
-municipality: 宇城市
 lat: 32.661
 lng: 130.6958
 architects:

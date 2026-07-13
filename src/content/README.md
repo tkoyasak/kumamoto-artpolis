@@ -6,26 +6,140 @@
 
 Artpolis commissioned new builds, listed at <https://www.pref.kumamoto.jp/soshiki/115/83273.html>.
 
-| number | id                                   | name                                |
-| -----: | ------------------------------------ | ----------------------------------- |
-|      1 | `hozukubo-daiichi-danchi`            | 熊本県営保田窪第一団地              |
-|      2 | `yatsushiro-municipal-museum`        | 八代市立博物館 未来の森ミュージアム |
-|      3 | `kumamoto-decorative-tumulus-museum` | 熊本県立装飾古墳館                  |
-|      4 | `reihoku-town-hall`                  | 苓北町民ホール                      |
+| number | id                                                                        | name                                                           |
+| -----: | ------------------------------------------------------------------------- | -------------------------------------------------------------- |
+|      1 | `kumamoto-kita-police-station`                                            | 熊本北警察署（現 熊本中央警察署）                              |
+|      2 | `kumamoto-prefecture-hotakubo-daiichi-public-housing-complex`             | 県営保田窪第一団地                                             |
+|      3 | `kakuto-tunnel-ventilation-facility`                                      | 加久藤トンネル換気所                                           |
+|      4 | `misumi-harbor-ferry-terminal`                                            | 三角港フェリーターミナル（海のピラミッド）                     |
+|      5 | `yatsushiro-municipal-museum`                                             | 八代市立博物館・未来の森ミュージアム                           |
+|      6 | `kumamoto-city-hanabata-park-public-restroom`                             | 熊本市花畑パークトイレ                                         |
+|      7 | `kumamoto-city-kami-ezu-lakeside-public-restroom`                         | 熊本市上江津湖畔トイレ                                         |
+|      8 | `kumamoto-municipal-shinchi-public-housing-complex-block-a`               | 熊本市営新地団地Ａ                                             |
+|      9 | `kumamoto-municipal-shinchi-public-housing-complex-block-b`               | 熊本市営新地団地Ｂ                                             |
+|     10 | `kumamoto-municipal-shinchi-public-housing-complex-block-c`               | 熊本市営新地団地Ｃ                                             |
+|     11 | `kumamoto-municipal-shinchi-public-housing-complex-block-d`               | 熊本市営新地団地Ｄ                                             |
+|     12 | `kumamoto-municipal-shinchi-public-housing-complex-block-e`               | 熊本市営新地団地Ｅ                                             |
+|     14 | `kumamoto-municipal-takuma-public-housing-complex`                        | 熊本市営託麻団地                                               |
+|     16 | `ushibuka-haiya-bridge`                                                   | 牛深ハイヤ大橋                                                 |
+|     17 | `kumamoto-prefecture-obiyama-public-housing-complex-a`                    | 県営帯山Ａ団地                                                 |
+|     19 | `yunoka-bridge`                                                           | 湯の香橋                                                       |
+|     20 | `seiwa-bunraku-puppet-theater`                                            | 清和文楽館                                                     |
+|     21 | `kumamoto-prefecture-decorative-tumulus-museum`                           | 県立装飾古墳館                                                 |
+|     22 | `kuma-high-school-of-industry-traditional-architecture-workshop`          | 球磨工業高校伝統建築コース加工組立室棟                         |
+|     23 | `ayunose-bridge`                                                          | 鮎の瀬大橋                                                     |
+|     25 | `kami-amakusa-city-aizu-sewer-plant-control-facility`                     | 上天草市合津終末処理場管理棟                                   |
+|     26 | `ishiuchi-dam-maintenance-facility`                                       | 石打ダム管理所                                                 |
+|     27 | `kumamoto-prefecture-shin-toroku-public-housing-complex`                  | 県営新渡鹿団地                                                 |
+|     29 | `tamana-city-observatory-museum`                                          | 玉名天望館                                                     |
+|     31 | `kumamoto-grasslands-stockbreeding-research-institute`                    | 草地畜産研究所畜舎                                             |
+|     32 | `saishunkan-ladies-residence`                                             | 再春館レディースレジデンス                                     |
+|     33 | `kumamoto-prefecture-museum-of-art-chibajo-branch`                        | 県立美術館分館                                                 |
+|     34 | `yunomae-cartoon-museum-and-community-center`                             | 湯前まんが美術館・公民館                                       |
+|     35 | `kumamoto-prefecture-ryujabira-public-housing-complex`                    | 県営竜蛇平団地                                                 |
+|     36 | `tsunagi-local-products-gallery`                                          | つなぎ物産ギャラリー                                           |
+|     37 | `sakitsu-hilltop-park`                                                    | 教会の見えるチャペルの鐘展望公園                               |
+|     38 | `ubuyama-greenhouse-spa`                                                  | 花の温泉館                                                     |
+|     39 | `toto-aquapit-aso-public-restroom`                                        | TOTO AQUAPIT ASO（阿蘇山上公共トイレ）                         |
+|     40 | `shirakawa-bridge-landscaping`                                            | 白川橋景観整備                                                 |
+|     41 | `tsuetate-bridge-and-tsuetate-multipurpose-hall`                          | 杖立橋＋Pホール                                                |
+|     42 | `ishiuchi-dam-museum`                                                     | 石打ダム資料館                                                 |
+|     43 | `amakusa-visitors-center-service-house`                                   | 天草ビジターセンター・天草展望休憩所                           |
+|     44 | `ushibuka-fishermans-wharf-kaisaikan`                                     | うしぶか海彩館                                                 |
+|     45 | `shiranuhi-culture-plaza`                                                 | 不知火文化プラザ                                               |
+|     46 | `mamihara-bridge`                                                         | 馬見原橋                                                       |
+|     47 | `amakusa-technical-high-school-workshop-building-and-gymnasium`           | 天草工業高校実習棟・体育館                                     |
+|     48 | `kumamoto-kita-police-station-tsuboi-police-box`                          | 熊本北警察署坪井交番（現熊本中央警察署坪井交番）               |
+|     49 | `izumi-village-center`                                                    | ふれあいセンターいずみ                                         |
+|     50 | `nagasu-harbor-ferry-terminal`                                            | 有明フェリー長洲港ターミナル                                   |
+|     51 | `arao-police-station-nagasu-police-box`                                   | 荒尾警察署長洲交番                                             |
+|     52 | `kumamoto-prefecture-ashikita-youth-center`                               | 県立あしきた青少年の家                                         |
+|     53 | `kusasenri-public-restroom`                                               | 草千里公衆トイレ                                               |
+|     54 | `uto-marina-house`                                                        | 宇土マリーナハウス                                             |
+|     55 | `black-log-legs-garden`                                                   | 阿蘇・散墨園                                                   |
+|     56 | `fisheries-control-office`                                                | 漁業取締事務所                                                 |
+|     57 | `suizenji-ezuko-lake-park-management-office`                              | 水前寺江津湖公園管理棟                                         |
+|     58 | `kahoku-art-project`                                                      | 鹿北町アート・プロジェクト                                     |
+|     59 | `kumamoto-prefecture-agricultural-college-dormitory`                      | 熊本県立農業大学校学生寮                                       |
+|     60 | `tomioka-park-public-restroom`                                            | 富岡園地公衆トイレ                                             |
+|     61 | `hikawa-dam-maintenance-facility`                                         | 氷川ダム管理所                                                 |
+|     62 | `aso-police-station-uchinomaki-police-box`                                | 阿蘇警察署内牧交番                                             |
+|     63 | `yatsushiro-municipal-koda-akebono-nursery-school`                        | 八代市立高田あけぼの保育園                                     |
+|     65 | `misato-town-culture-and-communication-center-hibiki`                     | 美里町文化交流センター「ひびき」                               |
+|     66 | `seiwa-bunraku-mura-road-station-public-restroom`                         | 清和文楽邑道の駅公衆トイレ                                     |
+|     67 | `koshi-health-and-welfare-center`                                         | 合志市保健福祉センター「ふれあい館」                           |
+|     68 | `reihoku-community-hall`                                                  | 苓北町民ホール                                                 |
+|     69 | `oguni-town-kitazato-elementary-school-gymnasium`                         | 小国町立北里小学校屋内運動場                                   |
+|     70 | `misato-forestry-center`                                                  | 美里町林業総合センター                                         |
+|     71 | `ichinomiya-quaint-country-market`                                        | 一の宮直売所「四季彩いちのみや」・加工所「工房阿蘇ものがたり」 |
+|     72 | `seiwa-local-dishes-restaurant`                                           | 清和郷土料理館                                                 |
+|     73 | `yatsushiro-monument-kilali`                                              | 新八代駅前モニュメント「きらり」                               |
+|     74 | `kyusendo-recreation-village-final-wooden-house`                          | 球泉洞休暇村バンガロー                                         |
+|     75 | `kyusendo-recreation-village-r2-wooden-lace`                              | 球泉洞休暇村バンガロー（R2)                                    |
+|     76 | `ashikita-community-hall`                                                 | 芦北町地域資源活用総合交流促進施設（交流センター）             |
+|     77 | `shirakawa-gate-east-exit-square-of-kumamoto-station`                     | 熊本駅白川口（東口）駅前広場                                   |
+|     78 | `uto-municipal-uto-elementary-school`                                     | 宇土市立宇土小学校                                             |
+|     79 | `uto-municipal-amitsu-elementary-school`                                  | 宇土市立網津小学校                                             |
+|     80 | `shinkansen-gate-west-exit-square-of-kumamoto-station`                    | 熊本駅新幹線口（西口）駅前広場                                 |
+|     81 | `uki-city-toyono-elementary-and-junior-high-school`                       | 宇城市立豊野小中学校                                           |
+|     82 | `kikuchi-pocket-park`                                                     | 菊池市街地ポケットパーク                                       |
+|     83 | `public-lavatory-on-the-green-left-bank-of-shirakawa-bridge`              | 白川橋左岸緑地トイレ                                           |
+|     84 | `kumamoto-south-police-kumamoto-station-koban`                            | 熊本南警察署熊本駅交番                                         |
+|     85 | `kumamoto-prefectural-kuma-technical-high-school-administration-building` | 熊本県立球磨工業高校管理棟                                     |
+|     86 | `nagomi-town-mikawa-elementary-and-junior-high-school`                    | 和水町立三加和地区小中併設型校舎                               |
+|     88 | `amakusa-arbor`                                                           | 天草アーバ（リップルランド公園東屋及び周辺整備）               |
+|     89 | `amakusa-city-main-building`                                              | 天草市本庁舎                                                   |
+|     90 | `coloproctology-center-takano-hospital`                                   | 大腸肛門病センター高野病院                                     |
+|     91 | `home-for-all-in-aso-uchinomaki-hot-spring`                               | 阿蘇内牧温泉みんなの家                                         |
+|     92 | `kumamoto-prefecture-disaster-relief-aviation-center`                     | 熊本県総合防災航空センター                                     |
+|     93 | `home-for-all-in-kosa-shirahata`                                          | 甲佐町白旗のみんなの家（集会所）                               |
+|     94 | `home-for-all-in-minamiaso-hinooka`                                       | 南阿蘇村陽ノ丘のみんなの家（集会所）                           |
+|     95 | `home-for-all-in-nishihara-komori-2`                                      | 西原村小森第2のみんなの家（集会所）                            |
+|     96 | `home-for-all-in-nishihara-komori-3`                                      | 西原村小森第3のみんなの家（集会所）                            |
+|     97 | `home-for-all-in-nishihara-komori-4`                                      | 西原村小森第4のみんなの家（集会所）                            |
+|     98 | `home-for-all-in-mashiki-kiyama`                                          | 益城町木山のみんなの家（集会所A）                              |
+|     99 | `home-for-all-in-mashiki-koike-shimada`                                   | 益城町小池島田のみんなの家（集会所）                           |
+|    100 | `home-for-all-in-mashiki-techno`                                          | 益城町テクノのみんなの家（集会所B2）                           |
+|    101 | `home-for-all-in-mifune-tamamushi`                                        | 御船町玉虫のみんなの家                                         |
+|    101 | `home-for-all-in-mifune-amagi`                                            | 御船町甘木のみんなの家                                         |
+|    101 | `home-for-all-in-misato-kusunokidaira`                                    | 美里町くすのき平のみんなの家                                   |
+|    102 | `home-for-all-in-uki-magano-hasegawa`                                     | 宇城市曲野長谷川のみんなの家                                   |
+|    102 | `home-for-all-in-uki-goryo`                                               | 宇城市御領のみんなの家                                         |
+|    103 | `home-for-all-in-kumamoto-jonan-sansan`                                   | 熊本市城南町さんさん2丁目のみんなの家                          |
+|    103 | `home-for-all-in-aso-uchinomaki`                                          | 阿蘇市内牧のみんなの家                                         |
+|    104 | `uto-sakaime-municipal-public-disaster-housing-complex`                   | 宇土市営境目団地災害公営住宅                                   |
+|    105 | `home-for-all-in-uto-sakaime-2`                                           | 宇土市境目第2のみんなの家                                      |
+|    105 | `home-for-all-in-uto-sakaime-3`                                           | 宇土市境目第3のみんなの家                                      |
+|    106 | `shirahata-municipal-public-disaster-housing-complex`                     | 甲佐町営白旗団地災害公営住宅                                   |
+|    106 | `otome-municipal-public-disaster-housing-complex`                         | 甲佐町営乙女団地災害公営住宅                                   |
+|    107 | `kosa-municipal-public-disaster-housing-complex`                          | 甲佐町住まいの復興拠点施設                                     |
+|    108 | `home-for-all-in-ozu-muro-daini`                                          | 室第二のみんなの家                                             |
+|    108 | `home-for-all-in-uto-shin-matsubara`                                      | 宇土市新松原のみんなの家                                       |
+|    109 | `hibikihara-municipal-public-disaster-housing-complex`                    | 宇城市豊野町響原災害公営住宅                                   |
+|    110 | `home-for-all-in-ozu-shingoya`                                            | 大津町新小屋のみんなの家                                       |
+|    110 | `home-for-all-in-kashima-kamirokka`                                       | 嘉島町上六嘉のみんなの家                                       |
+|    110 | `home-for-all-in-nishihara-okirihata`                                     | 西原村大切畑のみんなの家                                       |
+|    110 | `home-for-all-in-kashima-kita-amagi`                                      | 嘉島町北甘木のみんなの家                                       |
+|    110 | `home-for-all-in-ozu-takaono`                                             | 大津町高尾野のみんなの家                                       |
+|    111 | `home-for-all-in-nishihara-kazaate`                                       | 西原村風当のみんなの家                                         |
+|    111 | `home-for-all-in-nishihara-shimo-komori`                                  | 西原村下小森のみんなの家                                       |
+|    111 | `home-for-all-in-minamiaso-tateno-station`                                | 南阿蘇村立野駅のみんなの家                                     |
+|    111 | `home-for-all-in-kosa-asobaru`                                            | 甲佐町麻生原のみんなの家                                       |
+|    111 | `home-for-all-in-ozu-uwaage`                                              | 大津町上揚のみんなの家                                         |
+|    112 | `minamiaso-railway-takamori-station-community-facility`                   | 南阿蘇鉄道高森駅・交流施設                                     |
+|    113 | `kumamoto-earthquake-museum-exhibition-hall`                              | 熊本地震震災ミュージアム 体験・展示施設                        |
+|    114 | `ever-field-woodworking-plant`                                            | エバーフィールド木材加工場                                     |
+|    115 | `mt-tatsuda-recreational-forest-and-omatsuri-hiroba-park-public-restroom` | 立田山憩の森・お祭り広場公衆トイレ                             |
+|    116 | `ashikita-town-tomoda-housing-complex`                                    | 芦北町地域優良賃貸住宅友田団地                                 |
+|    117 | `takahashi-shuzo-tano-distillery-and-community-facility`                  | 高橋酒造 田野蒸留所・地域交流施設                              |
+|    118 | `home-for-all-in-hitoyoshi`                                               | 人吉市のみんなの家                                             |
+|    119 | `home-for-all-in-yatsushiro`                                              | 八代市のみんなの家                                             |
+|    120 | `home-for-all-in-kumamura`                                                | 球磨村のみんなの家                                             |
 
 ## `kap92/`
 
 KAP'92 selected existing buildings, listed at <https://www.pref.kumamoto.jp/soshiki/115/4477.html>.
 
-| number | id                | name   |
-| -----: | ----------------- | ------ |
-|      1 | `kumamoto-castle` | 熊本城 |
-
 ## `status/`
 
 Visit records, one file per visit (filename is the ISO datetime).
-
-| datetime          | entry                     |
-| ----------------- | ------------------------- |
-| `2025-11-03-1530` | `kumamoto-castle`         |
-| `2025-11-03-1300` | `hozukubo-daiichi-danchi` |

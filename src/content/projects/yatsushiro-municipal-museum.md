@@ -1,13 +1,15 @@
 ---
-number: 2
-name: 八代市立博物館 未来の森ミュージアム
+number: 5
+name: 八代市立博物館・未来の森ミュージアム
 architects:
   - 伊東豊雄
-lat: 32.505
-lng: 130.601
+lat: 32.5073
+lng: 130.5966
 completedYear: 1991
 municipality: 八代市
-use: 公共施設
+use: 博物館
 ---
 
-説明は準備中です。
+- [紹介ページ（熊本県）](https://www.pref.kumamoto.jp/soshiki/115/4338.html)
+- [PDF（日本語）](https://www.pref.kumamoto.jp/uploaded/attachment/186148.pdf)
+- [PDF（英語）](https://www.pref.kumamoto.jp/uploaded/attachment/42837.pdf)

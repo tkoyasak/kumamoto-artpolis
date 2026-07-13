@@ -1,6 +1,7 @@
 import type { APIRoute } from "astro";
 import { getCollection } from "astro:content";
 
+import { isActive } from "../lib/catalog.ts";
 import type { MapEntry } from "../lib/map.ts";
 import { categoryOf, entryHref } from "../lib/routes.ts";
 import { getVisitsByEntry } from "../lib/visits.ts";
@@ -14,7 +15,7 @@ export const GET: APIRoute = async () => {
   const kap92 = await getCollection("kap92");
   const visits = await getVisitsByEntry();
 
-  const markers: MapEntry[] = [...kap92, ...projects].map((entry) => {
+  const markers: MapEntry[] = [...kap92, ...projects].filter(isActive).map((entry) => {
     const href = entryHref(entry);
     return {
       href,

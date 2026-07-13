@@ -14,10 +14,14 @@ by hover state.
 - English for code comments, repo docs, commits, and PRs; Japanese for site
   content (`src/content/` bodies) and data values (entry names, `use`).
 - Don't format/lint before committing; `oxfmt`/`oxlint` run as pre-commit hooks.
-- **The filename is the entry id** — it's the URL and how `status` references
-  entries; keep filenames stable.
+- **The filename is the entry id** (`NNNN-<slug>`, prefix == `number`) — it's
+  the URL and how `status` references entries; keep filenames stable.
 - **`status` is the source of truth for visit dates** — entries never store
   their own.
+- **The entries are hand-curated; no tool writes them** — the checker
+  (`bun run check-projects`) only reports what the prefecture page says.
+- **`municipality` is derived from `location`**, not stored — an address must
+  name its 熊本市 ward or the build fails.
 
 ## Docs index
 

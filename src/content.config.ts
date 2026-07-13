@@ -3,12 +3,24 @@ import { z } from "astro/zod";
 import { defineCollection, reference } from "astro:content";
 
 // Both catalog collections share one schema. The Markdown filename is the
-// entry id (ADR 0008) — keep filenames stable; `number` is display/sort only.
-// `completedYear` is optional and only `.positive()` (kap92 buildings can be
-// historical); `use` is free text.
-const catalogSchema = z.object({
+// entry id, `NNNN-<slug>` (ADR 0008/0014) — keep filenames stable; `number`
+// is display/sort only (a test pins prefix == number). The frontmatter is the
+// source of truth the sync tool fills and diffs against (ADR 0013); the body
+// is human-owned prose. `completedYear` is optional and only `.positive()`
+// (kap92 buildings can be historical); `use` is free text.
+const activeSchema = z.object({
   number: z.number().int().positive(),
   name: z.string().min(1),
+  // The source page the sync tool re-fetches from. Optional only because
+  // kap92 buildings have no prefecture detail page; the tool fills it for
+  // every project.
+  url: z.url().optional(),
+  pdfs: z
+    .object({
+      ja: z.array(z.url()).min(1).optional(),
+      en: z.url().optional(),
+    })
+    .optional(),
   architects: z.array(z.string().min(1)),
   lat: z.number().min(-90).max(90),
   lng: z.number().min(-180).max(180),
@@ -16,6 +28,18 @@ const catalogSchema = z.object({
   municipality: z.string().min(1),
   use: z.string().min(1),
 });
+
+// Official-list rows that are not visitable buildings (plans, programmes)
+// stay in the collection as excluded markers so the sync tool knows the
+// number is accounted for; the site never renders them (ADR 0013).
+const excludedSchema = z.object({
+  number: z.number().int().positive(),
+  name: z.string().min(1),
+  excluded: z.literal(true),
+  reason: z.string().min(1),
+});
+
+const catalogSchema = z.union([excludedSchema, activeSchema]);
 
 const projects = defineCollection({
   loader: glob({ pattern: "*.md", base: "./src/content/projects" }),
@@ -54,6 +78,7 @@ if (import.meta.vitest) {
   const catalogFrontmatter = {
     number: 1,
     name: "some hall",
+    url: "https://example.com/hall.html",
     architects: ["someone"],
     lat: 32.8,
     lng: 130.7,
@@ -82,5 +107,17 @@ if (import.meta.vitest) {
     expect(catalogSchema.safeParse({ ...catalogFrontmatter, lat: 130.7, lng: 32.8 }).success).toBe(
       false,
     );
+  });
+
+  test("a malformed source url is rejected, but a kap92 building may have none at all", () => {
+    expect(catalogSchema.safeParse({ ...catalogFrontmatter, url: "nope" }).success).toBe(false);
+    const { url: _url, ...withoutUrl } = catalogFrontmatter;
+    expect(catalogSchema.safeParse(withoutUrl).success).toBe(true);
+  });
+
+  test("an excluded marker needs only number/name/reason: official-list rows without a building must not be forced to invent coordinates", () => {
+    const excluded = { number: 13, name: "県道橋景観整備", excluded: true, reason: "基礎調査のみ" };
+    expect(catalogSchema.safeParse(excluded).success).toBe(true);
+    expect(catalogSchema.safeParse({ ...excluded, reason: undefined }).success).toBe(false);
   });
 }

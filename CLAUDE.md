@@ -14,10 +14,13 @@ by hover state.
 - English for code comments, repo docs, commits, and PRs; Japanese for site
   content (`src/content/` bodies) and data values (entry names, `use`).
 - Don't format/lint before committing; `oxfmt`/`oxlint` run as pre-commit hooks.
-- **The filename is the entry id** — it's the URL and how `status` references
-  entries; keep filenames stable.
+- **The filename is the entry id** (`NNNN-<slug>`, prefix == `number`) — it's
+  the URL and how `status` references entries; keep filenames stable.
 - **`status` is the source of truth for visit dates** — entries never store
   their own.
+- **Entry frontmatter is data, the body is human prose** — the sync tool
+  (`bun run sync-projects`) fills missing frontmatter and reports drift, but
+  never overwrites values or touches bodies.
 
 ## Docs index
 

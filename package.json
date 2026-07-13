@@ -11,7 +11,8 @@
     "e2e": "playwright test",
     "clean": "rm -rf node_modules/.astro node_modules/.vite .astro dist",
     "deploy": "astro build && wrangler deploy --strict",
-    "content": "bun run scripts/content-readme.ts"
+    "content": "bun run scripts/content-readme.ts",
+    "import-projects": "bun run scripts/import-projects.ts"
   },
   "dependencies": {
     "@astrojs/preact": "6.0.0",

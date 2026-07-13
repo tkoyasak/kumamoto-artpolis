@@ -1,0 +1,750 @@
+{
+  "$comment": "number→id registry for the Projects importer. The id is the entry filename (= URL) and must stay stable once published. Ids are the official English list names slugified verbatim; rows without a unique English name (HOME-FOR-ALL bundles, #117+) use derived ids following the `home-for-all-in-<municipality>-<place>` pattern. `splits` turns one official number into one entry per building; `name` on a split overrides the list-row name. `excluded` rows are never imported.",
+  "excluded": [
+    {
+      "number": 13,
+      "reason": "県道橋景観整備 — 基礎調査のみ、実体なし"
+    },
+    {
+      "number": 15,
+      "reason": "光のまちづくり — 事業、単一の建築物でない"
+    },
+    {
+      "number": 18,
+      "reason": "玉名市文化施設構想 — 構想のみ"
+    },
+    {
+      "number": 24,
+      "reason": "公園ファニチャーデザイン・整備マニュアル — 実体なし"
+    },
+    {
+      "number": 28,
+      "reason": "大津町第二庁舎・町民交流施設 — 設計のみ、未建設"
+    },
+    {
+      "number": 30,
+      "reason": "大甲橋景観整備 — 設計のみ"
+    }
+  ],
+  "entries": [
+    {
+      "number": 1,
+      "id": "kumamoto-kita-police-station"
+    },
+    {
+      "number": 2,
+      "id": "kumamoto-prefecture-hotakubo-daiichi-public-housing-complex"
+    },
+    {
+      "number": 3,
+      "id": "kakuto-tunnel-ventilation-facility"
+    },
+    {
+      "number": 4,
+      "id": "misumi-harbor-ferry-terminal"
+    },
+    {
+      "number": 5,
+      "id": "yatsushiro-municipal-museum"
+    },
+    {
+      "number": 6,
+      "id": "kumamoto-city-hanabata-park-public-restroom"
+    },
+    {
+      "number": 7,
+      "id": "kumamoto-city-kami-ezu-lakeside-public-restroom"
+    },
+    {
+      "number": 8,
+      "id": "kumamoto-municipal-shinchi-public-housing-complex-block-a"
+    },
+    {
+      "number": 9,
+      "id": "kumamoto-municipal-shinchi-public-housing-complex-block-b"
+    },
+    {
+      "number": 10,
+      "id": "kumamoto-municipal-shinchi-public-housing-complex-block-c"
+    },
+    {
+      "number": 11,
+      "id": "kumamoto-municipal-shinchi-public-housing-complex-block-d"
+    },
+    {
+      "number": 12,
+      "id": "kumamoto-municipal-shinchi-public-housing-complex-block-e"
+    },
+    {
+      "number": 14,
+      "id": "kumamoto-municipal-takuma-public-housing-complex"
+    },
+    {
+      "number": 16,
+      "id": "ushibuka-haiya-bridge"
+    },
+    {
+      "number": 17,
+      "id": "kumamoto-prefecture-obiyama-public-housing-complex-a"
+    },
+    {
+      "number": 19,
+      "id": "yunoka-bridge"
+    },
+    {
+      "number": 20,
+      "id": "seiwa-bunraku-puppet-theater"
+    },
+    {
+      "number": 21,
+      "id": "kumamoto-prefecture-decorative-tumulus-museum"
+    },
+    {
+      "number": 22,
+      "id": "kuma-high-school-of-industry-traditional-architecture-workshop"
+    },
+    {
+      "number": 23,
+      "id": "ayunose-bridge",
+      "overrides": {
+        "address": "上益城郡山都町菅488-1"
+      }
+    },
+    {
+      "number": 25,
+      "id": "kami-amakusa-city-aizu-sewer-plant-control-facility"
+    },
+    {
+      "number": 26,
+      "id": "ishiuchi-dam-maintenance-facility"
+    },
+    {
+      "number": 27,
+      "id": "kumamoto-prefecture-shin-toroku-public-housing-complex"
+    },
+    {
+      "number": 29,
+      "id": "tamana-city-observatory-museum"
+    },
+    {
+      "number": 31,
+      "id": "kumamoto-grasslands-stockbreeding-research-institute"
+    },
+    {
+      "number": 32,
+      "id": "saishunkan-ladies-residence"
+    },
+    {
+      "number": 33,
+      "id": "kumamoto-prefecture-museum-of-art-chibajo-branch"
+    },
+    {
+      "number": 34,
+      "id": "yunomae-cartoon-museum-and-community-center",
+      "overrides": {
+        "lat": 32.2746,
+        "lng": 130.9808,
+        "municipality": "湯前町"
+      }
+    },
+    {
+      "number": 35,
+      "id": "kumamoto-prefecture-ryujabira-public-housing-complex"
+    },
+    {
+      "number": 36,
+      "id": "tsunagi-local-products-gallery"
+    },
+    {
+      "number": 37,
+      "id": "sakitsu-hilltop-park"
+    },
+    {
+      "number": 38,
+      "id": "ubuyama-greenhouse-spa"
+    },
+    {
+      "number": 39,
+      "id": "toto-aquapit-aso-public-restroom"
+    },
+    {
+      "number": 40,
+      "id": "shirakawa-bridge-landscaping"
+    },
+    {
+      "number": 41,
+      "id": "tsuetate-bridge-and-tsuetate-multipurpose-hall"
+    },
+    {
+      "number": 42,
+      "id": "ishiuchi-dam-museum"
+    },
+    {
+      "number": 43,
+      "id": "amakusa-visitors-center-service-house"
+    },
+    {
+      "number": 44,
+      "id": "ushibuka-fishermans-wharf-kaisaikan"
+    },
+    {
+      "number": 45,
+      "id": "shiranuhi-culture-plaza"
+    },
+    {
+      "number": 46,
+      "id": "mamihara-bridge"
+    },
+    {
+      "number": 47,
+      "id": "amakusa-technical-high-school-workshop-building-and-gymnasium"
+    },
+    {
+      "number": 48,
+      "id": "kumamoto-kita-police-station-tsuboi-police-box"
+    },
+    {
+      "number": 49,
+      "id": "izumi-village-center"
+    },
+    {
+      "number": 50,
+      "id": "nagasu-harbor-ferry-terminal"
+    },
+    {
+      "number": 51,
+      "id": "arao-police-station-nagasu-police-box",
+      "overrides": {
+        "address": "玉名郡長洲町大字長洲2006-2",
+        "use": "交番",
+        "architects": ["塚本政利＋設計機構ワークス"]
+      }
+    },
+    {
+      "number": 52,
+      "id": "kumamoto-prefecture-ashikita-youth-center"
+    },
+    {
+      "number": 53,
+      "id": "kusasenri-public-restroom",
+      "overrides": {
+        "lat": 32.8822,
+        "lng": 131.0535,
+        "municipality": "阿蘇市"
+      }
+    },
+    {
+      "number": 54,
+      "id": "uto-marina-house"
+    },
+    {
+      "number": 55,
+      "id": "black-log-legs-garden"
+    },
+    {
+      "number": 56,
+      "id": "fisheries-control-office"
+    },
+    {
+      "number": 57,
+      "id": "suizenji-ezuko-lake-park-management-office"
+    },
+    {
+      "number": 58,
+      "id": "kahoku-art-project"
+    },
+    {
+      "number": 59,
+      "id": "kumamoto-prefecture-agricultural-college-dormitory"
+    },
+    {
+      "number": 60,
+      "id": "tomioka-park-public-restroom",
+      "overrides": {
+        "address": "天草郡苓北町富岡"
+      }
+    },
+    {
+      "number": 61,
+      "id": "hikawa-dam-maintenance-facility"
+    },
+    {
+      "number": 62,
+      "id": "aso-police-station-uchinomaki-police-box"
+    },
+    {
+      "number": 63,
+      "id": "yatsushiro-municipal-koda-akebono-nursery-school"
+    },
+    {
+      "number": 64,
+      "splits": [
+        {
+          "id": "minamioguni-town-sugita-public-housing-complex",
+          "name": "南小国町営杉田団地"
+        },
+        {
+          "id": "minamioguni-town-yatsuda-public-housing-complex",
+          "name": "南小国町営矢津田団地"
+        }
+      ]
+    },
+    {
+      "number": 65,
+      "id": "misato-town-culture-and-communication-center-hibiki"
+    },
+    {
+      "number": 66,
+      "id": "seiwa-bunraku-mura-road-station-public-restroom"
+    },
+    {
+      "number": 67,
+      "id": "koshi-health-and-welfare-center"
+    },
+    {
+      "number": 68,
+      "id": "reihoku-community-hall"
+    },
+    {
+      "number": 69,
+      "id": "oguni-town-kitazato-elementary-school-gymnasium"
+    },
+    {
+      "number": 70,
+      "id": "misato-forestry-center"
+    },
+    {
+      "number": 71,
+      "id": "ichinomiya-quaint-country-market"
+    },
+    {
+      "number": 72,
+      "id": "seiwa-local-dishes-restaurant"
+    },
+    {
+      "number": 73,
+      "id": "yatsushiro-monument-kilali"
+    },
+    {
+      "number": 74,
+      "id": "kyusendo-recreation-village-final-wooden-house"
+    },
+    {
+      "number": 75,
+      "id": "kyusendo-recreation-village-r2-wooden-lace"
+    },
+    {
+      "number": 76,
+      "id": "ashikita-community-hall"
+    },
+    {
+      "number": 77,
+      "id": "shirakawa-gate-east-exit-square-of-kumamoto-station"
+    },
+    {
+      "number": 78,
+      "id": "uto-municipal-uto-elementary-school"
+    },
+    {
+      "number": 79,
+      "id": "uto-municipal-amitsu-elementary-school"
+    },
+    {
+      "number": 80,
+      "id": "shinkansen-gate-west-exit-square-of-kumamoto-station"
+    },
+    {
+      "number": 81,
+      "id": "uki-city-toyono-elementary-and-junior-high-school"
+    },
+    {
+      "number": 82,
+      "id": "kikuchi-pocket-park"
+    },
+    {
+      "number": 83,
+      "id": "public-lavatory-on-the-green-left-bank-of-shirakawa-bridge"
+    },
+    {
+      "number": 84,
+      "id": "kumamoto-south-police-kumamoto-station-koban"
+    },
+    {
+      "number": 85,
+      "id": "kumamoto-prefectural-kuma-technical-high-school-administration-building",
+      "overrides": {
+        "address": "人吉市城本町800"
+      }
+    },
+    {
+      "number": 86,
+      "id": "nagomi-town-mikawa-elementary-and-junior-high-school"
+    },
+    {
+      "number": 87,
+      "id": "nagomi-town-kikusui-elementary-and-junior-high-school"
+    },
+    {
+      "number": 88,
+      "id": "amakusa-arbor"
+    },
+    {
+      "number": 89,
+      "id": "amakusa-city-main-building",
+      "overrides": {
+        "address": "天草市東浜町8-1",
+        "use": "庁舎",
+        "architects": ["山本理顕設計工場＋風＋Iga＋廣田＋フジモトJV"]
+      }
+    },
+    {
+      "number": 90,
+      "id": "coloproctology-center-takano-hospital"
+    },
+    {
+      "number": 91,
+      "id": "home-for-all-in-aso-uchinomaki-hot-spring"
+    },
+    {
+      "number": 92,
+      "id": "kumamoto-prefecture-disaster-relief-aviation-center"
+    },
+    {
+      "number": 93,
+      "id": "home-for-all-in-kosa-shirahata",
+      "overrides": {
+        "use": "集会所"
+      }
+    },
+    {
+      "number": 94,
+      "id": "home-for-all-in-minamiaso-hinooka",
+      "overrides": {
+        "use": "集会所"
+      }
+    },
+    {
+      "number": 95,
+      "id": "home-for-all-in-nishihara-komori-2",
+      "overrides": {
+        "use": "集会所"
+      }
+    },
+    {
+      "number": 96,
+      "id": "home-for-all-in-nishihara-komori-3",
+      "overrides": {
+        "use": "集会所"
+      }
+    },
+    {
+      "number": 97,
+      "id": "home-for-all-in-nishihara-komori-4",
+      "overrides": {
+        "use": "集会所"
+      }
+    },
+    {
+      "number": 98,
+      "id": "home-for-all-in-mashiki-kiyama",
+      "overrides": {
+        "use": "集会所"
+      }
+    },
+    {
+      "number": 99,
+      "id": "home-for-all-in-mashiki-koike-shimada",
+      "overrides": {
+        "use": "集会所"
+      }
+    },
+    {
+      "number": 100,
+      "id": "home-for-all-in-mashiki-techno",
+      "overrides": {
+        "use": "集会所"
+      }
+    },
+    {
+      "number": 101,
+      "splits": [
+        {
+          "id": "home-for-all-in-misato-kusunokidaira",
+          "name": "美里町くすのき平のみんなの家",
+          "overrides": {
+            "use": "集会所"
+          }
+        },
+        {
+          "id": "home-for-all-in-mifune-tamamushi",
+          "name": "御船町玉虫のみんなの家",
+          "overrides": {
+            "use": "集会所"
+          }
+        },
+        {
+          "id": "home-for-all-in-mifune-amagi",
+          "name": "御船町甘木のみんなの家",
+          "overrides": {
+            "use": "集会所"
+          }
+        }
+      ]
+    },
+    {
+      "number": 102,
+      "splits": [
+        {
+          "id": "home-for-all-in-uki-goryo",
+          "name": "宇城市御領のみんなの家",
+          "overrides": {
+            "use": "集会所",
+            "address": "宇城市不知火町御領35"
+          }
+        },
+        {
+          "id": "home-for-all-in-uki-magano-hasegawa",
+          "name": "宇城市曲野長谷川のみんなの家",
+          "overrides": {
+            "use": "集会所"
+          }
+        }
+      ]
+    },
+    {
+      "number": 103,
+      "splits": [
+        {
+          "id": "home-for-all-in-kumamoto-jonan-sansan",
+          "name": "熊本市城南町さんさん2丁目のみんなの家",
+          "overrides": {
+            "use": "集会所"
+          }
+        },
+        {
+          "id": "home-for-all-in-aso-uchinomaki",
+          "name": "阿蘇市内牧のみんなの家",
+          "overrides": {
+            "use": "集会所"
+          }
+        }
+      ]
+    },
+    {
+      "number": 104,
+      "id": "uto-sakaime-municipal-public-disaster-housing-complex",
+      "overrides": {
+        "address": "宇土市境目町字帆立町521-1"
+      }
+    },
+    {
+      "number": 105,
+      "splits": [
+        {
+          "id": "home-for-all-in-uto-sakaime-2",
+          "name": "宇土市境目第2のみんなの家",
+          "overrides": {
+            "use": "集会所"
+          }
+        },
+        {
+          "id": "home-for-all-in-uto-sakaime-3",
+          "name": "宇土市境目第3のみんなの家",
+          "overrides": {
+            "use": "集会所"
+          }
+        }
+      ]
+    },
+    {
+      "number": 106,
+      "splits": [
+        {
+          "id": "otome-municipal-public-disaster-housing-complex",
+          "name": "甲佐町営乙女団地災害公営住宅"
+        },
+        {
+          "id": "shirahata-municipal-public-disaster-housing-complex",
+          "name": "甲佐町営白旗団地災害公営住宅"
+        }
+      ]
+    },
+    {
+      "number": 107,
+      "id": "kosa-municipal-public-disaster-housing-complex",
+      "overrides": {
+        "use": "復興拠点施設"
+      }
+    },
+    {
+      "number": 108,
+      "splits": [
+        {
+          "id": "home-for-all-in-uto-shin-matsubara",
+          "name": "宇土市新松原のみんなの家",
+          "overrides": {
+            "use": "集会所",
+            "address": "宇土市新松原町"
+          }
+        },
+        {
+          "id": "home-for-all-in-ozu-muro-daini",
+          "name": "室第二のみんなの家",
+          "overrides": {
+            "use": "集会所"
+          }
+        }
+      ]
+    },
+    {
+      "number": 109,
+      "id": "hibikihara-municipal-public-disaster-housing-complex"
+    },
+    {
+      "number": 110,
+      "splits": [
+        {
+          "id": "home-for-all-in-ozu-shingoya",
+          "name": "大津町新小屋のみんなの家",
+          "overrides": {
+            "use": "集会所"
+          }
+        },
+        {
+          "id": "home-for-all-in-ozu-takaono",
+          "name": "大津町高尾野のみんなの家",
+          "overrides": {
+            "use": "集会所"
+          }
+        },
+        {
+          "id": "home-for-all-in-kashima-kamirokka",
+          "name": "嘉島町上六嘉のみんなの家",
+          "overrides": {
+            "use": "集会所"
+          }
+        },
+        {
+          "id": "home-for-all-in-kashima-kita-amagi",
+          "name": "嘉島町北甘木のみんなの家",
+          "overrides": {
+            "use": "集会所"
+          }
+        },
+        {
+          "id": "home-for-all-in-nishihara-okirihata",
+          "name": "西原村大切畑のみんなの家",
+          "overrides": {
+            "use": "集会所"
+          }
+        }
+      ]
+    },
+    {
+      "number": 111,
+      "splits": [
+        {
+          "id": "home-for-all-in-minamiaso-tateno-station",
+          "name": "南阿蘇村立野駅のみんなの家",
+          "overrides": {
+            "use": "集会所"
+          }
+        },
+        {
+          "id": "home-for-all-in-kosa-asobaru",
+          "name": "甲佐町麻生原のみんなの家",
+          "overrides": {
+            "use": "集会所"
+          }
+        },
+        {
+          "id": "home-for-all-in-ozu-uwaage",
+          "name": "大津町上揚のみんなの家",
+          "overrides": {
+            "use": "集会所"
+          }
+        },
+        {
+          "id": "home-for-all-in-nishihara-kazaate",
+          "name": "西原村風当のみんなの家",
+          "overrides": {
+            "use": "集会所"
+          }
+        },
+        {
+          "id": "home-for-all-in-nishihara-shimo-komori",
+          "name": "西原村下小森のみんなの家",
+          "overrides": {
+            "use": "集会所"
+          }
+        }
+      ]
+    },
+    {
+      "number": 112,
+      "id": "minamiaso-railway-takamori-station-community-facility",
+      "overrides": {
+        "address": "阿蘇郡高森町大字高森1526-3",
+        "use": "駅舎・交流施設",
+        "architects": ["太田浩史/株式会社ヌーブ"]
+      }
+    },
+    {
+      "number": 113,
+      "id": "kumamoto-earthquake-museum-exhibition-hall"
+    },
+    {
+      "number": 114,
+      "id": "ever-field-woodworking-plant"
+    },
+    {
+      "number": 115,
+      "id": "mt-tatsuda-recreational-forest-and-omatsuri-hiroba-park-public-restroom",
+      "overrides": {
+        "lat": 32.8312,
+        "lng": 130.7335,
+        "municipality": "熊本市北区",
+        "use": "公衆便所",
+        "architects": ["曽根拓也＋坂本達典＋内村梓＋前原竹二"]
+      }
+    },
+    {
+      "number": 116,
+      "id": "ashikita-town-tomoda-housing-complex",
+      "overrides": {
+        "address": "葦北郡芦北町大字湯浦",
+        "use": "集合住宅",
+        "architects": ["片山和俊＋龍口元哉＋太宏設計事務所"]
+      }
+    },
+    {
+      "number": 117,
+      "id": "takahashi-shuzo-tano-distillery-and-community-facility",
+      "overrides": {
+        "address": "人吉市田野町3316-4",
+        "use": "蒸溜所・交流施設",
+        "architects": ["平瀬有人＋平瀬祐子"]
+      }
+    },
+    {
+      "number": 118,
+      "id": "home-for-all-in-hitoyoshi"
+    },
+    {
+      "number": 119,
+      "id": "home-for-all-in-yatsushiro"
+    },
+    {
+      "number": 120,
+      "id": "home-for-all-in-kumamura"
+    },
+    {
+      "number": 121,
+      "id": "sagara-village-kawabe-river-exchange-center"
+    },
+    {
+      "number": 122,
+      "id": "mifune-town-chusankan-area-base"
+    }
+  ]
+}

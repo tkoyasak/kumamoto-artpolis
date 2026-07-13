@@ -38,6 +38,13 @@ What an Entry is for — its function or building type (public facility, housing
 school, park, bridge, station, and so on).
 _Avoid_: type, purpose
 
+**Location**:
+An Entry's official 所在地, stored verbatim — the datum its coordinates are
+geocoded from. Distinct from **Municipality**, which is not parsed out of it:
+pre-2012 熊本市 addresses name no ward, so the ward comes from geocoding
+(ADR 0015).
+_Avoid_: address (fine in prose, but the field is `location`), municipality
+
 **Excluded marker**:
 An official-list row that is not a visitable building (a plan, programme, or
 unbuilt design), kept in the collection as a flagged file (`excluded: true`

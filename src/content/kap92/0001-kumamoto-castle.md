@@ -1,12 +1,12 @@
 ---
 number: 1
 name: 熊本城
-architects:
-  - 加藤清正
+municipality: 熊本市
 lat: 32.806
 lng: 130.706
+architects:
+  - 加藤清正
 completedYear: 1607
-municipality: 熊本市
 use: 城郭
 ---
 

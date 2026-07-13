@@ -1,11 +1,12 @@
 ---
 number: 111
 name: 西原村風当のみんなの家
-url: https://www.pref.kumamoto.jp/soshiki/115/51273.html
-architects:
-  - 塚本由晴＋貝島桃代＋玉井洋一／アトリエ・ワン
+location: 西原村大字小森字風当1252番地2
+municipality: 西原村
 lat: 32.8446
 lng: 130.9514
-municipality: 西原村
+architects:
+  - 塚本由晴＋貝島桃代＋玉井洋一／アトリエ・ワン
 use: 集会所
+url: https://www.pref.kumamoto.jp/soshiki/115/51273.html
 ---

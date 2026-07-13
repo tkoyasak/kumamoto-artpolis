@@ -11,22 +11,24 @@ import { defineCollection, reference } from "astro:content";
 const activeSchema = z.object({
   number: z.number().int().positive(),
   name: z.string().min(1),
+  // The official 所在地, verbatim — the datum lat/lng are geocoded from, and
+  // the only field that can catch the prefecture rewriting an address.
+  // Optional: a few pages carry no 所在地, and kap92 has no page at all.
+  // `municipality` is NOT derived from it: pre-2012 熊本市 addresses name no
+  // ward, so the ward comes from geocoding (ADR 0015).
+  location: z.string().min(1).optional(),
+  municipality: z.string().min(1),
+  lat: z.number().min(-90).max(90),
+  lng: z.number().min(-180).max(180),
+  architects: z.array(z.string().min(1)),
+  completedYear: z.number().int().positive().optional(),
+  use: z.string().min(1),
   // The source page the sync tool re-fetches from. Optional only because
   // kap92 buildings have no prefecture detail page; the tool fills it for
   // every project.
   url: z.url().optional(),
-  pdfs: z
-    .object({
-      ja: z.array(z.url()).min(1).optional(),
-      en: z.url().optional(),
-    })
-    .optional(),
-  architects: z.array(z.string().min(1)),
-  lat: z.number().min(-90).max(90),
-  lng: z.number().min(-180).max(180),
-  completedYear: z.number().int().positive().optional(),
-  municipality: z.string().min(1),
-  use: z.string().min(1),
+  pdfJa: z.array(z.url()).min(1).optional(),
+  pdfEn: z.array(z.url()).min(1).optional(),
 });
 
 // Official-list rows that are not visitable buildings (plans, programmes)
@@ -78,12 +80,13 @@ if (import.meta.vitest) {
   const catalogFrontmatter = {
     number: 1,
     name: "some hall",
-    url: "https://example.com/hall.html",
-    architects: ["someone"],
+    location: "熊本市中央区某町1-1",
+    municipality: "熊本市中央区",
     lat: 32.8,
     lng: 130.7,
-    municipality: "kumamoto",
+    architects: ["someone"],
     use: "hall",
+    url: "https://example.com/hall.html",
   };
 
   test("a status record references exactly one entry: project XOR kap92 is enforced by the schema, not by convention", () => {
@@ -113,6 +116,13 @@ if (import.meta.vitest) {
     expect(catalogSchema.safeParse({ ...catalogFrontmatter, url: "nope" }).success).toBe(false);
     const { url: _url, ...withoutUrl } = catalogFrontmatter;
     expect(catalogSchema.safeParse(withoutUrl).success).toBe(true);
+  });
+
+  test("municipality is required while location is optional: the ward is geocoded, not parsed out of the address (ADR 0015)", () => {
+    const { location: _location, ...withoutLocation } = catalogFrontmatter;
+    expect(catalogSchema.safeParse(withoutLocation).success).toBe(true);
+    const { municipality: _municipality, ...withoutMunicipality } = catalogFrontmatter;
+    expect(catalogSchema.safeParse(withoutMunicipality).success).toBe(false);
   });
 
   test("an excluded marker needs only number/name/reason: official-list rows without a building must not be forced to invent coordinates", () => {

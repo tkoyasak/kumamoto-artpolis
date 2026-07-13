@@ -1,15 +1,15 @@
 ---
 number: 90
 name: 大腸肛門病センター高野病院
-url: https://www.pref.kumamoto.jp/soshiki/115/4386.html
-pdfs:
-  ja:
-    - https://www.pref.kumamoto.jp/uploaded/attachment/186482.pdf
-architects:
-  - 共同建築設計事務所＋コンテンポラリーズ
+location: 熊本市中央区大江3丁目2-55
+municipality: 熊本市中央区
 lat: 32.8031
 lng: 130.7242
+architects:
+  - 共同建築設計事務所＋コンテンポラリーズ
 completedYear: 2017
-municipality: 熊本市中央区
 use: 病院
+url: https://www.pref.kumamoto.jp/soshiki/115/4386.html
+pdfJa:
+  - https://www.pref.kumamoto.jp/uploaded/attachment/186482.pdf
 ---

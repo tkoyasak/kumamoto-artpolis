@@ -15,7 +15,7 @@ export function isActive<E extends CatalogEntry>(entry: E): entry is ActiveEntry
 // The detail pages' official-links list, derived from the frontmatter the
 // sync tool maintains; labels are presentation, not data.
 export function entryLinks(entry: ActiveEntry): { label: string; url: string }[] {
-  const { url, pdfs } = entry.data;
+  const { url, pdfJa = [], pdfEn = [] } = entry.data;
   const links: { label: string; url: string }[] = [];
   if (url) {
     links.push({
@@ -23,14 +23,12 @@ export function entryLinks(entry: ActiveEntry): { label: string; url: string }[]
       url,
     });
   }
-  const ja = pdfs?.ja ?? [];
-  links.push(
-    ...ja.map((u, i) => ({
-      label: ja.length > 1 ? `PDF（日本語・${i + 1}）` : "PDF（日本語）",
+  const numbered = (urls: string[], lang: string) =>
+    urls.map((u, i) => ({
+      label: urls.length > 1 ? `PDF（${lang}・${i + 1}）` : `PDF（${lang}）`,
       url: u,
-    })),
-  );
-  if (pdfs?.en) links.push({ label: "PDF（英語）", url: pdfs.en });
+    }));
+  links.push(...numbered(pdfJa, "日本語"), ...numbered(pdfEn, "英語"));
   return links;
 }
 
@@ -49,10 +47,14 @@ if (import.meta.vitest) {
     ).toBe(false);
   });
 
-  test("ja PDF labels are numbered only when there are several, matching how the imported bodies used to read", () => {
-    const one = entryLinks(active({ url: "u", pdfs: { ja: ["p1"] } }));
-    expect(one.map((l) => l.label)).toEqual(["紹介ページ（熊本県）", "PDF（日本語）"]);
-    const two = entryLinks(active({ url: "u", pdfs: { ja: ["p1", "p2"], en: "e" } }));
+  test("PDF labels are numbered per language only when that language has several, matching how the imported bodies used to read", () => {
+    const one = entryLinks(active({ url: "u", pdfJa: ["p1"], pdfEn: ["e1"] }));
+    expect(one.map((l) => l.label)).toEqual([
+      "紹介ページ（熊本県）",
+      "PDF（日本語）",
+      "PDF（英語）",
+    ]);
+    const two = entryLinks(active({ url: "u", pdfJa: ["p1", "p2"], pdfEn: ["e1"] }));
     expect(two.map((l) => l.label)).toEqual([
       "紹介ページ（熊本県）",
       "PDF（日本語・1）",

@@ -8,11 +8,14 @@ under `src/content/`.
 - **`projects/`** — Artpolis commissioned new builds.
 - **`kap92/`** — KAP'92 selected existing buildings.
 - Both share one schema (`catalogSchema`), a union of two shapes:
-  - **active entry** — `number`/`name`/`architects`/`lat`/`lng`/
-    `municipality`/`use` required; `url` (the prefecture detail page the
-    sync tool re-fetches from — kap92 buildings have none), `pdfs`
-    (`{ ja?: string[], en?: string }`), and `completedYear` (only
+  - **active entry** — `number`/`name`/`municipality`/`lat`/`lng`/
+    `architects`/`use` required; `location` (the official 所在地 verbatim —
+    what `lat`/`lng` are geocoded from; some pages carry none), `url` (the
+    prefecture detail page the sync tool re-fetches from — kap92 buildings
+    have none), `pdfJa`/`pdfEn` (flat URL lists), and `completedYear` (only
     `.positive()`; kap92 can be historical) optional. `use` is free text.
+    **`municipality` is stored, not derived from `location`** (ADR 0015):
+    pre-2012 熊本市 addresses name no ward, so the ward comes from geocoding.
   - **excluded marker** — `number`/`name`/`excluded: true`/`reason`. An
     official-list row that is not a building (a plan or programme). The site
     never renders these; they exist so the sync tool knows the number is
@@ -55,9 +58,12 @@ of truth (ADR 0013); the tool
 
 - **fills** absent frontmatter fields — including number-only stubs — from
   the JA/EN list pages, the detail page's 建築データ, and GSI geocoding of
-  所在地 (大字-centroid precision; pin outliers by editing the entry);
+  the _stored_ `location` (大字-centroid precision; pin outliers by editing
+  the entry). A hand-written `location` grounds a marker just like a fetched
+  one, so an entry whose page has no 所在地 can still be completed;
 - **reports** drift between stored values and the pages (apply by editing
-  the entry), except `lat`/`lng`/`municipality`, which are fill-only;
+  the entry), including a rewritten `location`, but not `lat`/`lng`/
+  `municipality`, which are fill-only;
 - **reports** official numbers no entry or excluded marker accounts for.
 
 New-number workflow: the tool reports the row → a human creates

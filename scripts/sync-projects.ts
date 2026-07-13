@@ -38,18 +38,19 @@ const OUT_DIR = "src/content/projects";
 
 const FETCH_DELAY_MS = 300;
 
-type Pdfs = { ja?: string[]; en?: string };
 type ActiveData = {
   number: number;
   name?: string;
-  url?: string;
-  pdfs?: Pdfs;
-  architects?: string[];
+  location?: string;
+  municipality?: string;
   lat?: number;
   lng?: number;
+  architects?: string[];
   completedYear?: number;
-  municipality?: string;
   use?: string;
+  url?: string;
+  pdfJa?: string[];
+  pdfEn?: string[];
 };
 type EntryDoc = {
   id: string;
@@ -287,20 +288,21 @@ function yamlStr(s: string): string {
 function renderEntry(doc: EntryDoc): string {
   const d = doc.data;
   const lines = ["---", `number: ${d.number}`, `name: ${yamlStr(d.name ?? "")}`];
-  if (d.url) lines.push(`url: ${d.url}`);
-  const ja = d.pdfs?.ja ?? [];
-  if (ja.length > 0 || d.pdfs?.en) {
-    lines.push("pdfs:");
-    if (ja.length > 0) lines.push("  ja:", ...ja.map((u) => `    - ${u}`));
-    if (d.pdfs?.en) lines.push(`  en: ${d.pdfs.en}`);
-  }
-  if (d.architects !== undefined)
-    lines.push("architects:", ...d.architects.map((a) => `  - ${yamlStr(a)}`));
+  if (d.location) lines.push(`location: ${yamlStr(d.location)}`);
+  if (d.municipality) lines.push(`municipality: ${yamlStr(d.municipality)}`);
   if (d.lat !== undefined) lines.push(`lat: ${d.lat}`);
   if (d.lng !== undefined) lines.push(`lng: ${d.lng}`);
+  if (d.architects !== undefined)
+    lines.push("architects:", ...d.architects.map((a) => `  - ${yamlStr(a)}`));
   if (d.completedYear !== undefined) lines.push(`completedYear: ${d.completedYear}`);
-  if (d.municipality) lines.push(`municipality: ${yamlStr(d.municipality)}`);
   if (d.use) lines.push(`use: ${yamlStr(d.use)}`);
+  if (d.url) lines.push(`url: ${d.url}`);
+  for (const [field, urls] of [
+    ["pdfJa", d.pdfJa],
+    ["pdfEn", d.pdfEn],
+  ] as const) {
+    if (urls && urls.length > 0) lines.push(`${field}:`, ...urls.map((u) => `  - ${u}`));
+  }
   lines.push("---");
   const body = doc.body.replace(/^\n+/, "");
   return `${lines.join("\n")}\n${body === "" ? "" : `\n${body}`}`;
@@ -351,7 +353,7 @@ function diffEntry(
   doc: EntryDoc,
   row: JaRow,
   record: BuildingRecord | null,
-  pdfs: Pdfs,
+  pdfs: { ja: string[]; en: string[] },
   siblings: number,
 ): Diff[] {
   const d = doc.data;
@@ -361,14 +363,21 @@ function diffEntry(
     if (stored !== fetched)
       diffs.push({ id: doc.id, field, stored: String(stored), fetched: String(fetched) });
   };
+  const pushUrls = (field: string, stored: string[] | undefined, fetched: string[]) => {
+    if (stored === undefined || fetched.length === 0) return;
+    push(field, stored.join(" "), fetched.join(" "));
+  };
   // A split entry's name is its own building, not the row wording — only a
   // number's sole entry can be compared against the list name.
   if (siblings === 1) push("name", d.name, row.name);
   push("completedYear", d.completedYear, row.completedYear);
   push("url", d.url, row.detailUrl);
-  push("pdfs.ja", d.pdfs?.ja?.join(" "), pdfs.ja?.join(" "));
-  push("pdfs.en", d.pdfs?.en, pdfs.en);
+  pushUrls("pdfJa", d.pdfJa, pdfs.ja);
+  pushUrls("pdfEn", d.pdfEn, pdfs.en);
   if (record) {
+    // The address is the datum lat/lng derive from, so a rewritten 所在地 is
+    // the one page change that can silently invalidate a marker.
+    push("location", d.location, record["所在地"]);
     push("use", d.use, record["主要用途"]);
     if (d.architects && record["設計者"] && !sameArchitects(d.architects, record["設計者"]))
       diffs.push({
@@ -427,11 +436,8 @@ async function main(): Promise<void> {
         reason: `#${d.number} no 建築データ record matches 「${d.name ?? "(no name)"}」 on ${row.detailUrl}`,
       });
 
-    const pdfs: Pdfs = {};
-    const ja = matchPdfs(row, d.name, siblings);
-    if (ja.length > 0) pdfs.ja = ja;
-    const en = enPdfs.get(d.number);
-    if (en) pdfs.en = en;
+    const enPdf = enPdfs.get(d.number);
+    const pdfs = { ja: matchPdfs(row, d.name, siblings), en: enPdf ? [enPdf] : [] };
 
     // Fill absent fields only; a stored value always wins (ADR 0013).
     const before = JSON.stringify(d);
@@ -439,14 +445,19 @@ async function main(): Promise<void> {
     d.url ??= row.detailUrl;
     if (d.completedYear === undefined && row.completedYear !== undefined)
       d.completedYear = row.completedYear;
-    if (d.pdfs === undefined && (pdfs.ja || pdfs.en)) d.pdfs = pdfs;
+    if (d.pdfJa === undefined && pdfs.ja.length > 0) d.pdfJa = pdfs.ja;
+    if (d.pdfEn === undefined && pdfs.en.length > 0) d.pdfEn = pdfs.en;
     if (record) {
       const use = record["主要用途"];
       if (d.use === undefined && use !== undefined) d.use = use;
       if (d.architects === undefined && record["設計者"]) d.architects = [record["設計者"]];
+      const address = record["所在地"];
+      if (d.location === undefined && address !== undefined) d.location = address;
     }
+    // Geocode from the stored address, so a hand-written one (an entry the
+    // page has no 所在地 for) grounds the marker just as well as a fetched one.
     if (d.lat === undefined || d.lng === undefined || !d.municipality) {
-      const address = record?.["所在地"];
+      const address = d.location;
       if (!address) {
         skipped.push({ id: doc.id, reason: `#${d.number} 所在地 unavailable for geocoding` });
       } else {
@@ -565,7 +576,7 @@ if (import.meta.vitest) {
 
   test("renderEntry emits canonical field order, omits absent optionals, and preserves the human-owned body", () => {
     const raw =
-      "---\nnumber: 88\nname: 天草アーバ\nurl: https://example.com/a.html\narchitects:\n  - 某塾\nlat: 32.5\nlng: 130.3\nmunicipality: 天草市\nuse: 東屋\n---\n\n訪問メモ。\n";
+      "---\nnumber: 88\nname: 天草アーバ\nlocation: 天草市有明町上津浦1955\nmunicipality: 天草市\nlat: 32.5\nlng: 130.3\narchitects:\n  - 某塾\nuse: 東屋\nurl: https://example.com/a.html\npdfJa:\n  - https://example.com/a-ja.pdf\n---\n\n訪問メモ。\n";
     expect(renderEntry(parseEntry("0088-amakusa-arbor", raw))).toBe(raw);
   });
 
@@ -586,7 +597,7 @@ if (import.meta.vitest) {
   test("diffEntry reports stored-vs-fetched drift for list fields but never coordinates, and skips the name of split entries", () => {
     const doc = parseEntry(
       "0064-sugita",
-      "---\nnumber: 64\nname: 杉田団地\nurl: https://example.com/64.html\nlat: 32.5\nlng: 130.3\ncompletedYear: 1994\nuse: 公営住宅\n---\n",
+      "---\nnumber: 64\nname: 杉田団地\nmunicipality: 南小国町\nlat: 32.5\nlng: 130.3\ncompletedYear: 1994\nuse: 公営住宅\nurl: https://example.com/64.html\n---\n",
     );
     const row: JaRow = {
       number: 64,
@@ -595,11 +606,35 @@ if (import.meta.vitest) {
       detailUrl: "https://example.com/64.html",
       jaPdfs: [],
     };
-    const asSplit = diffEntry(doc, row, null, {}, 2);
+    const noPdfs = { ja: [], en: [] };
+    const asSplit = diffEntry(doc, row, null, noPdfs, 2);
     expect(asSplit).toEqual([
       { id: "0064-sugita", field: "completedYear", stored: "1994", fetched: "1995" },
     ]);
-    const asSole = diffEntry(doc, row, null, {}, 1);
+    const asSole = diffEntry(doc, row, null, noPdfs, 1);
     expect(asSole.map((x) => x.field).sort()).toEqual(["completedYear", "name"]);
+  });
+
+  test("a rewritten 所在地 is reported as drift — it is the datum lat/lng derive from, so it must not change unnoticed", () => {
+    const doc = parseEntry(
+      "0002-hodakubo",
+      "---\nnumber: 2\nname: 県営保田窪第一団地\nlocation: 熊本市帯山1丁目28\nmunicipality: 熊本市中央区\nlat: 32.8\nlng: 130.7\nuse: 公営住宅\n---\n",
+    );
+    const row: JaRow = {
+      number: 2,
+      name: "県営保田窪第一団地",
+      completedYear: undefined,
+      detailUrl: "https://example.com/2.html",
+      jaPdfs: [],
+    };
+    const diffs = diffEntry(doc, row, { 所在地: "熊本市中央区帯山1丁目28" }, { ja: [], en: [] }, 1);
+    expect(diffs).toEqual([
+      {
+        id: "0002-hodakubo",
+        field: "location",
+        stored: "熊本市帯山1丁目28",
+        fetched: "熊本市中央区帯山1丁目28",
+      },
+    ]);
   });
 }

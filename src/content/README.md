@@ -140,6 +140,15 @@ Artpolis commissioned new builds, listed at <https://www.pref.kumamoto.jp/soshik
 
 KAP'92 selected existing buildings, listed at <https://www.pref.kumamoto.jp/soshiki/115/4477.html>.
 
+| number | id                | name   |
+| -----: | ----------------- | ------ |
+|      1 | `kumamoto-castle` | 熊本城 |
+
 ## `status/`
 
 Visit records, one file per visit (filename is the ISO datetime).
+
+| datetime          | entry                                                         |
+| ----------------- | ------------------------------------------------------------- |
+| `2025-11-03-1530` | `kumamoto-castle`                                             |
+| `2025-11-03-1300` | `kumamoto-prefecture-hotakubo-daiichi-public-housing-complex` |

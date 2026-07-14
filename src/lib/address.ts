@@ -1,16 +1,9 @@
-// `municipality` is derived from `location` (ADR 0016) — the address is
-// hand-curated, so it always carries what the derivation needs. The one thing
-// it must carry is the 政令市 ward: a bare 熊本市 address is rejected rather
-// than silently yielding a ward-less municipality, because the prefecture's
-// pre-2012 addresses name no ward and that is exactly the value we'd lose.
-
 const KUMAMOTO_CITY_WARD = /^熊本市(?:中央|東|西|南|北)区/;
 
 export function municipalityOf(location: string): string | null {
   const addr = location.replace(/^熊本県/, "");
   if (KUMAMOTO_CITY_WARD.test(addr)) return addr.match(KUMAMOTO_CITY_WARD)![0];
-  if (/^熊本市/.test(addr)) return null; // a 熊本市 address must name its ward
-  // Strip the 郡, which the site never displays: 阿蘇郡南小国町 → 南小国町.
+  if (addr.startsWith("熊本市")) return null;
   return addr.replace(/^.+?郡/, "").match(/^.+?[市町村]/)?.[0] ?? null;
 }
 

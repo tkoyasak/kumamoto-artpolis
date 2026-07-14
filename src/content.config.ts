@@ -2,34 +2,28 @@ import { glob } from "astro/loaders";
 import { z } from "astro/zod";
 import { defineCollection, reference } from "astro:content";
 
+import { kap92 as kap92Data } from "./data/kap92.ts";
+import { projects as projectsData } from "./data/projects.ts";
 import { municipalityOf } from "./lib/address.ts";
 
-// Both catalog collections share one schema. The Markdown filename is the
-// entry id, `NNNN-<slug>` (ADR 0008/0014) — keep filenames stable; `number`
-// is display/sort only (a test pins prefix == number). The frontmatter is the
-// source of truth the sync tool fills and diffs against (ADR 0013); the body
-// is human-owned prose. `completedYear` is optional and only `.positive()`
-// (kap92 buildings can be historical); `use` is free text.
-// `municipality` is not a field: it is derived from `location` (ADR 0016), so
-// the address is the only place a place is written down. The derivation
-// rejects a ward-less 熊本市 address, which fails the build rather than
-// quietly showing a coarser municipality than the entry deserves.
-const activeSchema = z
+const SOURCE_TITLES = [
+  "紹介ページ（熊本県）",
+  "公式サイト",
+  "PDF（日本語）",
+  "PDF（英語）",
+] as const;
+
+const catalogSchema = z
   .object({
     number: z.number().int().positive(),
     name: z.string().min(1),
-    // The address, hand-curated: the prefecture's 所在地 with the 政令市 ward
-    // filled in where its pre-2012 wording omits one. Coordinates are geocoded
-    // from it.
     location: z.string().min(1),
     lat: z.number().min(-90).max(90),
     lng: z.number().min(-180).max(180),
     architects: z.array(z.string().min(1)),
     completedYear: z.number().int().positive().optional(),
     use: z.string().min(1),
-    // The entry's page on the prefecture site — what `bun run check-projects`
-    // re-fetches to compare against. kap92 buildings have none.
-    url: z.url().optional(),
+    sources: z.array(z.object({ title: z.enum(SOURCE_TITLES), url: z.url() })),
   })
   .transform((data, ctx) => {
     const municipality = municipalityOf(data.location);
@@ -44,33 +38,22 @@ const activeSchema = z
     return { ...data, municipality };
   });
 
-// Official-list rows that are not visitable buildings (plans, programmes)
-// stay in the collection as excluded markers so the sync tool knows the
-// number is accounted for; the site never renders them (ADR 0013).
-const excludedSchema = z.object({
-  number: z.number().int().positive(),
-  name: z.string().min(1),
-  excluded: z.literal(true),
-  reason: z.string().min(1),
-});
+export type EntryInput = { id: string } & z.input<typeof catalogSchema>;
 
-const catalogSchema = z.union([excludedSchema, activeSchema]);
+export type ExcludedRow = { number: number; name: string; reason: string };
 
 const projects = defineCollection({
-  loader: glob({ pattern: "*.md", base: "./src/content/projects" }),
+  loader: () => projectsData,
   schema: catalogSchema,
 });
 
 const kap92 = defineCollection({
-  loader: glob({ pattern: "*.md", base: "./src/content/kap92" }),
+  loader: () => kap92Data,
   schema: catalogSchema,
 });
 
-// One Markdown file per visit, named `<date>-<HHMM>.md` — a colon-free ISO
-// datetime kept lowercase/digits/dashes so the filename survives the glob
-// loader's slugify unchanged (filename == entry id == URL). Each record
-// references exactly one visited entry (ADR 0009); the body holds the visit's
-// notes and photos (public R2 URLs).
+// The glob loader slugifies the filename into the id, so a visit's filename is
+// kept to lowercase/digits/dashes and survives it unchanged.
 const statusSchema = z
   .object({
     project: reference("projects").optional(),
@@ -90,7 +73,7 @@ export const collections = { projects, kap92, status };
 if (import.meta.vitest) {
   const { expect, test } = import.meta.vitest;
 
-  const catalogFrontmatter = {
+  const entry = {
     number: 1,
     name: "some hall",
     location: "熊本市中央区某町1-1",
@@ -98,8 +81,12 @@ if (import.meta.vitest) {
     lng: 130.7,
     architects: ["someone"],
     use: "hall",
-    url: "https://example.com/hall.html",
+    sources: [{ title: "紹介ページ（熊本県）", url: "https://example.com/hall.html" }],
   };
+  const withSource = (title: string, url = "https://example.test/x.pdf") => ({
+    ...entry,
+    sources: [{ title, url }],
+  });
 
   test("a status record references exactly one entry: project XOR kap92 is enforced by the schema, not by convention", () => {
     expect(statusSchema.safeParse({ project: "foo" }).success).toBe(true);
@@ -109,42 +96,34 @@ if (import.meta.vitest) {
   });
 
   test("completedYear is optional and only positive: kap92 buildings can be historical or lack a year entirely", () => {
-    expect(catalogSchema.safeParse(catalogFrontmatter).success).toBe(true);
-    expect(catalogSchema.safeParse({ ...catalogFrontmatter, completedYear: 1607 }).success).toBe(
-      true,
-    );
-    expect(catalogSchema.safeParse({ ...catalogFrontmatter, completedYear: 0 }).success).toBe(
-      false,
-    );
+    expect(catalogSchema.safeParse(entry).success).toBe(true);
+    expect(catalogSchema.safeParse({ ...entry, completedYear: 1607 }).success).toBe(true);
+    expect(catalogSchema.safeParse({ ...entry, completedYear: 0 }).success).toBe(false);
   });
 
   test("marker coordinates must be a real lat/lng, so a swapped pair can't slip onto the map", () => {
-    expect(catalogSchema.safeParse({ ...catalogFrontmatter, lat: 130.7, lng: 32.8 }).success).toBe(
-      false,
-    );
+    expect(catalogSchema.safeParse({ ...entry, lat: 130.7, lng: 32.8 }).success).toBe(false);
   });
 
-  test("a malformed source url is rejected, but a kap92 building may have none at all", () => {
-    expect(catalogSchema.safeParse({ ...catalogFrontmatter, url: "nope" }).success).toBe(false);
-    const { url: _url, ...withoutUrl } = catalogFrontmatter;
-    expect(catalogSchema.safeParse(withoutUrl).success).toBe(true);
+  test("a source title comes from the closed set, so the same label can't be spelled three ways across the catalog", () => {
+    expect(catalogSchema.safeParse(withSource("PDF（日本語）")).success).toBe(true);
+    expect(catalogSchema.safeParse(withSource("PDF(日本語)")).success).toBe(false);
+    expect(catalogSchema.safeParse({ ...entry, sources: [] }).success).toBe(true);
   });
 
-  test("municipality is derived from location, not stored — the address is the only place a place is written down (ADR 0016)", () => {
-    const parsed = catalogSchema.parse(catalogFrontmatter);
-    expect(parsed).toMatchObject({ municipality: "熊本市中央区" });
+  test("a malformed source url is rejected", () => {
+    expect(catalogSchema.safeParse(withSource("公式サイト", "nope")).success).toBe(false);
+  });
+
+  test("municipality is derived from location, not stored — the address is the only place a place is written down", () => {
+    expect(catalogSchema.parse(entry)).toMatchObject({ municipality: "熊本市中央区" });
   });
 
   test("an address the municipality can't be read out of fails the build instead of rendering a ward-less row", () => {
-    const wardless = { ...catalogFrontmatter, location: "熊本市某町1-1" };
-    expect(catalogSchema.safeParse(wardless).success).toBe(false);
-    const { location: _location, ...withoutLocation } = catalogFrontmatter;
-    expect(catalogSchema.safeParse(withoutLocation).success).toBe(false);
+    expect(catalogSchema.safeParse({ ...entry, location: "熊本市某町1-1" }).success).toBe(false);
   });
 
-  test("an excluded marker needs only number/name/reason: official-list rows without a building must not be forced to invent coordinates", () => {
-    const excluded = { number: 13, name: "県道橋景観整備", excluded: true, reason: "基礎調査のみ" };
-    expect(catalogSchema.safeParse(excluded).success).toBe(true);
-    expect(catalogSchema.safeParse({ ...excluded, reason: undefined }).success).toBe(false);
+  test("the schema strips id: an entry's identity is not part of its data", () => {
+    expect(catalogSchema.parse({ ...entry, id: "some-hall" })).not.toHaveProperty("id");
   });
 }

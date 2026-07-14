@@ -1,76 +1,57 @@
 # Content model
 
-## Collections
+## The catalog
 
-Defined in `src/content.config.ts`: three glob-loaded Markdown collections
-under `src/content/`.
+The two catalog collections are hand-written TypeScript, loaded straight into
+Astro. There are no catalog Markdown files.
 
-- **`projects/`** — Artpolis commissioned new builds.
-- **`kap92/`** — KAP'92 selected existing buildings.
-- Both share one schema (`catalogSchema`), a union of two shapes:
-  - **active entry** — `number`, `name`, `location`, `lat`, `lng`,
-    `architects`, `use` required; `completedYear` (only `.positive()`; kap92
-    can be historical) and `url` (the entry's page on the prefecture site —
-    kap92 buildings have none) optional. `use` is free text.
-  - **excluded marker** — `number`/`name`/`excluded: true`/`reason`. An
-    official-list row that is not a building (a plan or programme). The site
-    never renders these; they exist so the catalog accounts for the number.
-- **`municipality` is not a field**: it is derived from `location` by the
-  schema (`src/lib/address.ts`, ADR 0016). The derivation rejects a ward-less
-  熊本市 address — an address must name its 政令市 ward — so a bad address
-  fails the build instead of showing a coarser municipality.
-- Every consumer narrows to active entries through `isActive`
-  (`src/lib/catalog.ts`); nothing reads the collections raw.
-- **`status/`** — one file per visit (`<date>-<HHMM>.md`); frontmatter
-  references exactly one entry via `project` XOR `kap92` (schema-enforced),
-  so a record maps to one catalog collection.
+- **`src/data/projects.ts`** — Artpolis commissioned new builds. Also exports
+  `excluded`: official-list rows with no visitable building. They are not
+  entries and never reach a collection.
+- **`src/data/kap92.ts`** — KAP'92 selected existing buildings.
+- **`src/content.config.ts`** holds `catalogSchema`, which both collections use
+  and which the data is typed against (`EntryInput`).
+
+An entry is `id`, `number`, `name`, `location`, `lat`, `lng`, `architects`,
+`use`, `sources`, and an optional `completedYear`. `use` is free text.
+
+- **`sources`** — the links the detail page shows, in order. `title` comes from
+  a closed set (`SOURCE_TITLES`).
+- **`municipality`** — derived from `location` (`src/lib/address.ts`), not
+  stored. A ward-less 熊本市 address fails the build.
+- An entry has no body.
+
+## Visit records
+
+`src/content/status/` is Markdown, one file per visit (`<date>-<HHMM>.md`); the
+body holds the notes and photos. The frontmatter references exactly one entry
+via `project` XOR `kap92`, enforced by the schema.
 
 ## Ownership
 
-**The entries are hand-curated** (ADR 0016). No tool writes them. The
-frontmatter holds the catalog data plus `url`; everything else — the PDF
-links, the notes — is hand-written Markdown in the body. The detail page
-renders the `url` as its one frontmatter-derived link (`sourceLink`) above
-the body.
-
-`location` is the official 所在地 with the 政令市 ward filled in where the
-prefecture's pre-2012 wording omits one, and its trailing link notes dropped.
-Coordinates are geocoded from it (大字/丁目-centroid precision) and then
-hand-pinned.
+The entries are hand-curated. No tool writes them, and nothing checks them
+against the prefecture's pages.
 
 ## Identity
 
-**The filename is the entry id**, `NNNN-<slug>` (ADR 0008/0014): zero-padded
-official number plus a stable human-readable slug. The glob loader derives
-`entry.id` from the filename, so the id is the URL (`/projects/<id>`) and how
-`status` references entries; the dynamic routes are all `[id].astro`. Keep
-filenames stable. `number` is also a frontmatter field (display/sort); a test
-pins prefix == number. Split rows are several entries sharing a `number`,
-each named for its own building.
+**`id` is a field**: a stable, human-readable slug in lowercase, digits and
+dashes. It is the URL (`/projects/<id>`) and how `status` references an entry;
+the dynamic routes are all `[id].astro`. It carries no official number —
+`number` is display and sort only, and a split official row is several entries
+sharing one.
+
+`tests/catalog-data.test.ts` pins id uniqueness and the URL shape.
+
+Visit records keep filename == id == URL; their ids are datetimes.
 
 ## Visit dates
 
-**`status` is the source of truth for visit dates.** Entries don't store
-their own; `getVisitsByEntry()` (`src/lib/visits.ts`) derives them for both
-collections, keyed by entry href (`/projects/<id>`, `/kap92/<id>`) so ids
-can't collide across collections.
+**`status` is the source of truth for visit dates.** Entries don't store their
+own; `getVisitsByEntry()` (`src/lib/visits.ts`) derives them for both
+collections, keyed by entry href (`/projects/<id>`, `/kap92/<id>`) so ids can't
+collide across collections.
 
-## The checker
+## Photos
 
-`bun run check-projects [file...]` (`scripts/check-projects.ts`) **never
-writes.** It fetches the page an entry's `url` points at and prints what that
-page says next to what the entry says; you apply a difference by editing the
-md. It reads nothing but that page, so it checks the three fields the page's
-建築データ block carries — `location`, `use`, `architects` — and geocodes
-`location` for an entry with no coordinates yet. `name` and `completedYear`
-come from the prefecture's list page and are not checked.
-
-Nothing watches the list page, so a new official number surfaces only when
-someone looks (see `TODO.md`).
-
-## Generated files & photos
-
-`src/content/README.md` is generated by `scripts/content-readme.ts` — don't
-hand-edit; run `bun run content` (pre-commit regenerates it on content
-changes). Photos are external URLs in Markdown bodies; an R2 bucket is
-planned.
+External URLs in visit-record Markdown bodies — currently placeholders
+(`media.example.com`); an R2 bucket is planned.

@@ -1,8 +1,6 @@
 ---
-import { render } from "astro:content";
-
 import Base from "../layouts/Base.astro";
-import { type ActiveEntry, sourceLink } from "../lib/catalog.ts";
+import type { CatalogEntry } from "../lib/catalog.ts";
 import { entryMapFocus, toEntryRow } from "../lib/entries.ts";
 import { toStatusRow } from "../lib/status.ts";
 import DetailBody from "./DetailBody.astro";
@@ -11,16 +9,14 @@ import StatusDetailTable from "./StatusDetailTable.astro";
 
 // Shared shell for an Entry's detail page (/projects/<id>, /kap92/<id>).
 interface Props {
-  entry: ActiveEntry;
+  entry: CatalogEntry;
   // Status ids that visited this entry, newest first.
   visits?: string[];
 }
 
 const { entry, visits = [] } = Astro.props;
-const { Content } = await render(entry);
 
 const row = toEntryRow(entry);
-const source = sourceLink(entry);
 const visitRows = visits.map((id) => toStatusRow(id, entry));
 ---
 
@@ -28,18 +24,15 @@ const visitRows = visits.map((id) => toStatusRow(id, entry));
   <Fragment slot="entry">
     <EntryDetailTable rows={[row]} />
     <DetailBody>
-      {/* The source page is frontmatter (the tool fetches from it); the PDF
-          links and everything else are hand-written in the body. */}
-      {
-        source && (
-          <ul>
+      <ul>
+        {
+          entry.data.sources.map((source) => (
             <li>
-              <a href={source.url}>{source.label}</a>
+              <a href={source.url}>{source.title}</a>
             </li>
-          </ul>
-        )
-      }
-      <Content />
+          ))
+        }
+      </ul>
     </DetailBody>
   </Fragment>
   <Fragment slot="status">

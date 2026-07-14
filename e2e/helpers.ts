@@ -2,20 +2,17 @@ import { readdirSync, readFileSync } from "node:fs";
 
 import { expect, type Page } from "@playwright/test";
 
-// The filename is the entry/visit id (ADR 0008/0009), so the expected set of
-// rows and markers can be derived from the content files — these tests stay
-// in sync as content grows. Excluded markers (ADR 0013) never render, so
-// they don't count.
+import { kap92 } from "../src/data/kap92.ts";
+import { projects } from "../src/data/projects.ts";
+
 export function contentIds(collection: "projects" | "kap92" | "status"): string[] {
-  const base = new URL(`../src/content/${collection}/`, import.meta.url);
-  return readdirSync(base)
+  if (collection === "projects") return projects.map((entry) => entry.id);
+  if (collection === "kap92") return kap92.map((entry) => entry.id);
+  return readdirSync(new URL("../src/content/status/", import.meta.url))
     .filter((file) => file.endsWith(".md"))
-    .filter((file) => !/^excluded: true$/m.test(readFileSync(new URL(file, base), "utf8")))
     .map((file) => file.slice(0, -".md".length));
 }
 
-// A visit's frontmatter references exactly one entry via `project` XOR `kap92`
-// (ADR 0009); resolve that entry's href — the map marker key — from the file.
 export function visitedEntryHref(statusId: string): string {
   const text = readFileSync(
     new URL(`../src/content/status/${statusId}.md`, import.meta.url),

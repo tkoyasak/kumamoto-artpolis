@@ -1,6 +1,6 @@
 import { getCollection } from "astro:content";
 
-import { type ActiveEntry, isActive } from "./catalog.ts";
+import type { CatalogEntry } from "./catalog.ts";
 import { type CatalogCollection, type Category, categoryOf, entryHref } from "./routes.ts";
 import { getVisitsByEntry } from "./visits.ts";
 
@@ -21,13 +21,13 @@ export type EntryRow = {
 export async function getEntryRows(): Promise<EntryRow[]> {
   const projects = await getCollection("projects");
   const kap92 = await getCollection("kap92");
-  return [...projects, ...kap92].filter(isActive).map((entry) => toEntryRow(entry));
+  return [...projects, ...kap92].map((entry) => toEntryRow(entry));
 }
 
 export async function entryStaticPaths(collection: CatalogCollection) {
   const entries = await getCollection(collection);
   const visits = await getVisitsByEntry();
-  return entries.filter(isActive).map((entry) => ({
+  return entries.map((entry) => ({
     params: { id: entry.id },
     props: { entry, visits: visits.get(entryHref(entry)) ?? [] },
   }));
@@ -35,11 +35,11 @@ export async function entryStaticPaths(collection: CatalogCollection) {
 
 // Base's `mapFocus` prop: coordinates plus the marker key, which on
 // /status/<id> differs from the page path.
-export function entryMapFocus(entry: ActiveEntry) {
+export function entryMapFocus(entry: CatalogEntry) {
   return { lat: entry.data.lat, lng: entry.data.lng, href: entryHref(entry) };
 }
 
-export function toEntryRow(entry: ActiveEntry): EntryRow {
+export function toEntryRow(entry: CatalogEntry): EntryRow {
   return {
     href: entryHref(entry),
     category: categoryOf(entry.collection),

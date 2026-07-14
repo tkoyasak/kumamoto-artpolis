@@ -1,6 +1,6 @@
 import { getCollection } from "astro:content";
-import type { CollectionEntry } from "astro:content";
 
+import type { CatalogEntry } from "./catalog.ts";
 import { type Category, categoryOf, entryHref, statusDate, statusHref } from "./routes.ts";
 import { getVisitedEntry } from "./visits.ts";
 
@@ -19,10 +19,7 @@ export type StatusRow = {
 
 // Takes the bare id (not the status record) so callers holding only visit ids
 // — the entry detail pages — can build rows too.
-export function toStatusRow(
-  id: string,
-  entry: CollectionEntry<"projects"> | CollectionEntry<"kap92">,
-): StatusRow {
+export function toStatusRow(id: string, entry: CatalogEntry): StatusRow {
   return {
     id,
     date: statusDate(id),

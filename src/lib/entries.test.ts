@@ -54,19 +54,6 @@ test("a missing completedYear becomes null, so the row shape has no optional hol
   expect(row?.completedYear).toBeNull();
 });
 
-test("an excluded marker row (a list number without a building) gets neither a table row nor a page", async () => {
-  fixtures.projects = [
-    entry("projects", "p1", 3),
-    {
-      collection: "projects",
-      id: "x",
-      data: { number: 13, name: "x", excluded: true, reason: "r" },
-    },
-  ];
-  expect((await getEntryRows()).map((r) => r.href)).toEqual(["/projects/p1"]);
-  expect((await entryStaticPaths("projects")).map((p) => p.params.id)).toEqual(["p1"]);
-});
-
 test("entryStaticPaths keys each page by entry id and hands it its visits — an empty list, not absence, when unvisited", async () => {
   fixtures.projects = [entry("projects", "seen", 1), entry("projects", "unseen", 2)];
   fixtures.status = [

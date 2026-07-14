@@ -3,10 +3,10 @@ import { beforeEach, expect, test, vi } from "vitest";
 import { getVisitsByEntry } from "./visits.ts";
 
 type Ref = { collection: "projects" | "kap92"; id: string };
-type StatusFixture = { id: string; data: { project?: Ref; kap92?: Ref } };
+type StatusFixture = { id: string; data: { entry: Ref } };
 
 const fixtures = vi.hoisted(() => ({
-  status: [] as { id: string; data: Record<string, { collection: string; id: string }> }[],
+  status: [] as { id: string; data: { entry: { collection: string; id: string } } }[],
 }));
 
 vi.mock("astro:content", () => ({
@@ -26,8 +26,8 @@ beforeEach(() => {
 
 test("visits are keyed by entry href, so the same id in projects and kap92 cannot collide", async () => {
   visits([
-    { id: "2026-01-10-0900", data: { project: project("foo") } },
-    { id: "2026-02-20-1400", data: { kap92: kap92("foo") } },
+    { id: "2026-01-10-0900", data: { entry: project("foo") } },
+    { id: "2026-02-20-1400", data: { entry: kap92("foo") } },
   ]);
   const byEntry = await getVisitsByEntry();
   expect(byEntry.get("/projects/foo")).toEqual(["2026-01-10-0900"]);
@@ -36,9 +36,9 @@ test("visits are keyed by entry href, so the same id in projects and kap92 canno
 
 test("an entry's visit ids come newest first, whatever order the records load in", async () => {
   visits([
-    { id: "2026-01-10-0900", data: { project: project("foo") } },
-    { id: "2026-03-05-1100", data: { project: project("foo") } },
-    { id: "2026-02-20-1400", data: { project: project("foo") } },
+    { id: "2026-01-10-0900", data: { entry: project("foo") } },
+    { id: "2026-03-05-1100", data: { entry: project("foo") } },
+    { id: "2026-02-20-1400", data: { entry: project("foo") } },
   ]);
   const byEntry = await getVisitsByEntry();
   expect(byEntry.get("/projects/foo")).toEqual([
@@ -46,9 +46,4 @@ test("an entry's visit ids come newest first, whatever order the records load in
     "2026-02-20-1400",
     "2026-01-10-0900",
   ]);
-});
-
-test("a status record with no entry reference fails the build instead of being silently dropped", async () => {
-  visits([{ id: "2026-01-10-0900", data: {} }]);
-  await expect(getVisitsByEntry()).rejects.toThrow("no entry reference");
 });

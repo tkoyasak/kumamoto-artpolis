@@ -55,7 +55,7 @@ test("visited is keyed by href, so visiting a project never marks the same-id ka
   fixtures.projects = [entry("projects", "foo")];
   fixtures.kap92 = [entry("kap92", "foo")];
   fixtures.status = [
-    { id: "2026-01-10-0900", data: { project: { collection: "projects", id: "foo" } } },
+    { id: "2026-01-10-0900", data: { entry: { collection: "projects", id: "foo" } } },
   ];
   const visited = new Map((await markers()).map((m) => [m.href, m.visited]));
   expect(visited.get("/projects/foo")).toBe(true);

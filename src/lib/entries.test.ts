@@ -16,7 +16,7 @@ type CatalogFixture = {
   };
 };
 type Ref = { collection: Collection; id: string };
-type StatusFixture = { id: string; data: { project?: Ref; kap92?: Ref } };
+type StatusFixture = { id: string; data: { entry: Ref } };
 
 const fixtures = vi.hoisted(() => ({
   projects: [] as unknown[],
@@ -57,7 +57,7 @@ test("a missing completedYear becomes null, so the row shape has no optional hol
 test("entryStaticPaths keys each page by entry id and hands it its visits — an empty list, not absence, when unvisited", async () => {
   fixtures.projects = [entry("projects", "seen", 1), entry("projects", "unseen", 2)];
   fixtures.status = [
-    { id: "2026-01-10-0900", data: { project: { collection: "projects", id: "seen" } } },
+    { id: "2026-01-10-0900", data: { entry: { collection: "projects", id: "seen" } } },
   ] satisfies StatusFixture[];
   const paths = await entryStaticPaths("projects");
   const byId = new Map(paths.map((p) => [p.params.id, p.props.visits]));

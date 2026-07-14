@@ -24,8 +24,17 @@ An entry is `id`, `number`, `name`, `location`, `lat`, `lng`, `architects`,
 ## Visit records
 
 `src/content/status/` is Markdown, one file per visit (`<date>-<HHMM>.md`); the
-body holds the notes and photos. The frontmatter references exactly one entry
-via `project` XOR `kap92`, enforced by the schema.
+body holds the notes and photos. The frontmatter names one entry in a single
+`entry` field, a collection-qualified reference:
+
+```yaml
+entry:
+  collection: kap92
+  id: kumamoto-castle
+```
+
+There is one field, so a record cannot name two entries. `getEntry` takes
+`visit.data.entry` as is.
 
 ## Ownership
 

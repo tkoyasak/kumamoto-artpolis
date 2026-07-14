@@ -4,16 +4,10 @@ import type { CollectionEntry } from "astro:content";
 import type { CatalogEntry } from "./catalog.ts";
 import { entryHref } from "./routes.ts";
 
-function visitedRef(visit: CollectionEntry<"status">) {
-  const ref = visit.data.project ?? visit.data.kap92;
-  if (!ref) throw new Error(`status ${visit.id}: no entry reference`);
-  return ref;
-}
-
 // Astro's `reference()` only shapes an id into a lookup; it never checks that
 // the entry exists.
 export async function getVisitedEntry(visit: CollectionEntry<"status">): Promise<CatalogEntry> {
-  const ref = visitedRef(visit);
+  const ref = visit.data.entry;
   const entry = await getEntry(ref);
   if (!entry)
     throw new Error(`status ${visit.id}: references missing entry ${ref.collection}/${ref.id}`);
@@ -27,7 +21,7 @@ export async function getVisitsByEntry(): Promise<Map<string, string[]>> {
   const byEntry = new Map<string, string[]>();
 
   for (const visit of status) {
-    const href = entryHref(visitedRef(visit));
+    const href = entryHref(visit.data.entry);
     const ids = byEntry.get(href) ?? [];
     ids.push(visit.id);
     byEntry.set(href, ids);

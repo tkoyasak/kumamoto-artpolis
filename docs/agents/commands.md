@@ -39,7 +39,7 @@ Placement, in order of preference:
    Production bundles carry none of it: `astro.config.ts` defines
    `import.meta.vitest` away (`define: { "import.meta.vitest": "undefined" }`).
 2. **Colocated `*.test.ts`** for behaviors needing counterfactual fixtures
-   (id collisions, XOR violations, dangling references) — these `vi.mock`
+   (id collisions, dangling references) — these `vi.mock`
    `astro:content` per file. Under `getViteConfig` the `astro:content`
    virtual module otherwise resolves for real.
 3. **`tests/`** for cross-file or route-constrained tests — `src/pages`

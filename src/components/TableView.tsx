@@ -43,12 +43,9 @@ type Props = {
   rows: TableViewRow[];
 };
 
-// The section hugs the table (`w-fit` over a definite `tableWidth`) and takes
-// its gutter as margin, so it never spreads an invisible click surface over the
-// map layer it is stacked on (`relative`). Its max-width subtracts that gutter:
-// margins sit outside `max-w-full`, which would overflow the page.
 export default function TableView({ colWidths, headVt, headers, rows }: Props) {
   return (
+    // Margins sit outside `max-w-full`, so the max-width subtracts the gutter.
     <section className="relative mx-4 w-fit max-w-[calc(100%-2rem)] overflow-x-auto py-4 sm:mx-8 sm:max-w-[calc(100%-4rem)]">
       <table
         className="table-fixed border-collapse text-base"

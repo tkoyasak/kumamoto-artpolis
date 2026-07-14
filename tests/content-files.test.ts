@@ -1,4 +1,4 @@
-import { readdirSync, readFileSync } from "node:fs";
+import { readdirSync } from "node:fs";
 
 import { expect, test } from "vitest";
 
@@ -18,22 +18,12 @@ test("a status filename is YYYY-MM-DD-HHMM.md — statusDate and the descending 
   }
 });
 
-test("a catalog filename is the entry id and URL: NNNN-<slug> in lowercase/digits/dashes, so it survives the glob loader's slugify unchanged and sorts in official-number order", () => {
+test("a catalog filename is the entry id and URL: lowercase/digits/dashes, so it survives the glob loader's slugify unchanged", () => {
   for (const dir of ["projects", "kap92"]) {
     const files = mdFiles(dir);
     expect(files.length).toBeGreaterThan(0);
     for (const name of files) {
-      expect(name).toMatch(/^\d{4}-[a-z0-9][a-z0-9-]*\.md$/);
-    }
-  }
-});
-
-test("a catalog filename's number prefix matches the frontmatter number — a mismatch would put the wrong official number in the URL while sorting by the right one", () => {
-  for (const dir of ["projects", "kap92"]) {
-    for (const name of mdFiles(dir)) {
-      const raw = readFileSync(new URL(`../src/content/${dir}/${name}`, import.meta.url), "utf8");
-      const number = Number(raw.match(/^number: (\d+)$/m)?.[1]);
-      expect(Number(name.slice(0, 4)), `${dir}/${name}`).toBe(number);
+      expect(name).toMatch(/^[a-z0-9][a-z0-9-]*\.md$/);
     }
   }
 });

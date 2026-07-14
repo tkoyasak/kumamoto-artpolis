@@ -4,13 +4,10 @@ import { expect, type Page } from "@playwright/test";
 
 // The filename is the entry/visit id (ADR 0008/0009), so the expected set of
 // rows and markers can be derived from the content files — these tests stay
-// in sync as content grows. Excluded markers (ADR 0013) never render, so
-// they don't count.
+// in sync as content grows.
 export function contentIds(collection: "projects" | "kap92" | "status"): string[] {
-  const base = new URL(`../src/content/${collection}/`, import.meta.url);
-  return readdirSync(base)
+  return readdirSync(new URL(`../src/content/${collection}/`, import.meta.url))
     .filter((file) => file.endsWith(".md"))
-    .filter((file) => !/^excluded: true$/m.test(readFileSync(new URL(file, base), "utf8")))
     .map((file) => file.slice(0, -".md".length));
 }
 

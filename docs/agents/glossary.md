@@ -38,34 +38,14 @@ What an Entry is for — its function or building type (public facility, housing
 school, park, bridge, station, and so on).
 _Avoid_: type, purpose
 
-**Location**:
-An Entry's address: the official 所在地 with the 政令市 ward filled in where
-the prefecture's older wording omits one. The datum the coordinates are
-geocoded from, and the one **Municipality** is derived from (ADR 0016).
-_Avoid_: address (fine in prose, but the field is `location`), municipality
-
-**Municipality**:
-The 市町村 an Entry stands in — a 政令市 ward where there is one (熊本市中央区).
-Not a stored field: derived from **Location** by the schema (ADR 0016). The
-table shows it and, one day, filters on it.
-_Avoid_: city, town, prefecture
-
-**Excluded marker**:
-An official-list row that is not a visitable building (a plan, programme, or
-unbuilt design), kept in the collection as a flagged file (`excluded: true`
-with the reason) so the sync tool knows the Number is accounted for. Never
-rendered on the site.
-_Avoid_: calling it an Entry (it has no page, marker, or row)
-
 ### Identity & keys
 
 **Id**:
 An Entry's stable public identifier, derived from its Markdown filename
-(`<id>.md`): the zero-padded official Number plus a human-readable name
-(`NNNN-<slug>`), chosen once and kept stable. It is the URL path
-(`/projects/<id>`) and the key by which a Visit record references the Entry.
-Visit records are identified the same way — filename == id == URL — but their
-ids are datetimes, not names.
+(`<id>.md`): a human-readable name, chosen once and kept stable. It is the URL
+path (`/projects/<id>`) and the key by which a Visit record references the
+Entry. Visit records are identified the same way — filename == id == URL — but
+their ids are datetimes, not names.
 _Avoid_: slug (retired — it named the same thing), permalink
 
 **Number**:

@@ -11,8 +11,7 @@
     "e2e": "playwright test",
     "clean": "rm -rf node_modules/.astro node_modules/.vite .astro dist",
     "deploy": "astro build && wrangler deploy --strict",
-    "content": "bun run scripts/content-readme.ts",
-    "check-projects": "bun run scripts/check-projects.ts"
+    "content": "bun run scripts/content-readme.ts"
   },
   "dependencies": {
     "@astrojs/preact": "6.0.0",
@@ -33,8 +32,7 @@
     "@vitest/coverage-v8": "4.1.9",
     "bun-types": "1.3.14",
     "vitest": "4.1.9",
-    "wrangler": "4.105.0",
-    "yaml": "2.9.0"
+    "wrangler": "4.105.0"
   },
   "overrides": {
     "react": "$@preact/compat",

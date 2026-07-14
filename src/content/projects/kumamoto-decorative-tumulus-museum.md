@@ -1,0 +1,13 @@
+---
+number: 3
+name: 熊本県立装飾古墳館
+architects:
+  - 六角鬼丈
+lat: 33.022
+lng: 130.689
+completedYear: 1992
+municipality: 山鹿市
+use: 公共施設
+---
+
+説明は準備中です。

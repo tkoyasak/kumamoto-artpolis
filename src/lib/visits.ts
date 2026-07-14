@@ -1,7 +1,6 @@
 import { getCollection, getEntry } from "astro:content";
 import type { CollectionEntry } from "astro:content";
 
-import { type ActiveEntry, isActive } from "./catalog.ts";
 import { entryHref } from "./routes.ts";
 
 // The schema's refine guarantees exactly one ref is set; throwing on neither
@@ -13,13 +12,13 @@ function visitedRef(visit: CollectionEntry<"status">) {
 }
 
 // Throws on a dangling reference (typo'd or deleted id) so it fails the build.
-export async function getVisitedEntry(visit: CollectionEntry<"status">): Promise<ActiveEntry> {
+export async function getVisitedEntry(
+  visit: CollectionEntry<"status">,
+): Promise<CollectionEntry<"projects"> | CollectionEntry<"kap92">> {
   const ref = visitedRef(visit);
   const entry = await getEntry(ref);
   if (!entry)
     throw new Error(`status ${visit.id}: references missing entry ${ref.collection}/${ref.id}`);
-  if (!isActive(entry))
-    throw new Error(`status ${visit.id}: references excluded entry ${ref.collection}/${ref.id}`);
   return entry;
 }
 

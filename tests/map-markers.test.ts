@@ -51,18 +51,6 @@ test("kap92 markers come before projects: array order is stacking order, so proj
   ]);
 });
 
-test("an excluded marker row (a list number without a building) never becomes a map marker", async () => {
-  fixtures.projects = [
-    entry("projects", "a"),
-    {
-      collection: "projects",
-      id: "x",
-      data: { number: 13, name: "x", excluded: true, reason: "r" },
-    },
-  ];
-  expect((await markers()).map((m) => m.href)).toEqual(["/projects/a"]);
-});
-
 test("visited is keyed by href, so visiting a project never marks the same-id kap92 building", async () => {
   fixtures.projects = [entry("projects", "foo")];
   fixtures.kap92 = [entry("kap92", "foo")];

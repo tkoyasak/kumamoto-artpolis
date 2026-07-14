@@ -1,6 +1,0 @@
----
-number: 24
-name: 公園ファニチャーデザイン・整備マニュアル
-excluded: true
-reason: 実体なし
----

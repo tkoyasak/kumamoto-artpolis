@@ -1,0 +1,13 @@
+---
+number: 1
+name: 熊本県営保田窪第一団地
+architects:
+  - 山本理顕
+lat: 32.8016
+lng: 130.7637
+completedYear: 1991
+municipality: 熊本市
+use: 集合住宅
+---
+
+説明は準備中です。

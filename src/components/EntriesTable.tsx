@@ -44,7 +44,6 @@ export default function EntriesTable({ rows }: { rows: EntryRow[] }) {
       initialSorting={[{ id: "number", desc: true }]}
       colWidths={ENTRY_COL_WIDTHS}
       headVt={ENTRY_HEAD_VT}
-      sectionClass="relative max-w-5xl"
       groups={{ keys: ["project", "kap92"], of: (row) => row.category }}
     />
   );

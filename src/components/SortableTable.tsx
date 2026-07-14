@@ -52,8 +52,6 @@ type Props<Row extends TableRow, GroupKey extends string> = {
   initialSorting: SortingState;
   colWidths: readonly string[];
   headVt: string;
-  // Per-page wrapper classes: max-width, pointer-events/stacking vs the map layer.
-  sectionClass: string;
   // Ordered row groups; sorting reorders only within a group. NoInfer makes
   // `keys` authoritative — a total function that can't drop or duplicate a row.
   groups?: { keys: readonly GroupKey[]; of: (row: Row) => NoInfer<GroupKey> };
@@ -68,7 +66,6 @@ export default function SortableTable<Row extends TableRow, GroupKey extends str
   initialSorting,
   colWidths,
   headVt,
-  sectionClass,
   groups,
   markerHref,
 }: Props<Row, GroupKey>) {
@@ -95,7 +92,6 @@ export default function SortableTable<Row extends TableRow, GroupKey extends str
 
   return (
     <TableView
-      wrapClass={sectionClass}
       colWidths={colWidths}
       headVt={headVt}
       headers={table.getFlatHeaders().map((header) => {

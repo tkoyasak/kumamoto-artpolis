@@ -33,7 +33,6 @@ export default function StatusTable({ rows }: { rows: StatusRow[] }) {
       initialSorting={[{ id: "id", desc: true }]}
       colWidths={STATUS_COL_WIDTHS}
       headVt={STATUS_HEAD_VT}
-      sectionClass="relative max-w-2xl"
       markerHref={(row) => row.entryHref}
     />
   );

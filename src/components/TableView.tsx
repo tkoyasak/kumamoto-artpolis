@@ -37,17 +37,16 @@ export type TableViewRow = {
 };
 
 type Props = {
-  // Per-page wrapper classes: max-width, pointer-events/stacking vs the map layer.
-  wrapClass: string;
   colWidths: readonly string[];
   headVt: string;
   headers: TableHeader[];
   rows: TableViewRow[];
 };
 
-export default function TableView({ wrapClass, colWidths, headVt, headers, rows }: Props) {
+export default function TableView({ colWidths, headVt, headers, rows }: Props) {
   return (
-    <section className={`${wrapClass} overflow-x-auto px-4 py-4 sm:px-8`}>
+    // Margins sit outside `max-w-full`, so the max-width subtracts the gutter.
+    <section className="relative mx-4 w-fit max-w-[calc(100%-2rem)] overflow-x-auto py-4 sm:mx-8 sm:max-w-[calc(100%-4rem)]">
       <table
         className="table-fixed border-collapse text-base"
         style={{ width: tableWidth(colWidths) }}
@@ -106,7 +105,6 @@ export function DetailTableView({
   rows,
   colWidths,
   headVt,
-  maxWidth,
   subject = false,
   backHref,
 }: {
@@ -114,14 +112,12 @@ export function DetailTableView({
   rows: DetailRow[];
   colWidths: readonly string[];
   headVt: string;
-  maxWidth: string;
   subject?: boolean;
   backHref: string;
 }) {
   const hovered = useStore($hovered);
   return (
     <TableView
-      wrapClass={`relative ${maxWidth}`}
       colWidths={colWidths}
       headVt={headVt}
       headers={headers.map((header) => ({ node: header }))}

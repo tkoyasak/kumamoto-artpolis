@@ -33,25 +33,21 @@ An existing building selected in the 1992 KAP'92 program, rather than newly
 commissioned.
 _Avoid_: calling it a Project
 
-**Use**:
-What an Entry is for — its function or building type (public facility, housing,
-school, park, bridge, station, and so on).
-_Avoid_: type, purpose
-
 ### Identity & keys
 
 **Id**:
-An Entry's stable public identifier, derived from its Markdown filename
-(`<id>.md`): a human-readable name, chosen once and kept stable. It is the URL
-path (`/projects/<id>`) and the key by which a Visit record references the
-Entry. Visit records are identified the same way — filename == id == URL — but
-their ids are datetimes, not names.
+An Entry's stable public identifier: a human-readable slug in lowercase, digits
+and dashes, chosen once and kept stable. It is a field of the Entry, and it is
+both the URL path (`/projects/<id>`) and the key by which a Visit record
+references the Entry. Visit records are identified by filename instead —
+filename == id == URL — and their ids are datetimes, not names.
 _Avoid_: slug (retired — it named the same thing), permalink
 
 **Number**:
 An Entry's official catalog number (its Artpolis number, or its 1–46 place in
-the KAP'92 prefecture list), stored as a frontmatter field. Used only for display
-and ordering, never for identity or references.
+the KAP'92 prefecture list), stored as a field. Used only for display and
+ordering, never for identity or references — several Entries share one when the
+official row bundles buildings.
 _Avoid_: id, index
 
 ### Visits

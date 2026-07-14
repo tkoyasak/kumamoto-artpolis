@@ -2,37 +2,28 @@ import { readdirSync } from "node:fs";
 
 import { expect, test } from "vitest";
 
+import { kap92 } from "../src/data/kap92.ts";
+import { projects } from "../src/data/projects.ts";
 import { rowTransitionName } from "../src/lib/transitions.ts";
 
-const mdFiles = (dir: string) =>
-  readdirSync(new URL(`../src/content/${dir}`, import.meta.url))
+const statusFiles = () =>
+  readdirSync(new URL("../src/content/status", import.meta.url))
     .filter((name) => name.endsWith(".md"))
     .sort();
-const ids = (dir: string) => mdFiles(dir).map((name) => name.replace(/\.md$/, ""));
 
 test("a status filename is YYYY-MM-DD-HHMM.md — statusDate and the descending sort silently break otherwise", () => {
-  const files = mdFiles("status");
+  const files = statusFiles();
   expect(files.length).toBeGreaterThan(0);
   for (const name of files) {
     expect(name).toMatch(/^\d{4}-\d{2}-\d{2}-\d{4}\.md$/);
   }
 });
 
-test("a catalog filename is the entry id and URL: lowercase/digits/dashes, so it survives the glob loader's slugify unchanged", () => {
-  for (const dir of ["projects", "kap92"]) {
-    const files = mdFiles(dir);
-    expect(files.length).toBeGreaterThan(0);
-    for (const name of files) {
-      expect(name).toMatch(/^[a-z0-9][a-z0-9-]*\.md$/);
-    }
-  }
-});
-
 test("every real href gets a distinct transition name — the sanitizer collapses punctuation runs, so distinct ids could collide", () => {
   const hrefs = [
-    ...ids("projects").map((id) => `/projects/${id}`),
-    ...ids("kap92").map((id) => `/kap92/${id}`),
-    ...ids("status").map((id) => `/status/${id}`),
+    ...projects.map((e) => `/projects/${e.id}`),
+    ...kap92.map((e) => `/kap92/${e.id}`),
+    ...statusFiles().map((name) => `/status/${name.slice(0, -".md".length)}`),
   ];
   const names = hrefs.map(rowTransitionName);
   expect(new Set(names).size).toBe(hrefs.length);

@@ -10,7 +10,7 @@ bun devDependency.
 - `bun run check` — `astro check` (TypeScript + content schema; the only type check)
 - `bun run test` — `vitest run` (invariant tests; see below)
 - `bun run e2e` — Playwright (see below)
-- `bun run content` — regenerate `src/content/README.md` (also a pre-commit hook on `src/content/*.md`)
+- `bun run geocode <address>...` — print the coordinates for a 所在地 and stop; you paste them into the entry (see content-model.md)
 - `bun run deploy` — build + `wrangler deploy --strict`
 - `bun run clean` — remove Astro caches, the Vite dep-optimizer cache
   (`node_modules/.vite`), and `dist/`. Clearing `.vite` is the fix for a dev
@@ -50,4 +50,5 @@ Placement, in order of preference:
 Playwright suite in `e2e/` (excluded from Vitest), run against the
 production build via `astro preview`. System Chrome
 (`channel: "chrome"`, no downloaded browsers), carto style URL mocked,
-expected rows/markers derived from content filenames.
+expected rows/markers imported from `src/data/` (visit ids are still read off
+the `src/content/status/` filenames).

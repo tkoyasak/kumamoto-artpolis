@@ -1,20 +1,18 @@
 import { getCollection, getEntry } from "astro:content";
 import type { CollectionEntry } from "astro:content";
 
+import type { CatalogEntry } from "./catalog.ts";
 import { entryHref } from "./routes.ts";
 
-// The schema's refine guarantees exactly one ref is set; throwing on neither
-// makes a broken record fail the build instead of being silently dropped.
 function visitedRef(visit: CollectionEntry<"status">) {
   const ref = visit.data.project ?? visit.data.kap92;
   if (!ref) throw new Error(`status ${visit.id}: no entry reference`);
   return ref;
 }
 
-// Throws on a dangling reference (typo'd or deleted id) so it fails the build.
-export async function getVisitedEntry(
-  visit: CollectionEntry<"status">,
-): Promise<CollectionEntry<"projects"> | CollectionEntry<"kap92">> {
+// Astro's `reference()` only shapes an id into a lookup; it never checks that
+// the entry exists.
+export async function getVisitedEntry(visit: CollectionEntry<"status">): Promise<CatalogEntry> {
   const ref = visitedRef(visit);
   const entry = await getEntry(ref);
   if (!entry)

@@ -1,6 +1,6 @@
 import { getCollection } from "astro:content";
-import type { CollectionEntry } from "astro:content";
 
+import type { CatalogEntry } from "./catalog.ts";
 import { type CatalogCollection, type Category, categoryOf, entryHref } from "./routes.ts";
 import { getVisitsByEntry } from "./visits.ts";
 
@@ -35,13 +35,11 @@ export async function entryStaticPaths(collection: CatalogCollection) {
 
 // Base's `mapFocus` prop: coordinates plus the marker key, which on
 // /status/<id> differs from the page path.
-export function entryMapFocus(entry: CollectionEntry<"projects"> | CollectionEntry<"kap92">) {
+export function entryMapFocus(entry: CatalogEntry) {
   return { lat: entry.data.lat, lng: entry.data.lng, href: entryHref(entry) };
 }
 
-export function toEntryRow(
-  entry: CollectionEntry<"projects"> | CollectionEntry<"kap92">,
-): EntryRow {
+export function toEntryRow(entry: CatalogEntry): EntryRow {
   return {
     href: entryHref(entry),
     category: categoryOf(entry.collection),

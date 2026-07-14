@@ -43,14 +43,6 @@
             treefmt.enable = true;
             oxlint.enable = true;
 
-            # Regenerate src/content/README.md when any content Markdown changes.
-            content-readme = {
-              enable = true;
-              entry = "bun run content";
-              files = "^src/content/.*\\.md$";
-              pass_filenames = false;
-            };
-
             gitleaks = {
               enable = true;
               entry = "${pkgs.gitleaks}/bin/gitleaks git --pre-commit --redact --staged";

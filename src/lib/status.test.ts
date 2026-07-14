@@ -5,7 +5,7 @@ import { getStatusRows } from "./status.ts";
 type Collection = "projects" | "kap92";
 type CatalogFixture = { collection: Collection; id: string; data: { name: string } };
 type Ref = { collection: Collection; id: string };
-type StatusFixture = { id: string; data: { project?: Ref; kap92?: Ref } };
+type StatusFixture = { id: string; data: { entry: Ref } };
 
 const fixtures = vi.hoisted(() => ({
   status: [] as unknown[],
@@ -24,8 +24,7 @@ const catalog = (collection: Collection, id: string): Ref => {
   return fixture;
 };
 
-const visitOf = (id: string, ref: Ref): StatusFixture =>
-  ref.collection === "projects" ? { id, data: { project: ref } } : { id, data: { kap92: ref } };
+const visitOf = (id: string, ref: Ref): StatusFixture => ({ id, data: { entry: ref } });
 
 beforeEach(() => {
   fixtures.status = [];

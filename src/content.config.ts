@@ -54,14 +54,10 @@ const kap92 = defineCollection({
 
 // The glob loader slugifies the filename into the id, so a visit's filename is
 // kept to lowercase/digits/dashes and survives it unchanged.
-const statusSchema = z
-  .object({
-    project: reference("projects").optional(),
-    kap92: reference("kap92").optional(),
-  })
-  .refine((d) => (d.project ? 1 : 0) + (d.kap92 ? 1 : 0) === 1, {
-    message: "a status record must reference exactly one entry (project XOR kap92)",
-  });
+const statusSchema = z.xor(
+  [z.object({ entry: reference("projects") }), z.object({ entry: reference("kap92") })],
+  "a status record's entry is one { collection, id } naming a projects or kap92 entry",
+);
 
 const status = defineCollection({
   loader: glob({ pattern: "*.md", base: "./src/content/status" }),
@@ -88,11 +84,21 @@ if (import.meta.vitest) {
     sources: [{ title, url }],
   });
 
-  test("a status record references exactly one entry: project XOR kap92 is enforced by the schema, not by convention", () => {
-    expect(statusSchema.safeParse({ project: "foo" }).success).toBe(true);
-    expect(statusSchema.safeParse({ kap92: "foo" }).success).toBe(true);
-    expect(statusSchema.safeParse({ project: "foo", kap92: "bar" }).success).toBe(false);
+  test("a status record names exactly one entry: the reference is one field, so two entries cannot be named at all", () => {
+    expect(statusSchema.safeParse({ entry: { collection: "projects", id: "foo" } }).success).toBe(
+      true,
+    );
+    expect(statusSchema.safeParse({ entry: { collection: "kap92", id: "foo" } }).success).toBe(
+      true,
+    );
     expect(statusSchema.safeParse({}).success).toBe(false);
+  });
+
+  test("an entry reference names its collection, so a bare id — which would belong to both collections — is rejected", () => {
+    expect(statusSchema.safeParse({ entry: "foo" }).success).toBe(false);
+    expect(statusSchema.safeParse({ entry: { collection: "kap-92", id: "foo" } }).success).toBe(
+      false,
+    );
   });
 
   test("completedYear is optional and only positive: kap92 buildings can be historical or lack a year entirely", () => {

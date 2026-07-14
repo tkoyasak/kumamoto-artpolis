@@ -4,6 +4,7 @@ import { expect, type Page } from "@playwright/test";
 
 import { kap92 } from "../src/data/kap92.ts";
 import { projects } from "../src/data/projects.ts";
+import { type CatalogCollection, entryHref } from "../src/lib/routes.ts";
 
 export function contentIds(collection: "projects" | "kap92" | "status"): string[] {
   if (collection === "projects") return projects.map((entry) => entry.id);
@@ -18,9 +19,16 @@ export function visitedEntryHref(statusId: string): string {
     new URL(`../src/content/status/${statusId}.md`, import.meta.url),
     "utf8",
   );
-  const match = text.match(/^(project|kap92): *(\S+)/m);
-  if (!match) throw new Error(`no entry reference in status/${statusId}.md`);
-  return match[1] === "project" ? `/projects/${match[2]}` : `/kap92/${match[2]}`;
+  const frontmatter = text.match(/^---\n([\s\S]*?)\n---/)?.[1] ?? "";
+  const collection = frontmatter.match(/^ +collection: *(\S+)/m)?.[1];
+  const id = frontmatter.match(/^ +id: *(\S+)/m)?.[1];
+  if (!isCatalogCollection(collection) || !id)
+    throw new Error(`no entry reference in status/${statusId}.md`);
+  return entryHref({ collection, id });
+}
+
+function isCatalogCollection(value: string | undefined): value is CatalogCollection {
+  return value === "projects" || value === "kap92";
 }
 
 export function firstOf<T>(items: T[]): T {

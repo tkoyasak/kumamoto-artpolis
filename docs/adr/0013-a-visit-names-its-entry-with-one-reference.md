@@ -41,6 +41,17 @@ rejected input but an unrepresentable one: there is a single field to write.
 `z.xor` remains as the seam where a reference that names no known collection is
 rejected.
 
+The reference keeps its own field rather than becoming the record. A flatter
+shape parses — `z.xor([reference("projects"), reference("kap92")])` over a
+root-level `collection` / `id` frontmatter, with `visit.data` the reference
+itself; the glob loader reads `data.slug`, not `data.id`, so a record's own id
+stays its filename. It is not taken. The root of a visit record is the visit's
+namespace, and spending all of it on the reference leaves nowhere to put a
+second field — photos, a title — without migrating every record back to a
+wrapper. It would also put the visited entry's id (`data.id`) beside the
+record's own id (`visit.id`, a datetime), two different ids under one name with
+nothing to say whose is whose. `entry` names its subject.
+
 ## Consequences
 
 - Consumers read `visit.data.entry`, a `{ collection, id }` union that

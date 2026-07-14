@@ -9,8 +9,6 @@ interface Props {
   rows: DetailRow[];
   colWidths: readonly string[];
   headVt: string;
-  // Tailwind max-width class.
-  maxWidth: string;
   // The row is the page's own subject (a detail page's single row): always
   // outlined, carries its transition name up front, clicks back to backHref.
   // Off, rows render list-style and click through to their own pages.
@@ -18,7 +16,7 @@ interface Props {
   backHref: string;
 }
 
-const { headers, rows, colWidths, headVt, maxWidth, subject = false, backHref } = Astro.props;
+const { headers, rows, colWidths, headVt, subject = false, backHref } = Astro.props;
 ---
 
 <DetailTableView
@@ -27,7 +25,6 @@ const { headers, rows, colWidths, headVt, maxWidth, subject = false, backHref } 
   rows={rows}
   colWidths={colWidths}
   headVt={headVt}
-  maxWidth={maxWidth}
   subject={subject}
   backHref={backHref}
 />

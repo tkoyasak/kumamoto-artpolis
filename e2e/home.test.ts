@@ -91,12 +91,6 @@ test("focusing a marker highlights it and outlines its table row — keyboard fo
 test("clicking a marker navigates to its entry's detail page, like clicking the table row", async ({
   page,
 }) => {
-  // With the full 127-entry catalog the table overlay covers every marker at
-  // 1280×720 (markers span x≈354–926; the table is 1024px wide and taller
-  // than the page), so no marker is pointer-reachable. Re-enable once the
-  // home layout accounts for the grown table.
-  test.fixme();
-
   await expect(page.locator(".map-marker")).toHaveCount(entryCount);
 
   // The table island overlays the map, and entries geocoded to the same 大字

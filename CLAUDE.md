@@ -13,11 +13,13 @@ by hover state.
 - English for code comments, repo docs, commits, and PRs; Japanese for site
   content (visit-record bodies) and data values (entry names, `use`).
 - Don't format/lint before committing; `oxfmt`/`oxlint` run as pre-commit hooks.
-- **The catalog is `src/data/*.ts`, not Markdown** — hand-written TypeScript,
-  typed by the content schema. Only visit records (`src/content/status/`) are
-  files.
-- **`id` is a field and it is the URL** — a stable slug carrying no number;
-  `number` is display/sort only, and entries may share one.
+- **The catalog is hand-written Markdown** — one file per entry under
+  `src/content/projects/` and `src/content/kap92/`, read by Astro's glob loader;
+  no data module, no generation step. Excluded official rows live in
+  `src/content/projects/_excluded/`.
+- **The filename is the id and it is the URL** — a stable slug carrying no
+  number; `number` is display/sort only, and entries may share one. An entry's
+  links go in its Markdown body, not the frontmatter.
 - **`status` is the source of truth for visit dates** — entries never store
   their own.
 - **The entries are hand-curated; no tool writes them, and nothing checks them

@@ -2,28 +2,22 @@ import { glob } from "astro/loaders";
 import { z } from "astro/zod";
 import { defineCollection, reference } from "astro:content";
 
-import { kap92 as kap92Data } from "./data/kap92.ts";
-import { projects as projectsData } from "./data/projects.ts";
 import { municipalityOf } from "./lib/address.ts";
 
-const SOURCE_TITLES = [
-  "紹介ページ（熊本県）",
-  "公式サイト",
-  "PDF（日本語）",
-  "PDF（英語）",
-] as const;
+// Kumamoto Prefecture's bounding box, with a small margin.
+const LAT = { min: 32.0, max: 33.3 };
+const LNG = { min: 129.9, max: 131.4 };
 
 const catalogSchema = z
   .object({
     number: z.number().int().positive(),
     name: z.string().min(1),
     location: z.string().min(1),
-    lat: z.number().min(-90).max(90),
-    lng: z.number().min(-180).max(180),
+    lat: z.number().min(LAT.min).max(LAT.max),
+    lng: z.number().min(LNG.min).max(LNG.max),
     architects: z.array(z.string().min(1)),
     completedYear: z.number().int().positive().optional(),
     use: z.string().min(1),
-    sources: z.array(z.object({ title: z.enum(SOURCE_TITLES), url: z.url() })),
   })
   .transform((data, ctx) => {
     const municipality = municipalityOf(data.location);
@@ -38,18 +32,24 @@ const catalogSchema = z
     return { ...data, municipality };
   });
 
-export type EntryInput = { id: string } & z.input<typeof catalogSchema>;
-
-export type ExcludedRow = { number: number; name: string; reason: string };
-
 const projects = defineCollection({
-  loader: () => projectsData,
+  loader: glob({ pattern: "*.md", base: "./src/content/projects" }),
   schema: catalogSchema,
 });
 
 const kap92 = defineCollection({
-  loader: () => kap92Data,
+  loader: glob({ pattern: "*.md", base: "./src/content/kap92" }),
   schema: catalogSchema,
+});
+
+// Official-list rows with no building — their own collection, never entries.
+const excluded = defineCollection({
+  loader: glob({ pattern: "*.md", base: "./src/content/projects/_excluded" }),
+  schema: z.object({
+    number: z.number().int().positive(),
+    name: z.string().min(1),
+    reason: z.string().min(1),
+  }),
 });
 
 // The glob loader slugifies the filename into the id, so a visit's filename is
@@ -64,7 +64,7 @@ const status = defineCollection({
   schema: statusSchema,
 });
 
-export const collections = { projects, kap92, status };
+export const collections = { projects, kap92, excluded, status };
 
 if (import.meta.vitest) {
   const { expect, test } = import.meta.vitest;
@@ -77,12 +77,7 @@ if (import.meta.vitest) {
     lng: 130.7,
     architects: ["someone"],
     use: "hall",
-    sources: [{ title: "紹介ページ（熊本県）", url: "https://example.com/hall.html" }],
   };
-  const withSource = (title: string, url = "https://example.test/x.pdf") => ({
-    ...entry,
-    sources: [{ title, url }],
-  });
 
   test("a status record names exactly one entry: the reference is one field, so two entries cannot be named at all", () => {
     expect(statusSchema.safeParse({ entry: { collection: "projects", id: "foo" } }).success).toBe(
@@ -107,18 +102,9 @@ if (import.meta.vitest) {
     expect(catalogSchema.safeParse({ ...entry, completedYear: 0 }).success).toBe(false);
   });
 
-  test("marker coordinates must be a real lat/lng, so a swapped pair can't slip onto the map", () => {
+  test("coordinates outside Kumamoto's bounding box fail the build, so a swapped pair or a mis-geocode can't slip onto the map", () => {
     expect(catalogSchema.safeParse({ ...entry, lat: 130.7, lng: 32.8 }).success).toBe(false);
-  });
-
-  test("a source title comes from the closed set, so the same label can't be spelled three ways across the catalog", () => {
-    expect(catalogSchema.safeParse(withSource("PDF（日本語）")).success).toBe(true);
-    expect(catalogSchema.safeParse(withSource("PDF(日本語)")).success).toBe(false);
-    expect(catalogSchema.safeParse({ ...entry, sources: [] }).success).toBe(true);
-  });
-
-  test("a malformed source url is rejected", () => {
-    expect(catalogSchema.safeParse(withSource("公式サイト", "nope")).success).toBe(false);
+    expect(catalogSchema.safeParse({ ...entry, lat: 35.68, lng: 139.77 }).success).toBe(false);
   });
 
   test("municipality is derived from location, not stored — the address is the only place a place is written down", () => {
@@ -127,9 +113,5 @@ if (import.meta.vitest) {
 
   test("an address the municipality can't be read out of fails the build instead of rendering a ward-less row", () => {
     expect(catalogSchema.safeParse({ ...entry, location: "熊本市某町1-1" }).success).toBe(false);
-  });
-
-  test("the schema strips id: an entry's identity is not part of its data", () => {
-    expect(catalogSchema.parse({ ...entry, id: "some-hall" })).not.toHaveProperty("id");
   });
 }

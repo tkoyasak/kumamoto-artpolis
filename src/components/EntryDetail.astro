@@ -1,4 +1,6 @@
 ---
+import { render } from "astro:content";
+
 import Base from "../layouts/Base.astro";
 import type { CatalogEntry } from "../lib/catalog.ts";
 import { entryMapFocus, toEntryRow } from "../lib/entries.ts";
@@ -18,21 +20,14 @@ const { entry, visits = [] } = Astro.props;
 
 const row = toEntryRow(entry);
 const visitRows = visits.map((id) => toStatusRow(id, entry));
+const { Content } = await render(entry);
 ---
 
 <Base title={`Kumamoto Artpolis > ${entry.data.name}`} mapFocus={entryMapFocus(entry)}>
   <Fragment slot="entry">
     <EntryDetailTable rows={[row]} />
     <DetailBody>
-      <ul>
-        {
-          entry.data.sources.map((source) => (
-            <li>
-              <a href={source.url}>{source.title}</a>
-            </li>
-          ))
-        }
-      </ul>
+      <Content />
     </DetailBody>
   </Fragment>
   <Fragment slot="status">

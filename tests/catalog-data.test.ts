@@ -1,43 +1,32 @@
+import { readdirSync, readFileSync } from "node:fs";
+
 import { expect, test } from "vitest";
 
-import { kap92 } from "../src/data/kap92.ts";
-import { excluded, projects } from "../src/data/projects.ts";
+// Astro's glob loader isn't available in plain Vitest, so these whole-catalog
+// invariants read the entry files directly instead of getCollection.
 
-// Kumamoto Prefecture's bounding box, with a small margin.
-const LAT = { min: 32.0, max: 33.3 };
-const LNG = { min: 129.9, max: 131.4 };
+const dir = (d: string) => new URL(`../src/content/${d}/`, import.meta.url);
+const mdNames = (d: string) => readdirSync(dir(d)).filter((name) => name.endsWith(".md"));
 
-const catalogs = { projects, kap92 };
+const numberOf = (d: string, file: string): number => {
+  const text = readFileSync(new URL(file, dir(d)), "utf8");
+  const match = text.match(/^number: *(\d+)/m);
+  if (!match) throw new Error(`no number in ${d}/${file}`);
+  return Number(match[1]);
+};
 
-test("an id is unique within its collection — Astro's array loader stores entries by id, so a duplicate would silently overwrite one and drop it from the site", () => {
-  for (const [name, entries] of Object.entries(catalogs)) {
-    const ids = entries.map((e) => e.id);
-    expect(new Set(ids).size, name).toBe(ids.length);
-  }
-});
-
-test("an id is lowercase, digits and dashes — it is the URL, and the schema can't police the shape of a field it strips", () => {
-  for (const [name, entries] of Object.entries(catalogs)) {
-    for (const entry of entries) {
-      expect(entry.id, `${name}/${entry.name}`).toMatch(/^[a-z0-9][a-z0-9-]*$/);
-    }
-  }
-});
-
-test("every catalog coordinate falls inside Kumamoto Prefecture's bounding box — a swapped pair passes the schema (both in range as lng), and a mis-geocoded address would silently put the marker off the map", () => {
-  for (const [name, entries] of Object.entries(catalogs)) {
-    for (const entry of entries) {
-      expect(entry.lat, `${name}/${entry.id} lat`).toBeGreaterThanOrEqual(LAT.min);
-      expect(entry.lat, `${name}/${entry.id} lat`).toBeLessThanOrEqual(LAT.max);
-      expect(entry.lng, `${name}/${entry.id} lng`).toBeGreaterThanOrEqual(LNG.min);
-      expect(entry.lng, `${name}/${entry.id} lng`).toBeLessThanOrEqual(LNG.max);
+test("an id is lowercase, digits and dashes — it is the filename and the URL, and a stray character would slugify the id away from the filename", () => {
+  for (const d of ["projects", "kap92"]) {
+    for (const file of mdNames(d)) {
+      expect(file.slice(0, -".md".length), `${d}/${file}`).toMatch(/^[a-z0-9][a-z0-9-]*$/);
     }
   }
 });
 
 test("no official number is both catalogued and excluded — the excluded rows exist to account for the numbers the entries don't", () => {
-  const catalogued = new Set(projects.map((e) => e.number));
-  for (const row of excluded) {
-    expect(catalogued.has(row.number), `#${row.number} ${row.name}`).toBe(false);
+  const catalogued = new Set(mdNames("projects").map((file) => numberOf("projects", file)));
+  for (const file of mdNames("projects/_excluded")) {
+    const number = numberOf("projects/_excluded", file);
+    expect(catalogued.has(number), `#${number} ${file}`).toBe(false);
   }
 });

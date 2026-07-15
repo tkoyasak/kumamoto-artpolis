@@ -37,10 +37,10 @@ _Avoid_: calling it a Project
 
 **Id**:
 An Entry's stable public identifier: a human-readable slug in lowercase, digits
-and dashes, chosen once and kept stable. It is a field of the Entry, and it is
-both the URL path (`/projects/<id>`) and the key by which a Visit record
-references the Entry. Visit records are identified by filename instead —
-filename == id == URL — and their ids are datetimes, not names.
+and dashes, chosen once and kept stable. It is the entry's Markdown filename, and
+it is both the URL path (`/projects/<id>`) and the key by which a Visit record
+references the Entry — filename == id == URL. Visit records key the same way;
+their ids are datetimes, not names.
 _Avoid_: slug (retired — it named the same thing), permalink
 
 **Number**:

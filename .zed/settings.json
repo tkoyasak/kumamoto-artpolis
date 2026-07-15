@@ -10,6 +10,7 @@
     "astro-language-server",
     "oxlint",
     "oxfmt",
+    "json-language-server",
     "package-version-server",
     "nil"
   ],

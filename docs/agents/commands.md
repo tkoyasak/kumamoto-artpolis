@@ -50,5 +50,5 @@ Placement, in order of preference:
 Playwright suite in `e2e/` (excluded from Vitest), run against the
 production build via `astro preview`. System Chrome
 (`channel: "chrome"`, no downloaded browsers), carto style URL mocked,
-expected rows/markers imported from `src/data/` (visit ids are still read off
-the `src/content/status/` filenames).
+expected rows/markers read off the `src/content/` entry filenames (the same
+source the site builds from).

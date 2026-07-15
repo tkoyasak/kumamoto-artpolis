@@ -2,24 +2,28 @@
 
 ## The catalog
 
-The two catalog collections are hand-written TypeScript, loaded straight into
-Astro. There are no catalog Markdown files.
+The two catalog collections are Markdown, one file per entry, read through
+Astro's glob loader. There is no data module and no generation step; the file is
+the source.
 
-- **`src/data/projects.ts`** — Artpolis commissioned new builds. Also exports
-  `excluded`: official-list rows with no visitable building. They are not
-  entries and never reach a collection.
-- **`src/data/kap92.ts`** — KAP'92 selected existing buildings.
-- **`src/content.config.ts`** holds `catalogSchema`, which both collections use
-  and which the data is typed against (`EntryInput`).
+- **`src/content/projects/`** — Artpolis commissioned new builds. Its
+  `_excluded/` subdirectory holds the `excluded` collection: official-list rows
+  with no visitable building, which the projects `*.md` pattern doesn't reach, so
+  they never become entries. An excluded file is `number`, `name`, `reason`.
+- **`src/content/kap92/`** — KAP'92 selected existing buildings.
+- **`src/content.config.ts`** holds `catalogSchema`, which both catalog
+  collections use to validate frontmatter at build.
 
-An entry is `id`, `number`, `name`, `location`, `lat`, `lng`, `architects`,
-`use`, `sources`, and an optional `completedYear`. `use` is free text.
+An entry's frontmatter is `number`, `name`, `location`, `lat`, `lng`,
+`architects`, `use`, and an optional `completedYear`. `use` is free text. Its
+body is Markdown, rendered on the detail page through `<Content />`.
 
-- **`sources`** — the links the detail page shows, in order. `title` comes from
-  a closed set (`SOURCE_TITLES`).
+- **Links live in the body**, written as Markdown links (by convention under a
+  `## 出典` heading), not a frontmatter field.
+- **`lat`/`lng`** are bounded to Kumamoto Prefecture's bounding box; a coordinate
+  outside it fails the build.
 - **`municipality`** — derived from `location` (`src/lib/address.ts`), not
   stored. A ward-less 熊本市 address fails the build.
-- An entry has no body.
 
 ## Visit records
 
@@ -43,15 +47,17 @@ against the prefecture's pages.
 
 ## Identity
 
-**`id` is a field**: a stable, human-readable slug in lowercase, digits and
-dashes. It is the URL (`/projects/<id>`) and how `status` references an entry;
-the dynamic routes are all `[id].astro`. It carries no official number —
-`number` is display and sort only, and a split official row is several entries
-sharing one.
+**The filename is the id.** The glob loader slugifies each entry's filename into
+its id: a stable, human-readable slug in lowercase, digits and dashes. It is the
+URL (`/projects/<id>`) and how `status` references an entry; the dynamic routes
+are all `[id].astro`. It carries no official number — `number` is display and
+sort only, and a split official row is several entries sharing one. Filename ==
+id makes uniqueness a property of the filesystem.
 
-`tests/catalog-data.test.ts` pins id uniqueness and the URL shape.
+`tests/catalog-data.test.ts` pins the id/URL shape and that no number is both
+catalogued and excluded.
 
-Visit records keep filename == id == URL; their ids are datetimes.
+Visit records key the same way; their ids are datetimes.
 
 ## Visit dates
 

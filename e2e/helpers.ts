@@ -2,14 +2,12 @@ import { readdirSync, readFileSync } from "node:fs";
 
 import { expect, type Page } from "@playwright/test";
 
-import { kap92 } from "../src/data/kap92.ts";
-import { projects } from "../src/data/projects.ts";
 import { type CatalogCollection, entryHref } from "../src/lib/routes.ts";
 
+// The glob loader keys each entry by its filename, so a collection's ids are
+// its directory's *.md filenames (the _excluded subdir isn't one of them).
 export function contentIds(collection: "projects" | "kap92" | "status"): string[] {
-  if (collection === "projects") return projects.map((entry) => entry.id);
-  if (collection === "kap92") return kap92.map((entry) => entry.id);
-  return readdirSync(new URL("../src/content/status/", import.meta.url))
+  return readdirSync(new URL(`../src/content/${collection}/`, import.meta.url))
     .filter((file) => file.endsWith(".md"))
     .map((file) => file.slice(0, -".md".length));
 }

@@ -2,7 +2,7 @@
 
 /// <reference types="bun-types" />
 
-// Print the coordinates for a 所在地; you paste them into `src/data/*.ts`.
+// Print the coordinates for a 所在地; you paste them into an entry's frontmatter.
 //
 //   bun run geocode 熊本市中央区草葉町5-13
 //   bun run geocode "阿蘇郡南阿蘇村河陽5343-1" "天草市有明町上津浦1955"

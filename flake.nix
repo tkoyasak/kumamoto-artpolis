@@ -48,6 +48,11 @@
               entry = "${pkgs.gitleaks}/bin/gitleaks git --pre-commit --redact --staged";
               pass_filenames = false;
             };
+
+            zizmor = {
+              enable = true;
+              args = [ "--offline" ];
+            };
           };
 
           devShells.default = pkgs.mkShellNoCC {

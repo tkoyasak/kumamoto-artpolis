@@ -33,6 +33,7 @@ jobs:
     needs: verify
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
+    environment: Production
     # Never cancel a deploy in flight; serialize pushes to main.
     concurrency:
       group: deploy

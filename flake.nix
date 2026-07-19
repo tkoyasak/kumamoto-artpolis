@@ -59,7 +59,9 @@
               # nodejs
               oxfmt
               oxlint
+              pinact
               typescript-go
+              zizmor
             ];
           };
         };

@@ -1,7 +1,7 @@
 import { devices, expect, test } from "@playwright/test";
 
 import { MAP_LAYER_ID } from "../src/lib/map.ts";
-import { contentIds, firstOf, hydrated, routeMapStyle } from "./helpers.ts";
+import { contentIds, firstOf, hydrated, pointableMarkerHref, routeMapStyle } from "./helpers.ts";
 
 // The below-sm layout: a fixed top nav bar, the map strip on top, and the
 // table as a fixed bottom panel with its own scroll (docs/adr/0014). Pixel 7
@@ -44,20 +44,7 @@ test("with no hover, a marker's first tap selects it (ring + row outline, no nav
     contentIds("projects").length + contentIds("kap92").length,
   );
 
-  // Stacked-centroid markers can occlude each other (see home.test.ts): ask
-  // the page which marker actually receives a tap at its center.
-  const href = await page.evaluate(() => {
-    for (const el of document.querySelectorAll<HTMLElement>(".map-marker")) {
-      const r = el.getBoundingClientRect();
-      const cx = r.x + r.width / 2;
-      const cy = r.y + r.height / 2;
-      if (cx < 0 || cy < 0 || cx > window.innerWidth || cy > window.innerHeight) continue;
-      const hit = document.elementFromPoint(cx, cy);
-      if (hit && (hit === el || el.contains(hit))) return el.dataset.href ?? null;
-    }
-    return null;
-  });
-  if (!href) throw new Error("no marker receives a tap at its center");
+  const href = await pointableMarkerHref(page);
 
   const marker = page.locator(`.map-marker[data-href="${href}"]`);
   await marker.tap();
@@ -69,6 +56,56 @@ test("with no hover, a marker's first tap selects it (ring + row outline, no nav
 
   await marker.tap();
   await expect(page).toHaveURL(href);
+});
+
+test("tapping outside the map clears the ring and disarms the two-tap latch together — a marker must never navigate without its armed cue showing", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await hydrated(page);
+  await expect(page.locator(".map-marker")).toHaveCount(
+    contentIds("projects").length + contentIds("kap92").length,
+  );
+  const href = await pointableMarkerHref(page);
+  const marker = page.locator(`.map-marker[data-href="${href}"]`);
+  await marker.tap();
+  await expect(marker).toHaveClass(/marker-active/);
+
+  // A tap on the panel's edge gutter: outside the map, on no row.
+  const panel = await page.locator("[data-table-panel]").boundingBox();
+  if (!panel) throw new Error("no panel box");
+  await page.touchscreen.tap(panel.x + 2, panel.y + panel.height / 2);
+  await expect(marker).not.toHaveClass(/marker-active/);
+
+  await marker.tap();
+  // Give a wrongly-triggered navigation time to happen, then assert it didn't.
+  await page.waitForTimeout(300);
+  await expect(page).toHaveURL("/");
+  await expect(marker).toHaveClass(/marker-active/);
+});
+
+test("a deep-linked detail page still fits the camera panel-aware: back home, every marker sits inside the map strip — the camera fits once and never moves (ADR 0007)", async ({
+  page,
+}) => {
+  await page.goto(firstProjectHref);
+  await expect(page.locator(".map-marker:visible")).toHaveCount(1);
+
+  await page.locator('[data-nav-bar] a[href="/"]').tap();
+  await expect(page).toHaveURL("/");
+  await expect(page.locator(".map-marker:visible")).toHaveCount(
+    contentIds("projects").length + contentIds("kap92").length,
+  );
+
+  const panel = await page.locator("[data-table-panel]").boundingBox();
+  const nav = await page.locator("[data-nav-bar]").boundingBox();
+  if (!panel || !nav) throw new Error("no panel or nav box");
+  const centers = await page
+    .locator(".map-marker")
+    .evaluateAll((els) =>
+      els.map((el) => el.getBoundingClientRect().y + el.getBoundingClientRect().height / 2),
+    );
+  expect(Math.max(...centers)).toBeLessThan(panel.y + 2);
+  expect(Math.min(...centers)).toBeGreaterThan(nav.y + nav.height);
 });
 
 test("rows fade out as they slide under the background-less sticky header, instead of colliding with its text", async ({

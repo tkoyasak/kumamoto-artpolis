@@ -92,11 +92,14 @@ ClientRouter's View Transition.
   cells in flow as invisible zero-width boxes.
 - The nav is one fixed horizontal bar on every page (`Base.astro`); the
   interleaved desktop links are `display:none` there.
-- The map's initial `fitBounds` pads its bottom by the panel height, so every
-  marker starts inside the visible strip.
+- The map's initial `fitBounds` pads its top past the nav bar and its bottom
+  to the 40svh strip — measured from the panel when present, derived from the
+  viewport on pages without one — so every marker starts inside the visible
+  strip on the fullscreen pages, wherever the map initialized.
 - On `(hover: none)` devices a marker's first tap takes the hover role — sets
   `$hovered`, rings the marker, scrolls the matching `data-row-marker` row
-  into view — and a second tap navigates; a background tap clears. Marker
+  into view — and a second tap navigates; a background tap clears. Every
+  write that clears `$hovered` also disarms the two-tap latch. Marker
   elements stop `touchstart`/`touchend` propagation so taps never enter
   maplibre's gesture pipeline, and the background-click handler filters out
   clicks whose target is a marker.

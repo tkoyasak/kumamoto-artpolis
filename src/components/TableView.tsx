@@ -25,7 +25,7 @@ export type TableViewRow = {
   // data-row-href: navigation target + View Transition pairing key.
   href: string;
   // data-row-marker: the map's touch-select scrolls the matching row into view.
-  markerHref?: string;
+  markerHref: string;
   category: Category;
   outlined: boolean;
   cells: ComponentChildren[];
@@ -53,13 +53,19 @@ type Props = {
 // Shared cell classes, kept whitespace-delimited for Tailwind's scanner
 // (docs/findings/0007).
 const CELL = "truncate py-1 pr-4 text-sm first:pl-4 max-sm:pr-2 max-sm:first:pl-2";
-const STICKY_HEAD = "max-sm:sticky max-sm:top-0";
+const STICKY_HEAD = "max-sm:sticky max-sm:top-0 max-sm:h-(--sticky-head)";
 
 export default function TableView({ colWidths, mobileCols, headVt, headers, rows, panel }: Props) {
   // A dropped column keeps its cells in flow as invisible zero-width boxes —
   // display:none cells shift columns under table-fixed (docs/findings/0005).
-  const collapsedBelowSm = (i: number): string =>
-    mobileCols[i] === null ? "max-sm:invisible max-sm:px-0!" : "";
+  const cols = colWidths.map((width, i) => {
+    const mobile = mobileCols[i] ?? null;
+    return {
+      width,
+      colClass: mobile ?? "max-sm:w-0!",
+      cellClass: mobile === null ? "max-sm:invisible max-sm:px-0!" : "",
+    };
+  });
   return (
     // Margins sit outside `max-w-full`, so the max-width subtracts the gutter.
     <section
@@ -75,8 +81,8 @@ export default function TableView({ colWidths, mobileCols, headVt, headers, rows
         style={{ width: tableWidth(colWidths) }}
       >
         <colgroup>
-          {colWidths.map((w, i) => (
-            <col key={i} className={mobileCols[i] ?? "max-sm:w-0!"} style={{ width: w }} />
+          {cols.map((col, i) => (
+            <col key={i} className={col.colClass} style={{ width: col.width }} />
           ))}
         </colgroup>
         <thead>
@@ -85,9 +91,9 @@ export default function TableView({ colWidths, mobileCols, headVt, headers, rows
               <th
                 key={i}
                 aria-sort={header.ariaSort}
-                className={[CELL, "font-normal", collapsedBelowSm(i), panel ? STICKY_HEAD : ""]
-                  .join(" ")
-                  .trim()}
+                className={[CELL, "font-normal", cols[i]?.cellClass, panel ? STICKY_HEAD : ""]
+                  .filter(Boolean)
+                  .join(" ")}
               >
                 {header.node}
               </th>
@@ -99,7 +105,7 @@ export default function TableView({ colWidths, mobileCols, headVt, headers, rows
             <tr
               key={row.href}
               data-row-href={row.href}
-              data-row-marker={row.markerHref ?? row.href}
+              data-row-marker={row.markerHref}
               data-row-flourish={row.flourish ? "" : undefined}
               style={
                 row.transitionName !== undefined
@@ -112,7 +118,7 @@ export default function TableView({ colWidths, mobileCols, headVt, headers, rows
               className={rowClass(row.category, row.outlined)}
             >
               {row.cells.map((cell, i) => (
-                <td key={i} className={`${CELL} ${collapsedBelowSm(i)}`.trim()}>
+                <td key={i} className={`${CELL} ${cols[i]?.cellClass ?? ""}`.trim()}>
                   {cell}
                 </td>
               ))}

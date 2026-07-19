@@ -26,12 +26,15 @@ import "maplibre-gl/dist/maplibre-gl.css";
   }
 
   // Below sm the fixed table panel covers everything under 40svh; pad the
-  // initial fit so every marker starts inside the visible strip.
+  // initial fit so every marker starts inside the visible strip — also on
+  // panel-less pages (a deep-linked detail page), whose camera persists.
   function fitPadding(): number | { top: number; right: number; bottom: number; left: number } {
-    const panel = document.querySelector<HTMLElement>("[data-table-panel]");
-    if (!panel || getComputedStyle(panel).position !== "fixed") return 64;
-    const panelTop = panel.getBoundingClientRect().top;
-    return { top: 72, right: 32, bottom: window.innerHeight - panelTop + 16, left: 32 };
+    if (!matchMedia("(width < 40rem)").matches) return 64;
+    const panelTop =
+      document.querySelector("[data-table-panel]")?.getBoundingClientRect().top ??
+      0.4 * document.documentElement.clientHeight;
+    const navBottom = document.querySelector("[data-nav-bar]")?.getBoundingClientRect().bottom ?? 0;
+    return { top: navBottom + 24, right: 32, bottom: window.innerHeight - panelTop + 16, left: 32 };
   }
 
   async function initMap(container: HTMLElement): Promise<MapLibreMap> {
@@ -68,11 +71,18 @@ import "maplibre-gl/dist/maplibre-gl.css";
       element.appendChild(dot);
 
       const marker = new maplibregl.Marker({ element }).setLngLat(lngLat).addTo(map);
+      // Clearing $hovered also disarms the two-tap latch — ring and latch co-move.
       element.addEventListener("mouseenter", () => $hovered.set({ marker: entry.href }));
-      element.addEventListener("mouseleave", () => $hovered.set(null));
+      element.addEventListener("mouseleave", () => {
+        touchSelected = null;
+        $hovered.set(null);
+      });
       // Keyboard focus shares the hover highlight, on the marker and its table row.
       element.addEventListener("focus", () => $hovered.set({ marker: entry.href }));
-      element.addEventListener("blur", () => $hovered.set(null));
+      element.addEventListener("blur", () => {
+        touchSelected = null;
+        $hovered.set(null);
+      });
       // Navigates like its row: back home from its own detail page, else to the entry (same row morph).
       const activate = () => {
         if (currentPath() === entry.href) {
@@ -154,7 +164,9 @@ import "maplibre-gl/dist/maplibre-gl.css";
   let refreshMarkerVisibility: (() => void) | null = null;
   // In-flight nav target; keeps the destination ringed across the swap (docs/findings/0004).
   let pendingPath: string | null = null;
-  // The marker a first touch-tap selected; its second tap navigates.
+  // The marker a first touch-tap selected; its second tap navigates. Own
+  // state, not derived from $hovered: a tap's synthesized mouseenter writes
+  // $hovered before its click, which would read as already armed.
   let touchSelected: string | null = null;
   document.addEventListener("astro:before-preparation", (event) => {
     pendingPath = normalizePath((event as TransitionBeforePreparationEvent).to.pathname);
@@ -190,13 +202,14 @@ import "maplibre-gl/dist/maplibre-gl.css";
   function syncVisibility() {
     if (!layer || !container) return;
     pendingPath = null; // the new page's focus attributes are authoritative now
-    touchSelected = null;
     // Re-seed $hovered from the persisted markers: a swap fires no mouseleave
-    // for removed elements (docs/findings/0004).
+    // for removed elements (docs/findings/0004). The latch re-seeds with it,
+    // so a still-ringed marker navigates on its next tap instead of re-arming.
     const marker =
       container.querySelector<HTMLElement>(".map-marker:hover") ??
       container.querySelector<HTMLElement>(".map-marker:focus");
     const markerHref = marker?.dataset.href;
+    touchSelected = markerHref ?? null;
     $hovered.set(markerHref !== undefined ? { marker: markerHref } : null);
     const focus = currentFocus();
     if (!FULLSCREEN_MAP_PATHS.includes(currentPath()) && !focus) {

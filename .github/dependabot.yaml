@@ -13,3 +13,15 @@ updates:
         update-types:
           - minor
           - patch
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    groups:
+      actions-deps:
+        applies-to: version-updates
+        update-types:
+          - minor
+          - patch

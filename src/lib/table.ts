@@ -36,6 +36,20 @@ export const ENTRY_COL_WIDTHS = ["5rem", "20rem", "8rem", "8rem", "8rem", "6rem"
 // Order matches STATUS_HEADERS below.
 export const STATUS_COL_WIDTHS = ["8rem", "20rem"] as const;
 
+// Below-sm column overrides, aligned with *_COL_WIDTHS: a `max-sm` width class
+// (`!` beats the inline desktop width) or null to hide the column. Applied to
+// list and detail tables alike, so the morph pairs keep identical shapes.
+export const ENTRY_MOBILE_COLS = [
+  "max-sm:w-16!",
+  "max-sm:w-auto!",
+  null,
+  null,
+  null,
+  "max-sm:w-14!",
+] as const;
+
+export const STATUS_MOBILE_COLS = ["max-sm:w-24!", "max-sm:w-auto!"] as const;
+
 // Header labels, insertion order = column order = *_COL_WIDTHS order.
 export const ENTRY_HEADERS = {
   number: "No.",
@@ -84,6 +98,16 @@ if (import.meta.vitest) {
 
   test("every status header has a column width: a new column must update both or the fixed layout breaks", () => {
     expect(Object.values(STATUS_HEADERS).length).toBe(STATUS_COL_WIDTHS.length);
+  });
+
+  test("every column has a mobile override slot: misaligned arrays shift cells into the wrong columns", () => {
+    expect(ENTRY_MOBILE_COLS.length).toBe(ENTRY_COL_WIDTHS.length);
+    expect(STATUS_MOBILE_COLS.length).toBe(STATUS_COL_WIDTHS.length);
+  });
+
+  test("the name column survives on mobile: it carries the row link and the morph pairing", () => {
+    expect(ENTRY_MOBILE_COLS[1]).not.toBeNull();
+    expect(STATUS_MOBILE_COLS[1]).not.toBeNull();
   });
 
   const minimalEntryRow: EntryRow = {

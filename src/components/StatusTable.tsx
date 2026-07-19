@@ -1,7 +1,7 @@
 import { createColumnHelper } from "@tanstack/react-table";
 
 import type { StatusRow } from "../lib/status.ts";
-import { STATUS_COL_WIDTHS, STATUS_HEADERS } from "../lib/table.ts";
+import { STATUS_COL_WIDTHS, STATUS_HEADERS, STATUS_MOBILE_COLS } from "../lib/table.ts";
 import { STATUS_HEAD_VT } from "../lib/transitions.ts";
 import SortableTable, { rowLink } from "./SortableTable.tsx";
 
@@ -32,6 +32,7 @@ export default function StatusTable({ rows }: { rows: StatusRow[] }) {
       columns={columns}
       initialSorting={[{ id: "id", desc: true }]}
       colWidths={STATUS_COL_WIDTHS}
+      mobileCols={STATUS_MOBILE_COLS}
       headVt={STATUS_HEAD_VT}
       markerHref={(row) => row.entryHref}
     />

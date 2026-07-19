@@ -14,6 +14,26 @@
   animation-duration: 0.3s;
 }
 
+/* Below sm (Tailwind's 40rem) rows fade out while sliding under the panel's
+   background-less sticky header band (one header row, 1.75rem) — docs/adr/0014.
+   Scroll-driven; browsers without animation-timeline just overlap. */
+@media (width < 40rem) {
+  [data-table-panel] tbody tr {
+    /* var() indirection: lightningcss otherwise merges animation-timeline
+       into the animation shorthand, which browsers reject whole
+       (docs/findings/0008). */
+    --fade-timeline: view(block 1.75rem 0);
+    animation: fade-under-header linear both;
+    animation-timeline: var(--fade-timeline);
+    animation-range: exit;
+  }
+}
+@keyframes fade-under-header {
+  to {
+    opacity: 0;
+  }
+}
+
 /* Custom map markers: color = collection (project = #ff5031, KAP'92 = #0009f3),
    fill = visited (solid = visited, outline only = not visited). */
 .map-marker {

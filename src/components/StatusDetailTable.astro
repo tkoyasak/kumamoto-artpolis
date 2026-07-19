@@ -4,6 +4,7 @@ import {
   type DetailRow,
   STATUS_COL_WIDTHS,
   STATUS_HEADERS,
+  STATUS_MOBILE_COLS,
   statusDetailCells,
 } from "../lib/table.ts";
 import { STATUS_HEAD_VT } from "../lib/transitions.ts";
@@ -33,6 +34,7 @@ const detailRows: DetailRow[] = rows.map((row) => ({
   headers={headers}
   rows={detailRows}
   colWidths={STATUS_COL_WIDTHS}
+  mobileCols={STATUS_MOBILE_COLS}
   headVt={STATUS_HEAD_VT}
   subject={subject}
   backHref="/status"

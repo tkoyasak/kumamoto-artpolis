@@ -24,6 +24,8 @@ export type TableHeader = {
 export type TableViewRow = {
   // data-row-href: navigation target + View Transition pairing key.
   href: string;
+  // data-row-marker: the map's touch-select scrolls the matching row into view.
+  markerHref?: string;
   category: Category;
   outlined: boolean;
   cells: ComponentChildren[];
@@ -38,22 +40,43 @@ export type TableViewRow = {
 
 type Props = {
   colWidths: readonly string[];
+  // Per-column below-sm override (table.ts): width class, or null = hidden there.
+  mobileCols: readonly (string | null)[];
   headVt: string;
   headers: TableHeader[];
   rows: TableViewRow[];
+  // The fullscreen pages' island: below sm it becomes the fixed bottom panel
+  // (the map keeps the top 40svh) with its own scroll and a sticky header.
+  panel?: boolean;
 };
 
-export default function TableView({ colWidths, headVt, headers, rows }: Props) {
+// Shared cell classes, kept whitespace-delimited for Tailwind's scanner
+// (docs/findings/0007).
+const CELL = "truncate py-1 pr-4 text-sm first:pl-4 max-sm:pr-2 max-sm:first:pl-2";
+const STICKY_HEAD = "max-sm:sticky max-sm:top-0";
+
+export default function TableView({ colWidths, mobileCols, headVt, headers, rows, panel }: Props) {
+  // A dropped column keeps its cells in flow as invisible zero-width boxes —
+  // display:none cells shift columns under table-fixed (docs/findings/0005).
+  const collapsedBelowSm = (i: number): string =>
+    mobileCols[i] === null ? "max-sm:invisible max-sm:px-0!" : "";
   return (
     // Margins sit outside `max-w-full`, so the max-width subtracts the gutter.
-    <section className="relative mx-4 w-fit max-w-[calc(100%-2rem)] overflow-x-auto py-4 sm:mx-8 sm:max-w-[calc(100%-4rem)]">
+    <section
+      data-table-panel={panel ? "" : undefined}
+      className={
+        panel
+          ? "max-sm:fixed max-sm:inset-x-0 max-sm:top-[40svh] max-sm:bottom-0 max-sm:overflow-y-auto max-sm:px-2 max-sm:pb-2 sm:relative sm:mx-8 sm:w-fit sm:max-w-[calc(100%-4rem)] sm:overflow-x-auto sm:py-4"
+          : "relative mx-2 max-w-[calc(100%-1rem)] overflow-x-auto py-4 sm:mx-8 sm:w-fit sm:max-w-[calc(100%-4rem)]"
+      }
+    >
       <table
-        className="table-fixed border-collapse text-base"
+        className="table-fixed border-collapse text-base max-sm:w-full!"
         style={{ width: tableWidth(colWidths) }}
       >
         <colgroup>
           {colWidths.map((w, i) => (
-            <col key={i} style={{ width: w }} />
+            <col key={i} className={mobileCols[i] ?? "max-sm:w-0!"} style={{ width: w }} />
           ))}
         </colgroup>
         <thead>
@@ -62,7 +85,9 @@ export default function TableView({ colWidths, headVt, headers, rows }: Props) {
               <th
                 key={i}
                 aria-sort={header.ariaSort}
-                className="truncate py-1 pr-4 text-sm font-normal first:pl-4"
+                className={[CELL, "font-normal", collapsedBelowSm(i), panel ? STICKY_HEAD : ""]
+                  .join(" ")
+                  .trim()}
               >
                 {header.node}
               </th>
@@ -74,6 +99,7 @@ export default function TableView({ colWidths, headVt, headers, rows }: Props) {
             <tr
               key={row.href}
               data-row-href={row.href}
+              data-row-marker={row.markerHref ?? row.href}
               data-row-flourish={row.flourish ? "" : undefined}
               style={
                 row.transitionName !== undefined
@@ -86,7 +112,7 @@ export default function TableView({ colWidths, headVt, headers, rows }: Props) {
               className={rowClass(row.category, row.outlined)}
             >
               {row.cells.map((cell, i) => (
-                <td key={i} className="truncate py-1 pr-4 text-sm first:pl-4">
+                <td key={i} className={`${CELL} ${collapsedBelowSm(i)}`.trim()}>
                   {cell}
                 </td>
               ))}
@@ -104,6 +130,7 @@ export function DetailTableView({
   headers,
   rows,
   colWidths,
+  mobileCols,
   headVt,
   subject = false,
   backHref,
@@ -111,6 +138,7 @@ export function DetailTableView({
   headers: string[];
   rows: DetailRow[];
   colWidths: readonly string[];
+  mobileCols: readonly (string | null)[];
   headVt: string;
   subject?: boolean;
   backHref: string;
@@ -119,6 +147,7 @@ export function DetailTableView({
   return (
     <TableView
       colWidths={colWidths}
+      mobileCols={mobileCols}
       headVt={headVt}
       headers={headers.map((header) => ({ node: header }))}
       rows={rows.map((row) => {
@@ -127,6 +156,7 @@ export function DetailTableView({
         const marker = row.markerHref ?? row.href;
         return {
           href: row.href,
+          markerHref: marker,
           category: row.category,
           outlined: subject || isRowHighlighted(hovered, row.href, marker),
           transitionName: subject ? rowTransitionName(row.href) : undefined,

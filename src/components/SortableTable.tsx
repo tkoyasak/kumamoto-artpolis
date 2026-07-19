@@ -51,6 +51,7 @@ type Props<Row extends TableRow, GroupKey extends string> = {
   // Load-time sort; the server renders this order, so no shift on hydration.
   initialSorting: SortingState;
   colWidths: readonly string[];
+  mobileCols: readonly (string | null)[];
   headVt: string;
   // Ordered row groups; sorting reorders only within a group. NoInfer makes
   // `keys` authoritative — a total function that can't drop or duplicate a row.
@@ -65,6 +66,7 @@ export default function SortableTable<Row extends TableRow, GroupKey extends str
   columns,
   initialSorting,
   colWidths,
+  mobileCols,
   headVt,
   groups,
   markerHref,
@@ -92,7 +94,9 @@ export default function SortableTable<Row extends TableRow, GroupKey extends str
 
   return (
     <TableView
+      panel
       colWidths={colWidths}
+      mobileCols={mobileCols}
       headVt={headVt}
       headers={table.getFlatHeaders().map((header) => {
         const sorted = header.column.getIsSorted();
@@ -117,6 +121,7 @@ export default function SortableTable<Row extends TableRow, GroupKey extends str
         const marker = markerHref?.(row.original) ?? row.original.href;
         return {
           href: row.original.href,
+          markerHref: marker,
           category: row.original.category,
           outlined: isRowHighlighted(hovered, row.original.href, marker),
           flourish: true,

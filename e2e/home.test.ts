@@ -24,6 +24,12 @@ test("every catalog entry surfaces as a home table row linking its detail page â
   }
 });
 
+test("the first cell keeps its lead padding â€” a utility glued to a `${}` template boundary is invisible to Tailwind's scanner and silently drops from the CSS", async ({
+  page,
+}) => {
+  await expect(page.locator("tbody td").first()).toHaveCSS("padding-left", "16px");
+});
+
 test("every column is a sort button and the table loads sorted by its first column (No.) descending", async ({
   page,
 }) => {

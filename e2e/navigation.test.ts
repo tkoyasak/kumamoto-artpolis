@@ -48,14 +48,21 @@ test("the map layer is hidden server-side off the fullscreen pages, so links are
   await expect(page.locator(`#${MAP_LAYER_ID}`)).toBeHidden();
 });
 
-test("aria-current='page' marks only the link to the page you are on — detail pages claim no nav link at all", async ({
+test("aria-current='page' marks only the links to the page you are on — detail pages claim no nav link at all", async ({
   page,
 }) => {
+  // The nav renders twice (mobile bar + interleaved desktop links), so every
+  // aria-current link must point at the current page.
+  const currentHrefs = () =>
+    page
+      .locator('a[aria-current="page"]')
+      .evaluateAll((links) => links.map((link) => link.getAttribute("href")));
+
   await page.goto("/about");
-  await expect(page.locator('a[aria-current="page"]')).toHaveAttribute("href", "/about");
+  expect(await currentHrefs()).toEqual(["/about", "/about"]);
 
   await page.goto("/status");
-  await expect(page.locator('a[aria-current="page"]')).toHaveAttribute("href", "/status");
+  expect(await currentHrefs()).toEqual(["/status", "/status"]);
 
   await page.goto(firstProjectHref);
   await expect(page.locator("[aria-current]")).toHaveCount(0);

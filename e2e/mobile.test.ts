@@ -84,28 +84,47 @@ test("tapping outside the map clears the ring and disarms the two-tap latch toge
   await expect(marker).toHaveClass(/marker-active/);
 });
 
-test("a deep-linked detail page still fits the camera panel-aware: back home, every marker sits inside the map strip — the camera fits once and never moves (ADR 0007)", async ({
+test("the below-sm camera opens zoomed in on Kumamoto Castle (ADR 0016) and a detail round-trip never moves it — detail pages crop, they don't move the camera (ADR 0007)", async ({
   page,
 }) => {
+  const total = contentIds("projects").length + contentIds("kap92").length;
+
   await page.goto(firstProjectHref);
   await expect(page.locator(".map-marker:visible")).toHaveCount(1);
 
   await page.locator('[data-nav-bar] a[href="/"]').tap();
   await expect(page).toHaveURL("/");
-  await expect(page.locator(".map-marker:visible")).toHaveCount(
-    contentIds("projects").length + contentIds("kap92").length,
-  );
+  await expect(page.locator(".map-marker:visible")).toHaveCount(total);
 
-  const panel = await page.locator("[data-table-panel]").boundingBox();
-  const nav = await page.locator("[data-nav-bar]").boundingBox();
-  if (!panel || !nav) throw new Error("no panel or nav box");
-  const centers = await page
-    .locator(".map-marker")
-    .evaluateAll((els) =>
-      els.map((el) => el.getBoundingClientRect().y + el.getBoundingClientRect().height / 2),
+  const markerCenters = () =>
+    page.locator(".map-marker").evaluateAll((els) =>
+      els.map((el) => {
+        const r = el.getBoundingClientRect();
+        return [r.x + r.width / 2, r.y + r.height / 2] as [number, number];
+      }),
     );
-  expect(Math.max(...centers)).toBeLessThan(panel.y + 2);
-  expect(Math.min(...centers)).toBeGreaterThan(nav.y + nav.height);
+
+  const viewport = page.viewportSize();
+  if (!viewport) throw new Error("no viewport");
+  const before = await markerCenters();
+  // Zoomed in on the castle, not fit to every marker: the catalog's spread runs
+  // off the bottom of the strip instead of every marker landing inside it.
+  expect(Math.max(...before.map(([, y]) => y))).toBeGreaterThan(viewport.height);
+
+  // A client-side detail round-trip leaves the persisted camera identical.
+  await page.locator(`tbody tr[data-row-marker="${firstProjectHref}"]`).first().tap();
+  await expect(page).toHaveURL(firstProjectHref);
+  await page.locator('[data-nav-bar] a[href="/"]').tap();
+  await expect(page).toHaveURL("/");
+
+  const after = await markerCenters();
+  expect(after.length).toBe(before.length);
+  before.forEach(([bx, by], i) => {
+    const a = after[i];
+    if (!a) throw new Error("marker count changed across navigation");
+    expect(Math.abs(a[0] - bx)).toBeLessThan(1);
+    expect(Math.abs(a[1] - by)).toBeLessThan(1);
+  });
 });
 
 test("rows fade out as they slide under the background-less sticky header, instead of colliding with its text", async ({

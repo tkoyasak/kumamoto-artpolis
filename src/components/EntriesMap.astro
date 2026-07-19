@@ -16,10 +16,13 @@ import "maplibre-gl/dist/maplibre-gl.css";
   import { $hovered, isMarkerOutlined } from "../lib/stores.ts";
 
   const STYLE_URL = "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json";
-  const FALLBACK_CENTER: [number, number] = [130.7417, 32.7898]; // Kumamoto City
-  const FALLBACK_ZOOM = 8;
   // Side (CSS px) of the square the map is cropped to on detail pages.
   const FOCUS_CLIP_SIZE = 256;
+  // The initial camera opens centered on Kumamoto Castle at a fixed zoom rather
+  // than fitting every marker (docs/adr/0016); entries near the edges start
+  // off-screen — panning reveals them. padding frames it panel-aware below sm.
+  const INITIAL_CENTER: [number, number] = [130.7059, 32.8062]; // Kumamoto Castle
+  const INITIAL_ZOOM = 11;
 
   function currentPath(): string {
     return normalizePath(location.pathname);
@@ -28,8 +31,8 @@ import "maplibre-gl/dist/maplibre-gl.css";
   // Below sm the fixed table panel covers everything under 40svh; pad the
   // initial fit so every marker starts inside the visible strip — also on
   // panel-less pages (a deep-linked detail page), whose camera persists.
-  function fitPadding(): number | { top: number; right: number; bottom: number; left: number } {
-    if (!matchMedia("(width < 40rem)").matches) return 64;
+  function fitPadding(): { top: number; right: number; bottom: number; left: number } {
+    if (!matchMedia("(width < 40rem)").matches) return { top: 64, right: 64, bottom: 64, left: 64 };
     const panelTop =
       document.querySelector("[data-table-panel]")?.getBoundingClientRect().top ??
       0.4 * document.documentElement.clientHeight;
@@ -46,13 +49,12 @@ import "maplibre-gl/dist/maplibre-gl.css";
     const map = new maplibregl.Map({
       container,
       style: STYLE_URL,
-      center: FALLBACK_CENTER,
-      zoom: FALLBACK_ZOOM,
+      center: INITIAL_CENTER,
+      zoom: INITIAL_ZOOM,
     });
     map.addControl(new maplibregl.NavigationControl(), "top-right");
 
     const markers = new Map<string, Marker>();
-    const bounds = new maplibregl.LngLatBounds();
     // Registered in arrival order so later markers paint on top.
     for (const entry of entries) {
       const lngLat: [number, number] = [entry.lng, entry.lat];
@@ -113,10 +115,11 @@ import "maplibre-gl/dist/maplibre-gl.css";
         activate();
       });
       markers.set(entry.href, marker);
-      bounds.extend(lngLat);
     }
-    // animate:false so project() (the detail-page clip) is valid as soon as this resolves.
-    if (!bounds.isEmpty()) map.fitBounds(bounds, { padding: fitPadding(), maxZoom: 12, animate: false });
+    // Frame the fixed initial camera panel-aware (below sm the padding reserves
+    // the strip above the table panel). jumpTo is synchronous, so project()
+    // (the detail-page clip) is valid as soon as this resolves.
+    map.jumpTo({ center: INITIAL_CENTER, zoom: INITIAL_ZOOM, padding: fitPadding() });
 
     // A background tap clears the touch selection, mirroring mouseleave; it
     // fires for marker clicks too, so filter by target (docs/findings/0006).

@@ -1,7 +1,7 @@
 import { createColumnHelper } from "@tanstack/react-table";
 
 import type { EntryRow } from "../lib/entries.ts";
-import { ENTRY_COL_WIDTHS, ENTRY_HEADERS } from "../lib/table.ts";
+import { ENTRY_COL_WIDTHS, ENTRY_HEADERS, ENTRY_MOBILE_COLS } from "../lib/table.ts";
 import { ENTRY_HEAD_VT } from "../lib/transitions.ts";
 import SortableTable, { rowLink } from "./SortableTable.tsx";
 
@@ -43,6 +43,7 @@ export default function EntriesTable({ rows }: { rows: EntryRow[] }) {
       columns={columns}
       initialSorting={[{ id: "number", desc: true }]}
       colWidths={ENTRY_COL_WIDTHS}
+      mobileCols={ENTRY_MOBILE_COLS}
       headVt={ENTRY_HEAD_VT}
       groups={{ keys: ["project", "kap92"], of: (row) => row.category }}
     />

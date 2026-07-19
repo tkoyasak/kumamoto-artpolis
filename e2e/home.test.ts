@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-import { contentIds, firstOf, hydrated, routeMapStyle } from "./helpers.ts";
+import { contentIds, firstOf, hydrated, pointableMarkerHref, routeMapStyle } from "./helpers.ts";
 
 const projectIds = contentIds("projects");
 const kap92Ids = contentIds("kap92");
@@ -22,6 +22,12 @@ test("every catalog entry surfaces as a home table row linking its detail page �
   for (const id of kap92Ids) {
     await expect(page.locator(`tbody a[href="/kap92/${id}"]`)).toBeVisible();
   }
+});
+
+test("the first cell keeps its lead padding — a utility glued to a `${}` template boundary is invisible to Tailwind's scanner and silently drops from the CSS", async ({
+  page,
+}) => {
+  await expect(page.locator("tbody td").first()).toHaveCSS("padding-left", "16px");
 });
 
 test("every column is a sort button and the table loads sorted by its first column (No.) descending", async ({
@@ -93,21 +99,7 @@ test("clicking a marker navigates to its entry's detail page, like clicking the 
 }) => {
   await expect(page.locator(".map-marker")).toHaveCount(entryCount);
 
-  // The table island overlays the map, and entries geocoded to the same 大字
-  // share a centroid and stack — so ask the page which marker would actually
-  // receive a pointer click at its center, and click that one.
-  const href = await page.evaluate(() => {
-    for (const el of document.querySelectorAll<HTMLElement>(".map-marker")) {
-      const r = el.getBoundingClientRect();
-      const cx = r.x + r.width / 2;
-      const cy = r.y + r.height / 2;
-      if (cx < 0 || cy < 0 || cx > window.innerWidth || cy > window.innerHeight) continue;
-      const hit = document.elementFromPoint(cx, cy);
-      if (hit && (hit === el || el.contains(hit))) return el.dataset.href ?? null;
-    }
-    return null;
-  });
-  if (!href) throw new Error("no marker receives a click at its center");
+  const href = await pointableMarkerHref(page);
   await page.locator(`.map-marker[data-href="${href}"]`).click();
   await expect(page).toHaveURL(href);
 });

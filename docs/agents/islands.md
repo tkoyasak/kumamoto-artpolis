@@ -41,7 +41,8 @@ ClientRouter's View Transition.
   names the incoming row for the page being left, adds the `outline` class so
   the snapshot carries it, drops that class off the live row on
   `viewTransition.ready`, and clears the temporary name on `finished`.
-- Rows expose `data-row-href` (the morph and the e2e suite match on it) and
+- Rows expose `data-row-href` (the morph and the e2e suite match on it),
+  `data-row-marker` (the map's touch-select scrolls to it), and
   `data-row-flourish`.
 
 ## Map
@@ -77,3 +78,28 @@ ClientRouter's View Transition.
 - Hover state has to survive a client swap, and two swap behaviors fight it —
   `syncVisibility` re-seeds from the persisted markers, `pendingPath` bridges
   the in-flight ring.
+
+## Below sm
+
+- The sortable islands render as a fixed bottom panel (`data-table-panel`,
+  `TableView`'s `panel` prop): the map keeps the top 40svh as its interactive
+  strip, the panel scrolls internally under a sticky background-less header —
+  rows fade out as they slide under its band (a scroll-driven animation in
+  `global.css`) — and the fullscreen-map pages have no page scroll.
+- Columns collapse to the `*_MOBILE_COLS` subset (`src/lib/table.ts`) — entry
+  tables keep No./Name/Year, status keeps Date/Name — in the detail tables
+  too, so the morph pair's shapes stay identical. A collapsed column keeps its
+  cells in flow as invisible zero-width boxes.
+- The nav is one fixed horizontal bar on every page (`Base.astro`); the
+  interleaved desktop links are `display:none` there.
+- The map's initial `fitBounds` pads its top past the nav bar and its bottom
+  to the 40svh strip — measured from the panel when present, derived from the
+  viewport on pages without one — so every marker starts inside the visible
+  strip on the fullscreen pages, wherever the map initialized.
+- On `(hover: none)` devices a marker's first tap takes the hover role — sets
+  `$hovered`, rings the marker, scrolls the matching `data-row-marker` row
+  into view — and a second tap navigates; a background tap clears. Every
+  write that clears `$hovered` also disarms the two-tap latch. Marker
+  elements stop `touchstart`/`touchend` propagation so taps never enter
+  maplibre's gesture pipeline, and the background-click handler filters out
+  clicks whose target is a marker.

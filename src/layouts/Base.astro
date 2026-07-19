@@ -32,8 +32,19 @@ const ariaCurrent = (href: string): "page" | undefined =>
 const fullscreenMap = FULLSCREEN_MAP_PATHS.includes(path);
 
 // `w-fit` leaves the rest of each line click-through to the map layer below;
-// `z-20` paints the text above it.
-const navLink = "relative z-20 block w-fit font-medium text-base";
+// `z-20` paints the text above it. Below sm the interleaved links give way to
+// the fixed nav bar; display:none keeps their transition names out of the
+// view transition there.
+const navLink = "relative z-20 hidden w-fit font-medium text-base sm:block";
+
+// The nav destinations, rendered twice: the below-sm fixed bar and the
+// interleaved desktop links.
+const navLinks = [
+  { href: "/", label: "Kumamoto Artpolis" },
+  { href: "/status", label: "Status" },
+  { href: "/about", label: "About" },
+] as const;
+const [navHome, navStatus, navAbout] = navLinks;
 ---
 
 <!doctype html>
@@ -46,7 +57,12 @@ const navLink = "relative z-20 block w-fit font-medium text-base";
     <title>{title}</title>
     <ClientRouter />
   </head>
-  <body data-map-lat={mapFocus?.lat} data-map-lng={mapFocus?.lng} data-map-href={mapFocus?.href}>
+  <body
+    class="max-sm:pt-12"
+    data-map-lat={mapFocus?.lat}
+    data-map-lng={mapFocus?.lng}
+    data-map-href={mapFocus?.href}
+  >
     <div
       id={MAP_LAYER_ID}
       class="pointer-events-auto fixed inset-0"
@@ -56,31 +72,51 @@ const navLink = "relative z-20 block w-fit font-medium text-base";
       <EntriesMap />
     </div>
 
+    {/* The below-sm nav: one fixed bar on every page (the interleaved links
+        below are display:none there). No background, like the desktop links;
+        pointer-events pass through the bar to the map except on the links. */}
+    <nav
+      data-nav-bar
+      class="pointer-events-none fixed inset-x-0 top-0 z-20 flex items-baseline gap-x-4 px-4 py-3 sm:hidden"
+    >
+      {
+        navLinks.map(({ href, label }) => (
+          <a
+            href={href}
+            aria-current={ariaCurrent(href)}
+            class="pointer-events-auto font-medium text-base"
+          >
+            {label}
+          </a>
+        ))
+      }
+    </nav>
+
     <slot name="top" />
 
     {/* Stable transition names so the nav links morph to their new vertical
         position as each page injects content between them. */}
     <a
-      href="/"
+      href={navHome.href}
       transition:name="nav-home"
-      aria-current={ariaCurrent("/")}
-      class:list={[navLink, "px-4 py-4 sm:px-8"]}>Kumamoto Artpolis</a
+      aria-current={ariaCurrent(navHome.href)}
+      class:list={[navLink, "px-4 py-4 sm:px-8"]}>{navHome.label}</a
     >
     <slot name="entry" />
 
     <a
-      href="/status"
+      href={navStatus.href}
       transition:name="nav-status"
-      aria-current={ariaCurrent("/status")}
-      class:list={[navLink, "px-4 py-4 sm:px-8"]}>Status</a
+      aria-current={ariaCurrent(navStatus.href)}
+      class:list={[navLink, "px-4 py-4 sm:px-8"]}>{navStatus.label}</a
     >
     <slot name="status" />
 
     <a
-      href="/about"
+      href={navAbout.href}
       transition:name="nav-about"
-      aria-current={ariaCurrent("/about")}
-      class:list={[navLink, "px-4 py-4 sm:px-8"]}>About</a
+      aria-current={ariaCurrent(navAbout.href)}
+      class:list={[navLink, "px-4 py-4 sm:px-8"]}>{navAbout.label}</a
     >
     <slot name="about" />
   </body>

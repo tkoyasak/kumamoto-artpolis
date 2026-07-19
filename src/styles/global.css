@@ -14,6 +14,35 @@
   animation-duration: 0.3s;
 }
 
+/* The panel's sticky header band height: the header cells (TableView's
+   STICKY_HEAD) and the row-fade timeline below both read it. */
+:root {
+  --sticky-head: 1.75rem;
+}
+
+/* Below sm (Tailwind's 40rem) rows fade out while sliding under the panel's
+   background-less sticky header band — docs/adr/0014. @supports-gated so
+   engines without scroll-driven animations just overlap instead of hiding
+   every row (docs/findings/0009). */
+@media (width < 40rem) {
+  @supports (animation-timeline: view()) {
+    [data-table-panel] tbody tr {
+      /* var() indirection: lightningcss otherwise merges animation-timeline
+         into the animation shorthand, which browsers reject whole
+         (docs/findings/0008). */
+      --fade-timeline: view(block var(--sticky-head) 0);
+      animation: fade-under-header linear both;
+      animation-timeline: var(--fade-timeline);
+      animation-range: exit;
+    }
+  }
+}
+@keyframes fade-under-header {
+  to {
+    opacity: 0;
+  }
+}
+
 /* Custom map markers: color = collection (project = #ff5031, KAP'92 = #0009f3),
    fill = visited (solid = visited, outline only = not visited). */
 .map-marker {

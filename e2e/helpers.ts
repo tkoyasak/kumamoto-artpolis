@@ -48,3 +48,22 @@ export async function routeMapStyle(page: Page): Promise<void> {
     route.fulfill({ json: { version: 8, sources: {}, layers: [] } }),
   );
 }
+
+// The table island overlays the map, and entries geocoded to the same 大字
+// share a centroid and stack — so ask the page which marker would actually
+// receive a pointer at its center, and target that one.
+export async function pointableMarkerHref(page: Page): Promise<string> {
+  const href = await page.evaluate(() => {
+    for (const el of document.querySelectorAll<HTMLElement>(".map-marker")) {
+      const r = el.getBoundingClientRect();
+      const cx = r.x + r.width / 2;
+      const cy = r.y + r.height / 2;
+      if (cx < 0 || cy < 0 || cx > window.innerWidth || cy > window.innerHeight) continue;
+      const hit = document.elementFromPoint(cx, cy);
+      if (hit && (hit === el || el.contains(hit))) return el.dataset.href ?? null;
+    }
+    return null;
+  });
+  if (!href) throw new Error("no marker receives a pointer at its center");
+  return href;
+}

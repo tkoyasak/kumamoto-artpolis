@@ -8,6 +8,7 @@ interface Props {
   headers: string[];
   rows: DetailRow[];
   colWidths: readonly string[];
+  mobileCols: readonly (string | null)[];
   headVt: string;
   // The row is the page's own subject (a detail page's single row): always
   // outlined, carries its transition name up front, clicks back to backHref.
@@ -16,7 +17,7 @@ interface Props {
   backHref: string;
 }
 
-const { headers, rows, colWidths, headVt, subject = false, backHref } = Astro.props;
+const { headers, rows, colWidths, mobileCols, headVt, subject = false, backHref } = Astro.props;
 ---
 
 <DetailTableView
@@ -24,6 +25,7 @@ const { headers, rows, colWidths, headVt, subject = false, backHref } = Astro.pr
   headers={headers}
   rows={rows}
   colWidths={colWidths}
+  mobileCols={mobileCols}
   headVt={headVt}
   subject={subject}
   backHref={backHref}

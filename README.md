@@ -28,24 +28,21 @@ site is a personal catalog of those works and a record of visiting them.
 
 ## Engineering highlights
 
-Small site, deliberately over-built — the interesting decisions are written up
-in [`docs/adr/`](docs/adr) and [`docs/findings/`](docs/findings):
+Small site, deliberately over-built. A few pieces I'm happy with:
 
-- **The map persists across navigation.** It's a single MapLibre instance under
-  `transition:persist` that survives page swaps instead of re-initializing —
-  detail pages just `clip-path`-crop it around the focused marker rather than
-  moving the camera. See [ADR 0005](docs/adr/0005-the-map-persists-across-navigation.md)
-  and [finding 0002](docs/findings/0002-persisting-the-map-across-navigation.md).
-- **Clicking a row morphs it into the detail page.** Over the View Transition,
-  only the clicked row is named for the morph, so a single row animates into the
-  detail page's subject row and back. See [ADR 0006](docs/adr/0006-only-the-clicked-row-is-named-for-the-morph.md).
+- **The map persists across navigation.** A single MapLibre instance lives under
+  `transition:persist` and survives page swaps instead of re-initializing. A
+  detail page never moves the camera — it `clip-path`-crops the same map around
+  the focused marker.
+- **Clicking a row morphs it into the detail page.** Over a View Transition,
+  only the clicked row is named, so that one row animates into the detail page's
+  subject row and back.
 - **Two islands linked by shared state.** The table (Preact) and the map
   (vanilla MapLibre) are independent islands with no direct coupling — the hover
-  link rides entirely on one nanostore atom. See [ADR 0003](docs/adr/0003-the-home-page-is-two-islands-linked-by-a-nanostore.md).
+  link rides entirely on one nanostore atom.
 - **MapLibre is code-split, not preloaded.** The map library and its markers
-  load lazily when the map first shows, keeping it off the initial critical
-  path. See [ADR 0004](docs/adr/0004-maplibre-is-code-split-not-head-preloaded.md)
-  and [finding 0001](docs/findings/0001-maplibre-chunk-loading.md).
+  load lazily when the map first shows, keeping them off the initial critical
+  path.
 
 ## Stack
 
@@ -56,8 +53,8 @@ in [`docs/adr/`](docs/adr) and [`docs/findings/`](docs/findings):
 
 ## Development
 
-Tooling comes from the Nix flake devShell (via [direnv](https://direnv.net), or
-`nix develop`), and the package manager is [bun](https://bun.sh):
+Tooling comes from the Nix flake devShell (via direnv, or
+`nix develop`), and the package manager is bun:
 
 ```sh
 bun install

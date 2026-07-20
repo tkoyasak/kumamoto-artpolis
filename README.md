@@ -50,12 +50,7 @@ Small site, deliberately over-built. A few pieces I'm happy with:
 - Preact table island + MapLibre GL map island
 - Tailwind CSS
 - Cloudflare Workers static assets
-
-## Development
-
-Tooling comes from the Nix flake devShell (via direnv, or `nix develop`), and
-the package manager is bun. The commands — dev server, checks, unit tests,
-e2e — are in [`docs/agents/commands.md`](docs/agents/commands.md).
+- Nix flake devShell (via direnv, or `nix develop`), bun as the package manager
 
 ## Docs
 

@@ -53,16 +53,9 @@ Small site, deliberately over-built. A few pieces I'm happy with:
 
 ## Development
 
-Tooling comes from the Nix flake devShell (via direnv, or
-`nix develop`), and the package manager is bun:
-
-```sh
-bun install
-bun run dev
-```
-
-The full command set (checks, unit tests, e2e) is in
-[`docs/agents/commands.md`](docs/agents/commands.md).
+Tooling comes from the Nix flake devShell (via direnv, or `nix develop`), and
+the package manager is bun. The commands — dev server, checks, unit tests,
+e2e — are in [`docs/agents/commands.md`](docs/agents/commands.md).
 
 ## Docs
 

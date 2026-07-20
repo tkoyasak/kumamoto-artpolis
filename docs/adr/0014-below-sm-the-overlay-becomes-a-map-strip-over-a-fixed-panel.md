@@ -1,5 +1,10 @@
 # Below sm, the overlay becomes a map strip over a fixed table panel
 
+Superseded in part by: docs/adr/0016 — the initial camera opens centered on
+Kumamoto Castle, not the marker-fitting `fitBounds` (with panel-height bottom
+padding) described here. The rest (strip layout, two-tap select, column subset,
+nav bar) stands.
+
 Decided 2026-07-19.
 
 ## Context

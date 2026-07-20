@@ -34,5 +34,5 @@ Everything else lives one pointer away:
 - [`docs/agents/content-model.md`](docs/agents/content-model.md) — the typed catalog, the visit records, their schema, and the id/visit-date facts in full.
 - [`docs/agents/routing.md`](docs/agents/routing.md) — the page inventory.
 - [`docs/agents/islands.md`](docs/agents/islands.md) — the table and map islands and the hover-state seam linking them (sorting + row-morph, map persistence + detail clip-crop, the subjecthood ring).
-- **`docs/adr/`** — the immutable decision log: _why_ the code is shaped this way.
-- **`docs/findings/`** — immutable empirical findings: benchmarks, browser behavior.
+- **`docs/adr/`** — the frozen decision log: _why_ the code is shaped this way. Bodies are never rewritten; an overturned ADR gets a `Superseded by:` marker.
+- **`docs/findings/`** — frozen empirical findings: benchmarks, browser behavior. An outdated finding gets an `Invalidated by:` marker.

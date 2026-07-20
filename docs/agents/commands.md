@@ -13,7 +13,8 @@ bun devDependency.
 - `bun run geocode <address>...` — print the coordinates for a 所在地 and stop; you paste them into the entry (see content-model.md)
 - `bun run deploy` — build + `wrangler deploy --strict`. A push to `main` runs
   this automatically from the CI workflow's `deploy` job once `verify`
-  (check/test/e2e) is green; run it by hand only for an out-of-band deploy.
+  (check/test/e2e) is green; run it by hand only for an out-of-band deploy
+  (docs/adr/0015).
 - `bun run clean` — remove Astro caches, the Vite dep-optimizer cache
   (`node_modules/.vite`), and `dist/`. Clearing `.vite` is the fix for a dev
   server serving `504 Outdated Optimize Dep` (stale pre-bundle → islands stop

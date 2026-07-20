@@ -1,6 +1,6 @@
 # Routing
 
-Every page is prerendered (static Astro on Cloudflare Workers assets).
+Every page is prerendered (static Astro on Cloudflare Workers assets — docs/adr/0001).
 
 - `/` — home (table + fullscreen map)
 - `/projects/<id>`, `/kap92/<id>` — prerendered detail pages (`getStaticPaths`)

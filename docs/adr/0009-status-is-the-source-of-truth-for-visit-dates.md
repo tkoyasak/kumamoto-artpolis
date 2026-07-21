@@ -1,5 +1,9 @@
 # Visit dates live in the status collection, not on entries
 
+Superseded in part by: docs/adr/0013 — the entry reference is now one `entry`
+field, not the `project` XOR `kap92` pair below. The rest (status is the source
+of truth for visit dates, one record per visit) stands.
+
 Decided 2026-07-05.
 
 ## Context

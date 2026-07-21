@@ -4,7 +4,7 @@
 
 The two catalog collections are Markdown, one file per entry, read through
 Astro's glob loader. There is no data module and no generation step; the file is
-the source.
+the source (docs/adr/0012).
 
 - **`src/content/projects/`** — Artpolis commissioned new builds. Its
   `_excluded/` subdirectory holds the `excluded` collection: official-list rows
@@ -37,8 +37,8 @@ entry:
   id: kumamoto-castle
 ```
 
-There is one field, so a record cannot name two entries. `getEntry` takes
-`visit.data.entry` as is.
+There is one field, so a record cannot name two entries (docs/adr/0013).
+`getEntry` takes `visit.data.entry` as is.
 
 ## Ownership
 
@@ -47,7 +47,7 @@ against the prefecture's pages.
 
 ## Identity
 
-**The filename is the id.** The glob loader slugifies each entry's filename into
+**The filename is the id** (docs/adr/0008). The glob loader slugifies each entry's filename into
 its id: a stable, human-readable slug in lowercase, digits and dashes. It is the
 URL (`/projects/<id>`) and how `status` references an entry; the dynamic routes
 are all `[id].astro`. It carries no official number — `number` is display and
@@ -61,7 +61,7 @@ Visit records key the same way; their ids are datetimes.
 
 ## Visit dates
 
-**`status` is the source of truth for visit dates.** Entries don't store their
+**`status` is the source of truth for visit dates** (docs/adr/0009). Entries don't store their
 own; `getVisitsByEntry()` (`src/lib/visits.ts`) derives them for both
 collections, keyed by entry href (`/projects/<id>`, `/kap92/<id>`) so ids can't
 collide across collections.

@@ -1,7 +1,7 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "artpolis",
-  "compatibility_date": "2026-07-08",
+  "compatibility_date": "2026-07-22",
   "route": {
     "pattern": "artpolis.tkoyasak.dev",
     "custom_domain": true

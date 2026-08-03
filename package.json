@@ -17,22 +17,22 @@
     "@astrojs/preact": "6.0.1",
     "@nanostores/preact": "1.1.0",
     "@preact/compat": "18.3.2",
-    "@tailwindcss/vite": "4.3.2",
+    "@tailwindcss/vite": "4.3.3",
     "@tanstack/react-table": "8.21.3",
     "astro": "7.1.1",
     "maplibre-gl": "5.24.0",
-    "nanostores": "1.4.0",
+    "nanostores": "1.4.1",
     "preact": "10.29.7",
-    "tailwindcss": "4.3.2"
+    "tailwindcss": "4.3.3"
   },
   "devDependencies": {
     "@astrojs/check": "0.9.9",
-    "@playwright/test": "1.61.1",
+    "@playwright/test": "1.62.0",
     "@types/node": "26.1.1",
     "@vitest/coverage-v8": "4.1.10",
     "bun-types": "1.3.14",
     "vitest": "4.1.10",
-    "wrangler": "4.110.0"
+    "wrangler": "4.114.0"
   },
   "overrides": {
     "react": "$@preact/compat",
